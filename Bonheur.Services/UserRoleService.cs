@@ -2,9 +2,11 @@
 using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Models;
 using Bonheur.Repositories.Interfaces;
-using Bonheur.Services.DTOs.UserRole;
+using Bonheur.Services.DTOs.Account;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
+using System.Data;
+using static Bonheur.Utils.Constants;
 
 namespace Bonheur.Services
 {
@@ -20,7 +22,7 @@ namespace Bonheur.Services
             _mapper = mapper;
         }
 
-        public async Task<ApplicationResponse> CreateRoleAsync(CreateUserRoleDTO createUserRoleDTO, IEnumerable<string> claims)
+        public async Task<ApplicationResponse> CreateRoleAsync(UserRoleDTO createUserRoleDTO, IEnumerable<string> claims)
         {
             try
             {
@@ -48,50 +50,125 @@ namespace Bonheur.Services
 
                 };
 
-            } catch (ApiException)
+            }
+            catch (ApiException)
             {
                 throw;
 
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
             }
         }
 
-        public Task<ApplicationResponse> DeleteRoleAsync(string roleName)
+        public async Task<ApplicationResponse> GetRoleByIdAsync(string roleId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var role = await _userRoleRepository.GetRoleByIdAsync(roleId);
+
+                if (role == null)
+                {
+                    throw new ApiException("Role not found", System.Net.HttpStatusCode.NotFound);
+                }
+
+                var roleData = _mapper.Map<UserRoleDTO>(role);
+
+                return new ApplicationResponse
+                {
+                    Message = $"Role {role.Name} found",
+                    Data = roleData,
+                    Success = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
         }
 
-        public Task<ApplicationResponse> GetRoleByIdAsync(string roleId)
+        public async Task<ApplicationResponse> GetRoleByNameAsync(string roleName)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var role = await _userRoleRepository.GetRoleByNameAsync(roleName);
+
+                var rolesData = _mapper.Map<UserRoleDTO>(role);
+
+                return new ApplicationResponse
+                {
+                    Message = $"Role {roleName} found",
+                    Data = rolesData,
+                    Success = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
         }
 
-        public Task<ApplicationResponse> GetRoleByNameAsync(string roleName)
+        public async Task<ApplicationResponse> GetRoleLoadRelatedAsync(string roleName)
         {
-            throw new NotImplementedException();
-        }
 
-        public Task<ApplicationResponse> GetRoleLoadRelatedAsync(string roleName)
-        {
-            throw new NotImplementedException();
+            try
+            {
+                var role = await _userRoleRepository.GetRoleLoadRelatedAsync(roleName);
+
+                if (role == null)
+                {
+                    throw new ApiException("Role not found", System.Net.HttpStatusCode.NotFound);
+                }
+
+                var roleData = _mapper.Map<UserRoleDTO>(role);
+
+                return new ApplicationResponse
+                {
+                    Message = $"Role {role.Name} found",
+                    Data = roleData,
+                    Success = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
         }
 
         public async Task<ApplicationResponse> GetRolesLoadRelatedAsync(int page, int pageSize)
         {
             try
             {
-                var result = await _userRoleRepository.GetRolesLoadRelatedAsync(page, pageSize);
+                var roles = await _userRoleRepository.GetRolesLoadRelatedAsync(page, pageSize);
 
-                if (result == null)
+                if (roles == null)
                 {
                     throw new ApiException("No roles found", System.Net.HttpStatusCode.NotFound);
                 }
 
+                var rolesData = _mapper.Map<List<UserRoleDTO>>(roles);
+
                 return new ApplicationResponse
                 {
-                    Data = result,
+                    Data = rolesData,
                     Success = true,
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
@@ -102,9 +179,104 @@ namespace Bonheur.Services
             }
         }
 
-        public Task<ApplicationResponse> UpdateRoleAsync(ApplicationRole role, IEnumerable<string>? claims)
+        public Task<ApplicationResponse> GetAllPermissions()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var permissions = _mapper.Map<List<PermissionDTO>>(ApplicationPermissions.AllPermissions);
+
+                return Task.FromResult(new ApplicationResponse
+                {
+                    Data = permissions,
+                    Success = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                });
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<ApplicationResponse> UpdateRoleAsync(string id, UserRoleDTO userRoleDTO, IEnumerable<string>? claims)
+        {
+            try
+            {
+                if (userRoleDTO == null)
+                {
+                    throw new ApiException("Role cannot be null", System.Net.HttpStatusCode.BadRequest);
+                }
+
+                var existingRole = await _userRoleRepository.GetRoleByIdAsync(id);
+
+                if (existingRole == null)
+                {
+                    throw new ApiException("Role not found", System.Net.HttpStatusCode.NotFound);
+                }
+
+                _mapper.Map(userRoleDTO, existingRole);
+
+                var result = await _userRoleRepository.UpdateRoleAsync(existingRole, claims);
+
+                if (!result.Succeeded)
+                {
+                    throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
+                }
+
+                return new ApplicationResponse
+                {
+                    Message = $"Role {userRoleDTO.Name} updated successfully",
+                    Success = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+
+            }
+            catch (ApiException)
+            {
+                throw;
+
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
+
+        public async Task<ApplicationResponse> DeleteRoleAsync(string id)
+        {
+            try
+            {
+                var existingRole = await _userRoleRepository.GetRoleByIdAsync(id);
+
+                if (existingRole == null)
+                {
+                    throw new ApiException("Role not found", System.Net.HttpStatusCode.NotFound);
+                }
+
+                var result = await _userRoleRepository.DeleteRoleAsync(existingRole);
+
+                if (!result.Succeeded)
+                {
+                    throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
+                }
+
+                return new ApplicationResponse
+                {
+                    Message = $"Role {existingRole.Name} deleted successfully",
+                    Success = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
         }
     }
 }

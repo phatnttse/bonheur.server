@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonheur.Services.DTOs.UserAccount
+namespace Bonheur.Services.DTOs.Account
 {
     public class UserAccountDTO
     {

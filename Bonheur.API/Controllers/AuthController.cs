@@ -1,4 +1,4 @@
-﻿using Bonheur.Services.DTOs.UserAccount;
+﻿using Bonheur.Services.DTOs.Account;
 using Bonheur.Services.Interfaces;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
@@ -68,8 +68,7 @@ namespace Bonheur.API.Controllers
             }
             else if (request.IsRefreshTokenGrantType())
             {
-                var result =
-                    await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+                var result =  await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
 
                 var userId = result?.Principal?.GetClaim(Claims.Subject);
                 var user = userId != null ? await _authService.GetUserByIdAsync(userId) : null;
@@ -119,9 +118,9 @@ namespace Bonheur.API.Controllers
         [Route("signup")]
         [ProducesResponseType(400)]
         [ProducesResponseType(200)] 
-        public async Task<IActionResult> SignUp([FromBody] CreateAccountDTO createAccountDTO)
+        public async Task<IActionResult> SignUpUserAccount([FromBody] CreateAccountDTO createAccountDTO)
         {
-            return Ok(await _authService.SignUp(createAccountDTO));
+            return Ok(await _authService.SignUpUserAccount(createAccountDTO));
         }
 
     }

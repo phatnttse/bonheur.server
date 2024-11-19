@@ -19,6 +19,6 @@ namespace Bonheur.Repositories.Interfaces
         Task<(bool Succeeded, string[] Errors)> UpdateRoleAsync(ApplicationRole role,
             IEnumerable<string>? claims);
 
-        Task<(bool Succeeded, string[] Errors)> DeleteRoleAsync(string roleName);
+        Task<(bool Succeeded, string[] Errors)> DeleteRoleAsync(ApplicationRole role);
     }
 }

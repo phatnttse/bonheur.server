@@ -2,7 +2,7 @@
 using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Models;
 using Bonheur.Repositories.Interfaces;
-using Bonheur.Services.DTOs.UserAccount;
+using Bonheur.Services.DTOs.Account;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
 
