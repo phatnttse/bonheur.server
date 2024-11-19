@@ -1,6 +1,6 @@
 ﻿using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Models;
-using Bonheur.Services.DTOs.UserRole;
+using Bonheur.Services.DTOs.Account;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +15,11 @@ namespace Bonheur.Services.Interfaces
         Task<ApplicationResponse> GetRoleByNameAsync(string roleName);
         Task<ApplicationResponse> GetRoleLoadRelatedAsync(string roleName);
         Task<ApplicationResponse> GetRolesLoadRelatedAsync(int page, int pageSize);
-        Task<ApplicationResponse> CreateRoleAsync(CreateUserRoleDTO createUserRoleDTO,
+        Task<ApplicationResponse> GetAllPermissions();
+        Task<ApplicationResponse> CreateRoleAsync(UserRoleDTO createUserRoleDTO,
            IEnumerable<string> claims);
-        Task<ApplicationResponse> UpdateRoleAsync(ApplicationRole role,
+        Task<ApplicationResponse> UpdateRoleAsync(string id, UserRoleDTO userRoleDTO,
             IEnumerable<string>? claims);
-        Task<ApplicationResponse> DeleteRoleAsync(string roleName);
+        Task<ApplicationResponse> DeleteRoleAsync(string id);
     }
 }

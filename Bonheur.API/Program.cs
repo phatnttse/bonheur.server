@@ -21,6 +21,9 @@ using System.Text.Json.Serialization;
 using Bonheur.Services.Mappers;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Bonheur.Utils;
+using Bonheur.API.Authorization.Requirements;
+using Bonheur.BusinessObjects.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bonheur.API
 {
@@ -150,7 +153,20 @@ namespace Bonheur.API
                 o.DefaultChallengeScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
             });
 
-
+            // Add Authorization
+            builder.Services.AddAuthorizationBuilder()
+                .AddPolicy(AuthPolicies.ViewAllUsersPolicy,
+                    policy => policy.RequireClaim(CustomClaims.Permission, ApplicationPermissions.ViewUsers))
+                .AddPolicy(AuthPolicies.ManageAllUsersPolicy,
+                    policy => policy.RequireClaim(CustomClaims.Permission, ApplicationPermissions.ManageUsers))
+                .AddPolicy(AuthPolicies.ViewAllRolesPolicy,
+                    policy => policy.RequireClaim(CustomClaims.Permission, ApplicationPermissions.ViewRoles))
+                .AddPolicy(AuthPolicies.ViewRoleByRoleNamePolicy,
+                    policy => policy.Requirements.Add(new ViewRoleAuthorizationRequirement()))
+                .AddPolicy(AuthPolicies.ManageAllRolesPolicy,
+                    policy => policy.RequireClaim(CustomClaims.Permission, ApplicationPermissions.ManageRoles))
+                .AddPolicy(AuthPolicies.AssignAllowedRolesPolicy,
+                    policy => policy.Requirements.Add(new AssignRolesAuthorizationRequirement()));
 
             // Add cors
             builder.Services.AddCors();
@@ -224,6 +240,12 @@ namespace Bonheur.API
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IUserRoleService, UserRoleService>();
+
+            // Auth Handlers
+            builder.Services.AddSingleton<IAuthorizationHandler, ViewUserAuthorizationHandler>();
+            builder.Services.AddSingleton<IAuthorizationHandler, ManageUserAuthorizationHandler>();
+            builder.Services.AddSingleton<IAuthorizationHandler, ViewRoleAuthorizationHandler>();
+            builder.Services.AddSingleton<IAuthorizationHandler, AssignRolesAuthorizationHandler>();
 
             //File Logger
             builder.Logging.AddFile(builder.Configuration.GetSection("Logging"));

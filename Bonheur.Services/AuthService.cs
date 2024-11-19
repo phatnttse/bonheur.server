@@ -7,8 +7,8 @@ using static OpenIddict.Abstractions.OpenIddictConstants;
 using Bonheur.BusinessObjects.Models;
 using Bonheur.Repositories.Interfaces;
 using Bonheur.Utils;
-using Bonheur.Services.DTOs.UserAccount;
 using AutoMapper;
+using Bonheur.Services.DTOs.Account;
 
 namespace Bonheur.Services
 {
@@ -159,7 +159,7 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> SignUp(CreateAccountDTO createAccountDTO)
+        public async Task<ApplicationResponse> SignUpUserAccount(CreateAccountDTO createAccountDTO)
         {
             try
             {
