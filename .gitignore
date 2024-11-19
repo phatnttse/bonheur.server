@@ -1,0 +1,64 @@
+# .NET
+## Ignore the build output directories
+bin/
+obj/
+
+# User-specific files
+.idea/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ASP.NET Core
+wwwroot/
+
+# ASP.NET core user secrets
+secrets/
+
+# Local history
+.history/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows Installer files
+Thumbs.db
+ehthumbs.db
+
+# JetBrains Rider
+.idea/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Node.js dependencies (if applicable)
+node_modules/
+
+# Visual Studio for Mac
+.vscode/
+
+# User-specific files
+.vs/
+.vs2017/
+
+# Log files
+*.log
+
+# JetBrains Rider
+.idea/
+
+# Microsoft Azure Function App
+local.settings.json
+
+# VS Code settings
+.vscode/
+
+Logs/

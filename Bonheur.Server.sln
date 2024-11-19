@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonheur.API", "Bonheur.API\Bonheur.API.csproj", "{8E8E44F6-BDAC-47E2-95A3-97C91E532400}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonheur.BusinessObjects", "Bonheur.BusinessObjects\Bonheur.BusinessObjects.csproj", "{796329F3-C813-4B4B-9272-113C63A596B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonheur.DAOs", "Bonheur.DAOs\Bonheur.DAOs.csproj", "{4DBDFFD2-CE7B-47C0-BE87-9D5490F7D688}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonheur.Repositories", "Bonheur.Repositories\Bonheur.Repositories.csproj", "{D1ED39AD-2568-474F-97C9-FF7448B7C0D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonheur.Services", "Bonheur.Services\Bonheur.Services.csproj", "{D4338902-0B5A-44E1-AFC2-4DC490E9356F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonheur.Utils", "Bonheur.Utils\Bonheur.Utils.csproj", "{54CBFE10-84D2-4091-A496-A9766C331E88}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8E8E44F6-BDAC-47E2-95A3-97C91E532400}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E8E44F6-BDAC-47E2-95A3-97C91E532400}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E8E44F6-BDAC-47E2-95A3-97C91E532400}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E8E44F6-BDAC-47E2-95A3-97C91E532400}.Release|Any CPU.Build.0 = Release|Any CPU
+		{796329F3-C813-4B4B-9272-113C63A596B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{796329F3-C813-4B4B-9272-113C63A596B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{796329F3-C813-4B4B-9272-113C63A596B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{796329F3-C813-4B4B-9272-113C63A596B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DBDFFD2-CE7B-47C0-BE87-9D5490F7D688}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DBDFFD2-CE7B-47C0-BE87-9D5490F7D688}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DBDFFD2-CE7B-47C0-BE87-9D5490F7D688}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DBDFFD2-CE7B-47C0-BE87-9D5490F7D688}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1ED39AD-2568-474F-97C9-FF7448B7C0D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1ED39AD-2568-474F-97C9-FF7448B7C0D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1ED39AD-2568-474F-97C9-FF7448B7C0D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1ED39AD-2568-474F-97C9-FF7448B7C0D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4338902-0B5A-44E1-AFC2-4DC490E9356F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4338902-0B5A-44E1-AFC2-4DC490E9356F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4338902-0B5A-44E1-AFC2-4DC490E9356F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4338902-0B5A-44E1-AFC2-4DC490E9356F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54CBFE10-84D2-4091-A496-A9766C331E88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54CBFE10-84D2-4091-A496-A9766C331E88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54CBFE10-84D2-4091-A496-A9766C331E88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54CBFE10-84D2-4091-A496-A9766C331E88}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9D8B6D38-B433-4437-B39B-BC137397A5BA}
+	EndGlobalSection
+EndGlobal
