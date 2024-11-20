@@ -25,6 +25,6 @@ namespace Bonheur.Repositories
            IEnumerable<string> claims) => await _userRoleDAO.CreateRoleAsync(role, claims);
         public async Task<(bool Succeeded, string[] Errors)> UpdateRoleAsync(ApplicationRole role,
             IEnumerable<string>? claims) => await _userRoleDAO.UpdateRoleAsync(role, claims);
-        public async Task<(bool Succeeded, string[] Errors)> DeleteRoleAsync(string roleName) => await _userRoleDAO.DeleteRoleAsync(roleName);
+        public async Task<(bool Succeeded, string[] Errors)> DeleteRoleAsync(ApplicationRole role) => await _userRoleDAO.DeleteRoleAsync(role);
     }
 }

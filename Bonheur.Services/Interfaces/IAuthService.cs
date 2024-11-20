@@ -1,6 +1,6 @@
 ﻿using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Models;
-using Bonheur.Services.DTOs.UserAccount;
+using Bonheur.Services.DTOs.Account;
 using System.Security.Claims;
 
 
@@ -13,6 +13,8 @@ namespace Bonheur.Services.Interfaces
         Task<bool> CanSignInAsync(ApplicationUser user);
         Task<ApplicationUser> GetUserByIdAsync(string id);
         Task<ApplicationUser> GetUserByUsername(string username);
-        Task<ApplicationResponse> SignUp(CreateAccountDTO createAccountDTO);
+        Task<ApplicationResponse> SignUpUserAccount(CreateAccountDTO createAccountDTO);
+        Task<ApplicationResponse> ConfirmEmail(string email, string token);
+        Task<ApplicationUser> HandleGoogleLoginAsync(GoogleAccountDTO googleAccountDTO);
     }
 }

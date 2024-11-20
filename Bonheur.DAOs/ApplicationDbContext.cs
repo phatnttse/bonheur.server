@@ -47,7 +47,6 @@ namespace Bonheur.DAOs
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
-
             modelBuilder.Entity<ApplicationRole>()
                 .HasMany(r => r.Claims)
                 .WithOne()

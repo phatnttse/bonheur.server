@@ -1,4 +1,5 @@
 ﻿using Bonheur.BusinessObjects.Entities;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,5 +27,11 @@ namespace Bonheur.Repositories.Interfaces
             string currentPassword, string newPassword);
         Task<bool> CheckPasswordAsync(ApplicationUser user, string password);
         Task<(bool Succeeded, string[] Errors)> DeleteUserAsync(string userId);
+        Task<IdentityUserLogin<string>?> GetUserLoginAsync(string loginProvider, string providerKey);
+        Task<IdentityResult> AddLoginAsync(ApplicationUser user, UserLoginInfo loginInfo);
+        Task<(bool Succeeded, string[] Errors)> CreateUserNotPassword(ApplicationUser user,
+           IEnumerable<string> roles);
+        Task<string> GenereEmailConfirmationTokenAsync(ApplicationUser user);
+        Task<IdentityResult> ConfirmEmailAsync(ApplicationUser user, string token);
     }
 }

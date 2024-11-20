@@ -1,8 +1,8 @@
-﻿using Bonheur.Services.DTOs.UserAccount;
+﻿using Bonheur.Services.DTOs.Account;
 using Bonheur.Services.Interfaces;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
@@ -19,10 +19,12 @@ namespace Bonheur.API.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly IEmailSender _emailSender;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IEmailSender emailSender)
         {
             _authService = authService;
+            _emailSender = emailSender;
         }
 
         /// <summary>
@@ -46,7 +48,10 @@ namespace Bonheur.API.Controllers
                 var user = await _authService.GetUserByUsername(request.Username);
 
                 if (user == null)
-                    return GetForbidResult("Please check that your username and password is correct.");
+                    return GetForbidResult("Please check that your email and password is correct.");
+
+                if (!user.EmailConfirmed)
+                    return GetForbidResult("Email has not been confirmed. Please check your mailbox");
 
                 if (!user.IsEnabled)
                     return GetForbidResult("The specified user account is disabled.");
@@ -60,7 +65,7 @@ namespace Bonheur.API.Controllers
                     return GetForbidResult("The specified user is not allowed to sign in.");
 
                 if (!result.Succeeded)
-                    return GetForbidResult("Please check that your username and password is correct.");
+                    return GetForbidResult("Please check that your email and password is correct.");
 
                 var principal = await _authService.CreateClaimsPrincipalAsync(user, request.GetScopes());
 
@@ -68,8 +73,7 @@ namespace Bonheur.API.Controllers
             }
             else if (request.IsRefreshTokenGrantType())
             {
-                var result =
-                    await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+                var result =  await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
 
                 var userId = result?.Principal?.GetClaim(Claims.Subject);
                 var user = userId != null ? await _authService.GetUserByIdAsync(userId) : null;
@@ -119,10 +123,76 @@ namespace Bonheur.API.Controllers
         [Route("signup")]
         [ProducesResponseType(400)]
         [ProducesResponseType(200)] 
-        public async Task<IActionResult> SignUp([FromBody] CreateAccountDTO createAccountDTO)
+        public async Task<IActionResult> SignUpUserAccount([FromBody] CreateAccountDTO createAccountDTO)
         {
-            return Ok(await _authService.SignUp(createAccountDTO));
+            return Ok(await _authService.SignUpUserAccount(createAccountDTO));
+        }
+
+        [HttpGet]
+        [Route("confirm-email")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> ConfirmEmail([FromQuery] string email, [FromQuery] string token)
+        {
+            return Ok(await _authService.ConfirmEmail(email, token));
+        }
+
+        /// Unfinished
+        [HttpGet("google")]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult GoogleLogin()
+        {
+            var redirectUrl = Url.Action(nameof(GoogleCallback), "Auth", null, Request.Scheme);
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+
+
+        [HttpGet("signin-google")]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public async Task<IActionResult> GoogleCallback()
+        {
+            // Lấy thông tin xác thực từ Google
+            var authenticateResult = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+
+            if (!authenticateResult.Succeeded)
+                return BadRequest("Google authentication failed.");
+
+            // Lấy thông tin người dùng từ Google
+            var googleAccountDTO = new GoogleAccountDTO
+            {
+                FullName = authenticateResult.Principal?.FindFirst(ClaimTypes.Name)?.Value,
+                Email = authenticateResult.Principal?.FindFirst(ClaimTypes.Email)?.Value,
+                GoogleId = authenticateResult.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+                PictureUrl = authenticateResult.Principal?.FindFirst("urn:google:picture")?.Value
+            };
+
+            if (string.IsNullOrEmpty(googleAccountDTO.Email))
+                return BadRequest("Google authentication did not return an email address.");
+
+            // Kiểm tra hoặc tạo tài khoản người dùng trong hệ thống của bạn
+            var user = await _authService.HandleGoogleLoginAsync(googleAccountDTO);
+
+            if (user == null)
+                return GetForbidResult("Please check that your email and password is correct.");
+
+            if (!user.IsEnabled)
+                return GetForbidResult("The specified user account is disabled.");
+
+            if (user.IsLockedOut)
+                return GetForbidResult("The specified user account has been suspended.");
+
+            // Lấy yêu cầu OpenIddict Server
+            var request = HttpContext.GetOpenIddictServerRequest();
+
+            var principal = await _authService.CreateClaimsPrincipalAsync(user, new string[] { });
+
+            // Đăng nhập người dùng vào OpenIddict
+            await HttpContext.SignInAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme, principal);
+
+            return Redirect("https://your-app.com/dashboard");
         }
 
     }
 }
+

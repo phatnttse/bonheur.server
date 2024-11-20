@@ -7,8 +7,10 @@ using static OpenIddict.Abstractions.OpenIddictConstants;
 using Bonheur.BusinessObjects.Models;
 using Bonheur.Repositories.Interfaces;
 using Bonheur.Utils;
-using Bonheur.Services.DTOs.UserAccount;
 using AutoMapper;
+using Bonheur.Services.DTOs.Account;
+using Bonheur.Services.Email;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Bonheur.Services
 {
@@ -17,13 +19,15 @@ namespace Bonheur.Services
         private SignInManager<ApplicationUser> _signInManager;
         private readonly IUserAccountRepository _userAccountRepository;
         private readonly IMapper _mapper;
+        private readonly IEmailSender _emailSender;
 
 
-        public AuthService(SignInManager<ApplicationUser> signInManager, IUserAccountRepository userAccountRepository, IMapper mapper)
+        public AuthService(SignInManager<ApplicationUser> signInManager, IUserAccountRepository userAccountRepository, IMapper mapper, IEmailSender emailSender)
         {
             _signInManager = signInManager;
             _userAccountRepository = userAccountRepository;
             _mapper = mapper;
+            _emailSender = emailSender;
 
         }
         public Task<SignInResult> CheckPasswordSignInAsync(ApplicationUser user, string password, bool lockoutOnFailure)
@@ -159,10 +163,18 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> SignUp(CreateAccountDTO createAccountDTO)
+        public async Task<ApplicationResponse> SignUpUserAccount(CreateAccountDTO createAccountDTO)
         {
             try
             {
+                var existingUser = await _userAccountRepository.GetUserByUserNameAsync(createAccountDTO.Email!);
+
+                if (existingUser != null)
+                {
+                    if (!existingUser.EmailConfirmed) throw new ApiException("Email is registered and not authenticated. Check your mailbox!", System.Net.HttpStatusCode.BadRequest);
+
+                    throw new ApiException("Email has been registered", System.Net.HttpStatusCode.BadRequest);
+                }
 
                 var user = _mapper.Map<ApplicationUser>(createAccountDTO);
 
@@ -173,9 +185,31 @@ namespace Bonheur.Services
                     throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
                 }
 
+                var recipientName = user.FullName!;
+                var recipientEmail = user.Email!;
+
+                var token = await _userAccountRepository.GenereEmailConfirmationTokenAsync(user);
+
+                var param = new Dictionary<string, string?>
+                {
+                    {"token", token },
+                    {"email", user.Email }
+                };
+
+                var confirmationLink = $"https://localhost:7175/api/v1/auth/confirm-email";
+
+                var callback = QueryHelpers.AddQueryString(confirmationLink, param);
+
+                var message = EmailTemplates.GetConfirmEmail(recipientName, callback);
+
+                (var success, var errorMsg) = await _emailSender.SendEmailAsync(recipientName, recipientEmail,
+                    "Bonheur Confirm Email", message);
+
+                if (!success) throw new ApiException(errorMsg ?? "Send email failed", System.Net.HttpStatusCode.InternalServerError);
+
                 return new ApplicationResponse
                 {
-                    Message = "User created successfully",
+                    Message = "Please check your mailbox to confirm your email and complete registration.",
                     Success = true,
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
@@ -191,5 +225,82 @@ namespace Bonheur.Services
             }
 
         }
+
+        public async Task<ApplicationResponse> ConfirmEmail(string email, string token)
+        {
+            try
+            {
+                var existingUser = await _userAccountRepository.GetUserByUserNameAsync(email);
+
+                if (existingUser == null) throw new ApiException("Invalid email confirmation request", System.Net.HttpStatusCode.BadRequest);
+
+                var result = await _userAccountRepository.ConfirmEmailAsync(existingUser, token);
+
+                if (!result.Succeeded)
+                {
+                    throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
+                }
+
+                return new ApplicationResponse
+                {
+                    Message = "Email confirmed successfully. Sign in now!",
+                    Success = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<ApplicationUser> HandleGoogleLoginAsync(GoogleAccountDTO googleAccountDTO)
+        {
+            try
+            {
+                var existingUser = await _userAccountRepository.GetUserByUserNameAsync(googleAccountDTO.Email!);
+
+                if (existingUser != null)
+                {
+                    // Kiểm tra liên kết tài khoản Google
+                    var existingLogin = await _userAccountRepository.GetUserLoginAsync(Constants.Providers.GOOGLE, googleAccountDTO.GoogleId!);
+                    if (existingLogin == null)
+                    {
+                        // Thêm liên kết nếu chưa tồn tại
+                        await _userAccountRepository.AddLoginAsync(existingUser, new UserLoginInfo(Constants.Providers.GOOGLE, googleAccountDTO.GoogleId!, Constants.Providers.GOOGLE));
+                    }
+                    return existingUser;
+                }
+
+                var user = _mapper.Map<ApplicationUser>(googleAccountDTO);
+
+                var result = await _userAccountRepository.CreateUserNotPassword(user, new string[] { Constants.Roles.USER });
+
+                if (!result.Succeeded)
+                {
+                    throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
+                }
+
+                // Liên kết tài khoản Google với tài khoản mới
+                await _userAccountRepository.AddLoginAsync(user, new UserLoginInfo(Constants.Providers.GOOGLE, googleAccountDTO.GoogleId!, Constants.Providers.GOOGLE));
+
+                return user;
+
+            }
+            catch (ApiException ex)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
     } 
 }

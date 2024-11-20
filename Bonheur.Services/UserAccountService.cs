@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Models;
+using Bonheur.DAOs;
 using Bonheur.Repositories.Interfaces;
-using Bonheur.Services.DTOs.UserAccount;
+using Bonheur.Services.DTOs.Account;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
 
@@ -23,13 +24,14 @@ namespace Bonheur.Services
         {
             try
             {
-                string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized); 
+                string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
 
-                var user = await _userAccountRepository.GetUserByIdAsync(currentUserId);
+                var userAndRole = await _userAccountRepository.GetUserAndRolesAsync(currentUserId);
 
-                if (user == null) throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
+                if (userAndRole == null) throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
 
-                var userData = _mapper.Map<UserAccountDTO>(user);
+                var userData = _mapper.Map<UserAccountDTO>(userAndRole.Value.User);
+                userData.Roles = userAndRole.Value.Roles;
 
                 return new ApplicationResponse
                 {
@@ -88,12 +90,16 @@ namespace Bonheur.Services
 
                 if (userAndRoles == null) throw new ApiException("User not found", System.Net.HttpStatusCode.NotFound);
 
+                var userData = _mapper.Map<UserAccountDTO>(userAndRoles.Value.User);
+
+                userData.Roles = userAndRoles.Value.Roles;
+
                 return new ApplicationResponse
                 {
                     Success = true,
                     Message = "Get user and roles by id successful",
                     StatusCode = System.Net.HttpStatusCode.OK,
-                    Data = userAndRoles
+                    Data = userData
                 };
 
             }
@@ -130,7 +136,7 @@ namespace Bonheur.Services
 
         public async Task<ApplicationResponse> GetUserRolesAsync(ApplicationUser user)
         {
-           try
+            try
             {
                 var roles = await _userAccountRepository.GetUserRolesAsync(user);
 
@@ -155,44 +161,26 @@ namespace Bonheur.Services
 
         public async Task<ApplicationResponse> GetUsersAndRolesAsync(int page, int pageSize)
         {
-           try
+            try
             {
                 var usersAndRoles = await _userAccountRepository.GetUsersAndRolesAsync(page, pageSize);
+
+                var userAccountDTOs = new List<UserAccountDTO>();
+
+                foreach (var item in usersAndRoles)
+                {
+                    var userAccountDTO = _mapper.Map<UserAccountDTO>(item.User);
+                    userAccountDTO.Roles = item.Roles;
+
+                    userAccountDTOs.Add(userAccountDTO);
+                }
 
                 return new ApplicationResponse
                 {
                     Success = true,
                     Message = "Get users and roles successful",
                     StatusCode = System.Net.HttpStatusCode.OK,
-                    Data = usersAndRoles
-
-                };
-
-           }
-           catch (ApiException)
-           {
-                throw;
-           }
-           catch (Exception ex)
-           {
-                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
-           }
-        }
-
-
-        public async Task<ApplicationResponse> CheckPasswordAsync(ApplicationUser user, string password)
-        {
-            try
-            {
-                var result = await _userAccountRepository.CheckPasswordAsync(user, password);
-
-                if (!result) throw new ApiException("Password is incorrect", System.Net.HttpStatusCode.BadRequest);
-
-                return new ApplicationResponse
-                {
-                    Success = true,
-                    Message = "Password is correct",
-                    StatusCode = System.Net.HttpStatusCode.OK
+                    Data = userAccountDTOs
                 };
 
             }
@@ -206,13 +194,15 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> CreateUserAsync(ApplicationUser user, IEnumerable<string> roles, string password)
+        public async Task<ApplicationResponse> CreateUserAsync(UserAccountDTO userAccountDTO, IEnumerable<string> roles, string password)
         {
             try
             {
-                var result = await _userAccountRepository.CreateUserAsync(user, roles, password);
+                var applicationUser = _mapper.Map<ApplicationUser>(userAccountDTO);
 
-                if (!result.Succeeded) throw new ApiException("Failed to create user", System.Net.HttpStatusCode.BadRequest);
+                var result = await _userAccountRepository.CreateUserAsync(applicationUser, roles, password);
+
+                if (!result.Succeeded) throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
 
                 return new ApplicationResponse
                 {
@@ -238,7 +228,7 @@ namespace Bonheur.Services
             {
                 var result = await _userAccountRepository.DeleteUserAsync(userId);
 
-                if (!result.Succeeded) throw new ApiException("Failed to delete user", System.Net.HttpStatusCode.BadRequest);
+                if (!result.Succeeded) throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
 
                 return new ApplicationResponse
                 {
@@ -258,13 +248,15 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> ResetPasswordAsync(ApplicationUser user, string newPassword)
+        public async Task<ApplicationResponse> ResetPasswordAsync(string newPassword)
         {
             try
             {
-                var result = await _userAccountRepository.ResetPasswordAsync(user, newPassword);
+                var existingUser = await GetCurrentUser();
 
-                if (!result.Succeeded) throw new ApiException("Failed to reset password", System.Net.HttpStatusCode.BadRequest);
+                var result = await _userAccountRepository.ResetPasswordAsync(existingUser!, newPassword);
+
+                if (!result.Succeeded) throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
 
                 return new ApplicationResponse
                 {
@@ -284,13 +276,15 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> UpdatePasswordAsync(ApplicationUser user, string currentPassword, string newPassword)
+        public async Task<ApplicationResponse> UpdatePasswordAsync(UserAccountDTO user, string currentPassword, string newPassword)
         {
             try
             {
-                var result = await _userAccountRepository.UpdatePasswordAsync(user, currentPassword, newPassword);
+                var existingUser = await GetCurrentUser();
 
-                if (!result.Succeeded) throw new ApiException("Failed to update password", System.Net.HttpStatusCode.BadRequest);
+                var result = await _userAccountRepository.UpdatePasswordAsync(existingUser!, currentPassword, newPassword);
+
+                if (!result.Succeeded) throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
 
                 return new ApplicationResponse
                 {
@@ -310,18 +304,22 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> UpdateUserAndUserRoleAsync(ApplicationUser user, IEnumerable<string>? roles)
+        public async Task<ApplicationResponse> UpdateUserAndUserRoleAsync(string id, UserAccountDTO userAccountDTO)
         {
             try
             {
-                var result = await _userAccountRepository.UpdateUserAndUserRoleAsync(user, roles);
+                var existingUser = await _userAccountRepository.GetUserByIdAsync(id);
 
-                if (!result.Succeeded) throw new ApiException("Failed to update user and roles", System.Net.HttpStatusCode.BadRequest);
+                _mapper.Map(userAccountDTO, existingUser);
+
+                var result = await _userAccountRepository.UpdateUserAndUserRoleAsync(existingUser!, userAccountDTO.Roles);
+
+                if (!result.Succeeded) throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
 
                 return new ApplicationResponse
                 {
                     Success = true,
-                    Message = "User and roles updated successfully",
+                    Message = "User updated successfully",
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
 
@@ -336,18 +334,80 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> UpdateUserAsync(ApplicationUser user)
+        public async Task<ApplicationUser?> GetCurrentUser()
+        {       
+            try
+            {
+                string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
+
+                var user = await _userAccountRepository.GetUserByIdAsync(currentUserId);
+
+                if (user == null) throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
+
+                return user;
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+
+        }
+
+        public async Task<ApplicationResponse> UpdateCurrentUserAsync(UpdateUserProfileDTO updateUserProfileDTO)
         {
             try
             {
-                var result = await _userAccountRepository.UpdateUserAsync(user);
+                var existingUser = await GetCurrentUser();
+          
+                _mapper.Map(updateUserProfileDTO, existingUser);
 
-                if (!result.Succeeded) throw new ApiException("Failed to update user and roles", System.Net.HttpStatusCode.BadRequest);
+                var result = await _userAccountRepository.UpdateUserAsync(existingUser!);
+
+                if (!result.Succeeded) throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
+
+                var userUpdated = _mapper.Map<UserAccountDTO>(existingUser);
 
                 return new ApplicationResponse
                 {
                     Success = true,
-                    Message = "User and roles updated successfully",
+                    Message = "Profile updated successfully",
+                    StatusCode = System.Net.HttpStatusCode.OK,
+                    Data = userUpdated
+                };
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+                
+        }
+
+        public async Task<ApplicationResponse> UpdateUserAccountStatusAsync(string id, UserAccountStatusDTO userAccountStatusDTO)
+        {
+            try
+            {
+                var existingUser = await _userAccountRepository.GetUserByIdAsync(id);
+
+                _mapper.Map(userAccountStatusDTO, existingUser);
+
+                var result = await _userAccountRepository.UpdateUserAsync(existingUser!);
+
+                if (!result.Succeeded) throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
+
+                return new ApplicationResponse
+                {
+                    Success = true,
+                    Message = "User updated successfully",
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
 

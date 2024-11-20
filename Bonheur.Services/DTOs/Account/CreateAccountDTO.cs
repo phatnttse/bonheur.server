@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Bonheur.Services.DTOs.UserAccount
+namespace Bonheur.Services.DTOs.Account
 {
     public class CreateAccountDTO
     {
