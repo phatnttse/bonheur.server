@@ -27,7 +27,7 @@ namespace Bonheur.Utils
             writer.WriteLine($"{DateTime.Now} - {text}");
         }
 
-        public static string? GetCurrentUserId() => _httpContextAccessor.HttpContext?.User.FindFirstValue(Claims.Subject);
+        public static string? GetCurrentUserId() => _httpContextAccessor?.HttpContext?.User.FindFirstValue(Claims.Subject);
 
         public static string[] GetRoles(ClaimsPrincipal user)
         {

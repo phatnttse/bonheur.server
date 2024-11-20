@@ -21,7 +21,21 @@ namespace Bonheur.Services.Mappers
             // UserAccount
             CreateMap<CreateAccountDTO, ApplicationUser>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
-            CreateMap<ApplicationUser, UserAccountDTO>().ReverseMap();
+
+            CreateMap<ApplicationUser, UserAccountDTO>()
+                  .ForMember(d => d.Roles, map => map.Ignore()).ReverseMap();
+
+            CreateMap<UserAccountDTO, ApplicationUser>()
+                 .ForMember(dest => dest.Roles, opt => opt.Ignore())
+                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<UpdateUserProfileDTO, ApplicationUser>()
+                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<UserAccountStatusDTO, ApplicationUser>().ReverseMap();
+
+
+
 
             // UserRole
             CreateMap<ApplicationRole, UserRoleDTO>()

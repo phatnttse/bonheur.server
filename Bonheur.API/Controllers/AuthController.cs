@@ -46,7 +46,7 @@ namespace Bonheur.API.Controllers
                 var user = await _authService.GetUserByUsername(request.Username);
 
                 if (user == null)
-                    return GetForbidResult("Please check that your username and password is correct.");
+                    return GetForbidResult("Please check that your email and password is correct.");
 
                 if (!user.IsEnabled)
                     return GetForbidResult("The specified user account is disabled.");
@@ -60,7 +60,7 @@ namespace Bonheur.API.Controllers
                     return GetForbidResult("The specified user is not allowed to sign in.");
 
                 if (!result.Succeeded)
-                    return GetForbidResult("Please check that your username and password is correct.");
+                    return GetForbidResult("Please check that your email and password is correct.");
 
                 var principal = await _authService.CreateClaimsPrincipalAsync(user, request.GetScopes());
 
