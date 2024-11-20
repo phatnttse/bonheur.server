@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Bonheur.API.Authorization;
 using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Models;
+using Bonheur.Services.DTOs.Account;
 using Bonheur.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +18,7 @@ namespace Bonheur.API.Controllers
         private readonly IUserAccountService _userAccountService;
         private readonly IAuthorizationService _authorizationService;
 
-        public UserAccountController(IUserAccountService userAccountService, IAuthorizationService authorizationService) 
+        public UserAccountController(IUserAccountService userAccountService, IAuthorizationService authorizationService)
         {
             _userAccountService = userAccountService;
             _authorizationService = authorizationService;
@@ -31,14 +33,72 @@ namespace Bonheur.API.Controllers
         }
 
         [HttpGet("users/{id}", Name = nameof(GetUserById))]
+        [Authorize(AuthPolicies.ViewAllUsersPolicy)]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetUserById(string id)
         {
-            return Ok(await _userAccountService.GetUserByIdAsync(id));
+            return Ok(await _userAccountService.GetUserAndRolesAsync(id));
         }
 
+
+        [HttpGet("users")]
+        [Authorize(AuthPolicies.ViewAllUsersPolicy)]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        public async Task<IActionResult> GetUsers()
+        {
+            return await GetUsers(-1, -1);
+        }
+
+        [HttpGet("users/{pageNumber:int}/{pageSize:int}")]
+        [Authorize(AuthPolicies.ViewAllUsersPolicy)]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        public async Task<IActionResult> GetUsers(int pageNumber, int pageSize)
+        {
+            return Ok(await _userAccountService.GetUsersAndRolesAsync(pageNumber, pageSize));
+        }
+
+
+        [HttpPut("users/me")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        public async Task<IActionResult> UpdateCurrentUser([FromBody] UpdateUserProfileDTO updateUserProfileDTO)
+        {
+            return Ok(await _userAccountService.UpdateCurrentUserAsync(updateUserProfileDTO));
+        }
+
+
+        [HttpPut("users/{id}")]
+        [Authorize(AuthPolicies.ManageAllUsersPolicy)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> UpdateUser(string id, [FromBody] UserAccountDTO userAccountDTO)
+        {
+            if (!(await _authorizationService.AuthorizeAsync(User, id,
+               UserAccountManagementOperations.UpdateOperationRequirement)).Succeeded)
+                return new ChallengeResult();
+
+            return Ok(await _userAccountService.UpdateUserAndUserRoleAsync(id, userAccountDTO));
+        }
+
+        [HttpPatch("users/{id}/status")]
+        [Authorize(AuthPolicies.ManageAllUsersPolicy)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> UpdateUserAccountStatus(string id, [FromBody] UserAccountStatusDTO userAccountStatusDTO)
+        {
+            if (!(await _authorizationService.AuthorizeAsync(User, id,
+               UserAccountManagementOperations.UpdateOperationRequirement)).Succeeded)
+                return new ChallengeResult();
+
+            return Ok(await _userAccountService.UpdateUserAccountStatusAsync(id, userAccountStatusDTO));
+        }
 
     }
 }

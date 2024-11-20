@@ -1,5 +1,6 @@
 ﻿using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Models;
+using Bonheur.Services.DTOs.Account;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,21 +12,20 @@ namespace Bonheur.Services.Interfaces
     public interface IUserAccountService
     {
         Task<ApplicationResponse> GetCurrentUserAsync();
+        Task<ApplicationUser?> GetCurrentUser();
         Task<ApplicationResponse> GetUserByIdAsync(string userId);
         Task<ApplicationUser?> GetUserByEmailAsync(string email);
         Task<ApplicationResponse> GetUserRolesAsync(ApplicationUser user);
         Task<ApplicationResponse> GetUserAndRolesAsync(string userId);
         Task<ApplicationResponse> GetUsersAndRolesAsync(int page, int pageSize);
-        Task<ApplicationResponse> CreateUserAsync(ApplicationUser user,
+        Task<ApplicationResponse> CreateUserAsync(UserAccountDTO user,
             IEnumerable<string> roles, string password);
-        Task<ApplicationResponse> UpdateUserAsync(ApplicationUser user);
-        Task<ApplicationResponse> UpdateUserAndUserRoleAsync(ApplicationUser user,
-            IEnumerable<string>? roles);
-        Task<ApplicationResponse> ResetPasswordAsync(ApplicationUser user,
-            string newPassword);
-        Task<ApplicationResponse> UpdatePasswordAsync(ApplicationUser user,
+        Task<ApplicationResponse> UpdateCurrentUserAsync(UpdateUserProfileDTO updateUserProfile);
+        Task<ApplicationResponse> UpdateUserAndUserRoleAsync(string id, UserAccountDTO userAccountDTO);
+        Task<ApplicationResponse> UpdateUserAccountStatusAsync(string id, UserAccountStatusDTO userAccountDTO);
+        Task<ApplicationResponse> ResetPasswordAsync(string newPassword);
+        Task<ApplicationResponse> UpdatePasswordAsync(UserAccountDTO user,
             string currentPassword, string newPassword);
-        Task<ApplicationResponse> CheckPasswordAsync(ApplicationUser user, string password);
         Task<ApplicationResponse> DeleteUserAsync(string userId);
     }
 }
