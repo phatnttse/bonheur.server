@@ -34,6 +34,9 @@ namespace Bonheur.Services.Mappers
 
             CreateMap<UserAccountStatusDTO, ApplicationUser>().ReverseMap();
 
+            CreateMap<GoogleAccountDTO, ApplicationUser>()
+               .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
+
 
 
 

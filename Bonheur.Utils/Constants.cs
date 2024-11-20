@@ -14,5 +14,10 @@ namespace Bonheur.Utils
             public const string USER = "USER";
         }
 
+        public static class Providers
+        {
+            public const string GOOGLE = "GOOGLE";
+        }
+
     }
 }

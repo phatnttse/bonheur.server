@@ -114,6 +114,34 @@ namespace Bonheur.DAOs
             return (true, []);
         }
 
+        public async Task<(bool Succeeded, string[] Errors)> CreateUserNotPassword(ApplicationUser user,
+           IEnumerable<string> roles)
+        {
+            var result = await _userManager.CreateAsync(user);
+            if (!result.Succeeded)
+                return (false, result.Errors.Select(e => e.Description).ToArray());
+
+            user = (await _userManager.FindByNameAsync(user.UserName!))!;
+
+            try
+            {
+                result = await _userManager.AddToRolesAsync(user, roles.Distinct());
+            }
+            catch
+            {
+                await DeleteUserAsync(user);
+                throw;
+            }
+
+            if (!result.Succeeded)
+            {
+                await DeleteUserAsync(user);
+                return (false, result.Errors.Select(e => e.Description).ToArray());
+            }
+
+            return (true, []);
+        }
+
         public async Task<(bool Succeeded, string[] Errors)> UpdateUserAsync(ApplicationUser user)
         {
             return await UpdateUserAsync(user, null);
@@ -200,6 +228,33 @@ namespace Bonheur.DAOs
         }
 
 
+        /// <summary>
+        /// Lấy thông tin login của người dùng dựa trên provider và provider key.
+        /// </summary>
+        public async Task<IdentityUserLogin<string>?> GetUserLoginAsync(string loginProvider, string providerKey)
+        {
+            return await _context.UserLogins
+                .Where(login => login.LoginProvider == loginProvider && login.ProviderKey == providerKey)
+                .FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// Thêm thông tin đăng nhập cho người dùng.
+        /// </summary>
+        public async Task<IdentityResult> AddLoginAsync(ApplicationUser user, UserLoginInfo loginInfo)
+        {
+            return await _userManager.AddLoginAsync(user, loginInfo);
+        }
+
+        public async Task<string> GenereEmailConfirmationTokenAsync(ApplicationUser user)
+        {
+            return await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        }
+
+        public async Task<IdentityResult> ConfirmEmailAsync(ApplicationUser user, string token)
+        {
+            return await _userManager.ConfirmEmailAsync(user, token);
+        }
 
     }
 }

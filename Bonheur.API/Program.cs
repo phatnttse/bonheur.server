@@ -24,6 +24,11 @@ using Bonheur.Utils;
 using Bonheur.API.Authorization.Requirements;
 using Bonheur.BusinessObjects.Models;
 using Microsoft.AspNetCore.Authorization;
+using DotNetEnv;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication;
+using Bonheur.Services.Email;
 
 namespace Bonheur.API
 {
@@ -32,6 +37,12 @@ namespace Bonheur.API
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Load environment variables from .env file
+            Env.Load();
+
+            // Load SMTP configuration from environment variables
+            var smtpConfig = SmtpConfig.LoadFromEnvironment();
 
             // Add services to the container.
 
@@ -44,6 +55,23 @@ namespace Bonheur.API
             {
                 options.UseSqlServer(connectionString, b => b.MigrationsAssembly(migrationsAssembly));
                 options.UseOpenIddict();
+            });
+
+            // Configure Google Authentication using the environment variables
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+            })
+            .AddCookie()
+            .AddGoogle(options =>
+            {
+                options.ClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID")!;
+                options.ClientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET")!;
+                options.Scope.Add("email");
+                options.Scope.Add("profile");
+                options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
+                options.SaveTokens = true;  
             });
 
             // Add Identity
@@ -222,7 +250,7 @@ namespace Bonheur.API
             builder.Services.AddAutoMapper(typeof(MappingProfiles));
 
             // Configurations
-            builder.Services.Configure<AppSettings>(builder.Configuration);
+            //builder.Services.Configure<AppSettings>(builder.Configuration);
 
             // Exception Handler
             builder.Services.AddExceptionHandler<ExceptionHandler>();
@@ -240,6 +268,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IUserRoleService, UserRoleService>();
+            builder.Services.AddScoped<IEmailSender, EmailSender>();
 
             // Auth Handlers
             builder.Services.AddSingleton<IAuthorizationHandler, ViewUserAuthorizationHandler>();
@@ -249,6 +278,9 @@ namespace Bonheur.API
 
             //File Logger
             builder.Logging.AddFile(builder.Configuration.GetSection("Logging"));
+
+            //Email Templates
+            EmailTemplates.Initialize(builder.Environment);
 
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

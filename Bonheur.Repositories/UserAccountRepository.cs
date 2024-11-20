@@ -1,6 +1,7 @@
 ﻿using Bonheur.BusinessObjects.Entities;
 using Bonheur.DAOs;
 using Bonheur.Repositories.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,5 +35,14 @@ namespace Bonheur.Repositories
             string currentPassword, string newPassword) => await _userAccountDAO.UpdatePasswordAsync(user, currentPassword, newPassword);
         public async Task<bool> CheckPasswordAsync(ApplicationUser user, string password) => await _userAccountDAO.CheckPasswordAsync(user, password);
         public async Task<(bool Succeeded, string[] Errors)> DeleteUserAsync(string userId) => await _userAccountDAO.DeleteUserAsync(userId);
+
+        public async Task<IdentityUserLogin<string>?> GetUserLoginAsync(string loginProvider, string providerKey) => await _userAccountDAO.GetUserLoginAsync(loginProvider, providerKey);
+
+        public async Task<IdentityResult> AddLoginAsync(ApplicationUser user, UserLoginInfo loginInfo) => await _userAccountDAO.AddLoginAsync(user, loginInfo);
+        public async Task<(bool Succeeded, string[] Errors)> CreateUserNotPassword(ApplicationUser user,
+           IEnumerable<string> roles) => await _userAccountDAO.CreateUserNotPassword(user, roles);
+
+        public async Task<string> GenereEmailConfirmationTokenAsync(ApplicationUser user) => await _userAccountDAO.GenereEmailConfirmationTokenAsync(user);
+        public async Task<IdentityResult> ConfirmEmailAsync(ApplicationUser user, string token) => await _userAccountDAO.ConfirmEmailAsync(user, token);
     }
 }
