@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Bonheur.BusinessObjects.Entities;
+using Bonheur.Services.DTOs.SupplierCategory;
 using Bonheur.Services.DTOs.UserAccount;
 using Bonheur.Services.DTOs.UserRole;
 using System;
@@ -22,6 +23,13 @@ namespace Bonheur.Services.Mappers
 
             // UserRole
             CreateMap<CreateUserRoleDTO, ApplicationRole>();
+
+            // SupplierCategory
+            CreateMap<SupplierCategoryDTO, SupplierCategory>();
+
+            CreateMap<SupplierCategory, SupplierCategoryDTO>();
+
+            CreateMap<CreateSupplierCategoryDTO, SupplierCategory>();
         }
     }
 }
