@@ -1,6 +1,7 @@
 ﻿using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Models;
 using Bonheur.Services.DTOs.Account;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,5 +26,6 @@ namespace Bonheur.Services.Interfaces
         Task<ApplicationResponse> UpdateUserAccountStatusAsync(string id, UserAccountStatusDTO userAccountDTO);
         Task<ApplicationResponse> UpdatePasswordAsync(string currentPassword, string newPassword);
         Task<ApplicationResponse> DeleteUserAsync(string userId);
+        Task<ApplicationResponse> UploadAvatar(IFormFile file);
     }
 }

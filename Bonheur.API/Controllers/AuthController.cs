@@ -57,7 +57,7 @@ namespace Bonheur.API.Controllers
                 var result =  await _authService.CheckPasswordSignInAsync(user, request.Password, true);
 
                 if (result.IsLockedOut)
-                    return GetForbidResult("The specified user account has been suspended.");
+                    return GetForbidResult("The specified user account has been locked.");
 
                 if (result.IsNotAllowed)
                     return GetForbidResult("The specified user is not allowed to sign in.");
@@ -79,7 +79,7 @@ namespace Bonheur.API.Controllers
                 if (user == null)
                     return GetForbidResult("The refresh token is no longer valid.");
 
-                if (!user.IsLockedOut)
+                if (user.IsLockedOut)
                     return GetForbidResult("The specified user account has been locked.");
 
                 if (!await _authService.CanSignInAsync(user))
