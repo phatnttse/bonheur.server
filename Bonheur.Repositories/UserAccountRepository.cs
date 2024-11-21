@@ -29,8 +29,8 @@ namespace Bonheur.Repositories
         public async Task<(bool Succeeded, string[] Errors)> UpdateUserAsync(ApplicationUser user) => await _userAccountDAO.UpdateUserAsync(user);
         public async Task<(bool Succeeded, string[] Errors)> UpdateUserAndUserRoleAsync(ApplicationUser user,
             IEnumerable<string>? roles) => await _userAccountDAO.UpdateUserAsync(user, roles);
-        public async Task<(bool Succeeded, string[] Errors)> ResetPasswordAsync(ApplicationUser user,
-            string newPassword) => await _userAccountDAO.ResetPasswordAsync(user, newPassword);
+        public async Task<(bool Succeeded, string[] Errors)> ResetPasswordAsync(ApplicationUser user, string resetToken,
+            string newPassword) => await _userAccountDAO.ResetPasswordAsync(user, resetToken, newPassword);
         public async Task<(bool Succeeded, string[] Errors)> UpdatePasswordAsync(ApplicationUser user,
             string currentPassword, string newPassword) => await _userAccountDAO.UpdatePasswordAsync(user, currentPassword, newPassword);
         public async Task<bool> CheckPasswordAsync(ApplicationUser user, string password) => await _userAccountDAO.CheckPasswordAsync(user, password);
@@ -44,5 +44,7 @@ namespace Bonheur.Repositories
 
         public async Task<string> GenereEmailConfirmationTokenAsync(ApplicationUser user) => await _userAccountDAO.GenereEmailConfirmationTokenAsync(user);
         public async Task<IdentityResult> ConfirmEmailAsync(ApplicationUser user, string token) => await _userAccountDAO.ConfirmEmailAsync(user, token);
+        public async Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user) => await _userAccountDAO.GeneratePasswordResetTokenAsync(user);
+
     }
 }

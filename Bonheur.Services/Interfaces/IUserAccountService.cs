@@ -23,9 +23,7 @@ namespace Bonheur.Services.Interfaces
         Task<ApplicationResponse> UpdateCurrentUserAsync(UpdateUserProfileDTO updateUserProfile);
         Task<ApplicationResponse> UpdateUserAndUserRoleAsync(string id, UserAccountDTO userAccountDTO);
         Task<ApplicationResponse> UpdateUserAccountStatusAsync(string id, UserAccountStatusDTO userAccountDTO);
-        Task<ApplicationResponse> ResetPasswordAsync(string newPassword);
-        Task<ApplicationResponse> UpdatePasswordAsync(UserAccountDTO user,
-            string currentPassword, string newPassword);
+        Task<ApplicationResponse> UpdatePasswordAsync(string currentPassword, string newPassword);
         Task<ApplicationResponse> DeleteUserAsync(string userId);
     }
 }

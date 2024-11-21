@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Models;
-using Bonheur.DAOs;
 using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Account;
 using Bonheur.Services.Interfaces;
@@ -248,35 +247,7 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> ResetPasswordAsync(string newPassword)
-        {
-            try
-            {
-                var existingUser = await GetCurrentUser();
-
-                var result = await _userAccountRepository.ResetPasswordAsync(existingUser!, newPassword);
-
-                if (!result.Succeeded) throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
-
-                return new ApplicationResponse
-                {
-                    Success = true,
-                    Message = "Password reset successfully",
-                    StatusCode = System.Net.HttpStatusCode.OK
-                };
-
-            }
-            catch (ApiException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
-            }
-        }
-
-        public async Task<ApplicationResponse> UpdatePasswordAsync(UserAccountDTO user, string currentPassword, string newPassword)
+        public async Task<ApplicationResponse> UpdatePasswordAsync(string currentPassword, string newPassword)
         {
             try
             {

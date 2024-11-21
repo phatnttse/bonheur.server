@@ -179,11 +179,9 @@ namespace Bonheur.DAOs
             return (true, []);
         }
 
-        public async Task<(bool Succeeded, string[] Errors)> ResetPasswordAsync(ApplicationUser user,
+        public async Task<(bool Succeeded, string[] Errors)> ResetPasswordAsync(ApplicationUser user, string resetToken,
             string newPassword)
         {
-            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-
             var result = await _userManager.ResetPasswordAsync(user, resetToken, newPassword);
             return (result.Succeeded, result.Errors.Select(e => e.Description).ToArray());
         }
@@ -254,6 +252,11 @@ namespace Bonheur.DAOs
         public async Task<IdentityResult> ConfirmEmailAsync(ApplicationUser user, string token)
         {
             return await _userManager.ConfirmEmailAsync(user, token);
+        }
+
+        public async Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user)
+        {
+            return await _userManager.GeneratePasswordResetTokenAsync(user);
         }
 
     }

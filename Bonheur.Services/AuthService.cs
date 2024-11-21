@@ -196,9 +196,9 @@ namespace Bonheur.Services
                     {"email", user.Email }
                 };
 
-                var confirmationLink = $"https://localhost:7175/api/v1/auth/confirm-email";
+                var confirmationLink = Environment.GetEnvironmentVariable("EMAIL_CONFIRMATION_URL");
 
-                var callback = QueryHelpers.AddQueryString(confirmationLink, param);
+                var callback = QueryHelpers.AddQueryString(confirmationLink!, param);
 
                 var message = EmailTemplates.GetConfirmEmail(recipientName, callback);
 
@@ -258,6 +258,89 @@ namespace Bonheur.Services
                 throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
             }
         }
+
+
+        public async Task<ApplicationResponse> ResetPasswordAsync(string email, string resetToken, string newPassword)
+        {
+            try
+            {
+                var existingUser = await _userAccountRepository.GetUserByUserNameAsync(email);
+
+                if (existingUser == null) throw new ApiException("Invalid password reset request", System.Net.HttpStatusCode.BadRequest);
+
+                var result = await _userAccountRepository.ResetPasswordAsync(existingUser!, resetToken, newPassword);
+
+                if (!result.Succeeded) throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
+
+                return new ApplicationResponse
+                {
+                    Success = true,
+                    Message = "Password reset successfully",
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<ApplicationResponse> ForgotPasswordAsync(string email)
+        {
+            try
+            {
+                var existingUser = await _userAccountRepository.GetUserByUserNameAsync(email);
+
+                if (existingUser == null) throw new ApiException("Invalid password reset request", System.Net.HttpStatusCode.BadRequest);
+
+                var resetToken = await _userAccountRepository.GeneratePasswordResetTokenAsync(existingUser);
+
+                var recipientName = existingUser.FullName!;
+                var recipientEmail = existingUser.Email!;
+
+                var param = new Dictionary<string, string?>
+                {
+                    {"token", resetToken },
+                    {"email", existingUser.Email }
+                };
+
+                var resetPasswordLink = Environment.GetEnvironmentVariable("EMAIL_RESET_PASSWORD_URL");
+
+                var callback = QueryHelpers.AddQueryString(resetPasswordLink!, param);
+
+                var decodedCallback = Uri.UnescapeDataString(callback);
+
+
+                var message = EmailTemplates.GetResetPasswordEmail(recipientName, decodedCallback);
+
+                (var success, var errorMsg) = await _emailSender.SendEmailAsync(recipientName, recipientEmail,
+                    "Bonheur Reset Password", message);
+
+                if (!success) throw new ApiException(errorMsg ?? "Send email failed", System.Net.HttpStatusCode.InternalServerError);
+
+                return new ApplicationResponse
+                {
+                    Success = true,
+                    Message = "Reset password email is being sent to you. Please check your mailbox",
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
 
         public async Task<ApplicationUser> HandleGoogleLoginAsync(GoogleAccountDTO googleAccountDTO)
         {
