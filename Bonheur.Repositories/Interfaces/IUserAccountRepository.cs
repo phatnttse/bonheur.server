@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using X.PagedList;
 
 namespace Bonheur.Repositories.Interfaces
 {
@@ -15,7 +16,7 @@ namespace Bonheur.Repositories.Interfaces
         Task<ApplicationUser?> GetUserByEmailAsync(string email);
         Task<IList<string>> GetUserRolesAsync(ApplicationUser user);
         Task<(ApplicationUser User, string[] Roles)?> GetUserAndRolesAsync(string userId);
-        Task<List<(ApplicationUser User, string[] Roles)>> GetUsersAndRolesAsync(int page, int pageSize);
+        Task<IPagedList<(ApplicationUser User, string[] Roles)>> GetUsersAndRolesAsync(int page, int pageSize);
         Task<(bool Succeeded, string[] Errors)> CreateUserAsync(ApplicationUser user,
             IEnumerable<string> roles, string password);
         Task<(bool Succeeded, string[] Errors)> UpdateUserAsync(ApplicationUser user);
