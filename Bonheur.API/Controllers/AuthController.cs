@@ -126,7 +126,7 @@ namespace Bonheur.API.Controllers
             return Ok(await _authService.SignUpUserAccount(createAccountDTO));
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("confirm-email")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -135,7 +135,7 @@ namespace Bonheur.API.Controllers
             return Ok(await _authService.ConfirmEmail(request.Email, request.Token));
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("reset-password")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -144,7 +144,7 @@ namespace Bonheur.API.Controllers
             return Ok(await _authService.ResetPasswordAsync(request.Email, request.Token, request.Password!));
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("forgot-password")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
