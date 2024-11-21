@@ -87,7 +87,7 @@ namespace Bonheur.API.Controllers
 
         [HttpPatch("users/{id}/status")]
         [Authorize(AuthPolicies.ManageAllUsersPolicy)]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
@@ -98,6 +98,14 @@ namespace Bonheur.API.Controllers
                 return new ChallengeResult();
 
             return Ok(await _userAccountService.UpdateUserAccountStatusAsync(id, userAccountStatusDTO));
+        }
+
+        [HttpPatch("users/password")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePassswordDTO updatePassswordDTO)
+        {      
+            return Ok(await _userAccountService.UpdatePasswordAsync(updatePassswordDTO.CurrentPassword, updatePassswordDTO.NewPassword));
         }
 
     }

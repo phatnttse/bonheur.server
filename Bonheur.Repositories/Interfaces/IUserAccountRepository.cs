@@ -21,7 +21,7 @@ namespace Bonheur.Repositories.Interfaces
         Task<(bool Succeeded, string[] Errors)> UpdateUserAsync(ApplicationUser user);
         Task<(bool Succeeded, string[] Errors)> UpdateUserAndUserRoleAsync(ApplicationUser user,
             IEnumerable<string>? roles);
-        Task<(bool Succeeded, string[] Errors)> ResetPasswordAsync(ApplicationUser user,
+        Task<(bool Succeeded, string[] Errors)> ResetPasswordAsync(ApplicationUser user, string resetToken,
             string newPassword);
         Task<(bool Succeeded, string[] Errors)> UpdatePasswordAsync(ApplicationUser user,
             string currentPassword, string newPassword);
@@ -33,5 +33,6 @@ namespace Bonheur.Repositories.Interfaces
            IEnumerable<string> roles);
         Task<string> GenereEmailConfirmationTokenAsync(ApplicationUser user);
         Task<IdentityResult> ConfirmEmailAsync(ApplicationUser user, string token);
+        Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user);
     }
 }
