@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonheur.BusinessObjects.Entities
+namespace Bonheur.Services.DTOs.Supplier
 {
-    public class SupplierImage : BaseEntity
+    public class SupplierImageDTO
     {
+        public int Id { get; set; }
         public string? ImageUrl { get; set; }
         public string? ImageFileName { get; set; }
-        public int SupplierId { get; set; }
         public bool IsPrimary { get; set; }
-        public virtual Supplier? Supplier { get; set; }
     }
 }

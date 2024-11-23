@@ -11,7 +11,7 @@ namespace Bonheur.Repositories.Interfaces
 {
     public interface ISupplierRepository
     {
-        Task<Supplier?> GetSupplierByIdAsync(int id);
+        Task<Supplier?> GetSupplierByIdAsync(int id, bool isIncludeUser);
         Task<Supplier?> GetSupplierByUserIdAsync(string userId);
         Task<IPagedList<Supplier>> GetSuppliersAsync(
                 string? supplierName,
@@ -28,6 +28,7 @@ namespace Bonheur.Repositories.Interfaces
         Task<Supplier?> CreateSupplierAsync(Supplier supplier);
         Task<Supplier?> UpdateSupplierAsync(Supplier supplier);
         Task<bool> DeleteSupplierAsync(int id);
+        Task<bool> IsSupplierAsync(string userId);
 
     }
 }
