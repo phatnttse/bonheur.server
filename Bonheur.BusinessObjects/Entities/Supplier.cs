@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using Bonheur.BusinessObjects.Enums;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -26,19 +27,17 @@ namespace Bonheur.BusinessObjects.Entities
         [Column(TypeName = "decimal(18,2)")]
         public decimal? Price { get; set; }
 
+        [StringLength(100)]
         public string? Street { get; set; }
+
+        [StringLength(100)]
         public string? Province { get; set; }
+
+        [StringLength(100)]
         public string? Ward { get; set; }
+
+        [StringLength(100)]
         public string? District { get; set; }
-
-        [Required]
-        [StringLength(15)]
-        public string? ContactPhoneNumber { get; set; }
-
-        [Required]
-        [EmailAddress]
-        [StringLength(255)]
-        public string? ContactEmail { get; set; }
 
         [Url]
         [StringLength(255)]
@@ -47,12 +46,36 @@ namespace Bonheur.BusinessObjects.Entities
         [Column(TypeName = "nvarchar(50)")]
         public string? ResponseTime { get; set; }
 
-        // Trường để xác định thứ tự ưu tiên
-        public int PriorityScore { get; set; } = 0; 
+        public int Priority { get; set; } = 0; 
 
-        public bool IsFeatured { get; set; } = false; // Mặc định không được hiển thị nổi bật
+        public bool IsFeatured { get; set; } = false; 
 
-        public DateTime? BoostUntil { get; set; } // Thời gian ưu tiên
+        public DateTime? ProrityEnd { get; set; }
+
+        [StringLength(50)]
+        public SupplierStatus? Status { get; set; } = SupplierStatus.PENDING;
+
+        [StringLength(50)]
+        public OnBoardStatus? OnBoardStatus { get; set; } = Enums.OnBoardStatus.SUPPLIER_INFO;
+        public int OnBoardPercent
+        {
+            get
+            {
+                switch (OnBoardStatus)
+                {
+                    case Enums.OnBoardStatus.SUPPLIER_INFO:
+                        return 25;
+                    case Enums.OnBoardStatus.SUPPLIER_LOCATION:
+                        return 50;
+                    case Enums.OnBoardStatus.SUPPLIER_IMAGES:
+                        return 75;
+                    case Enums.OnBoardStatus.COMPLETED:
+                        return 100;
+                    default:
+                        return 0;
+                }
+            }
+        }
 
         [Column(TypeName = "decimal(18, 2)")]
         public decimal AverageRating { get; set; } = 0;

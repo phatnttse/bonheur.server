@@ -12,6 +12,7 @@ namespace Bonheur.Utils
         {
             public const string ADMIN = "ADMIN";
             public const string USER = "USER";
+            public const string SUPPLIER = "SUPPLIER";
         }
 
         public static class Providers

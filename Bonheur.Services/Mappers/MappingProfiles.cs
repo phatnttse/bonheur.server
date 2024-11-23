@@ -2,15 +2,9 @@
 using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Models;
 using Bonheur.Services.DTOs.Account;
+using Bonheur.Services.DTOs.Supplier;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using static Bonheur.Utils.Constants;
-using static OpenIddict.Abstractions.OpenIddictConstants;
+
 
 namespace Bonheur.Services.Mappers
 {
@@ -38,8 +32,6 @@ namespace Bonheur.Services.Mappers
                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
 
 
-
-
             // UserRole
             CreateMap<ApplicationRole, UserRoleDTO>()
               .ForMember(d => d.Permissions, map => map.MapFrom(s => s.Claims))
@@ -58,6 +50,15 @@ namespace Bonheur.Services.Mappers
               .ForMember(d => d.Type, map => map.MapFrom(s => s.ClaimType))
               .ForMember(d => d.Value, map => map.MapFrom(s => s.ClaimValue))
               .ReverseMap();
+
+            // Supplier
+            CreateMap<CreateSupplierDTO, Supplier>();
+            CreateMap<Supplier, SupplierDTO>().ReverseMap();
+            CreateMap<UpdateSupplierProfileDTO, Supplier>();
+            CreateMap<UpdateSupplierAddressDTO, Supplier>();
+
+            // SupplierImage
+            CreateMap<SupplierImage, SupplierImageDTO>().ReverseMap();
         }
     }
 }

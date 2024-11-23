@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Bonheur.BusinessObjects.Entities;
+using Bonheur.BusinessObjects.Enums;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bonheur.DAOs
 {
@@ -38,7 +40,7 @@ namespace Bonheur.DAOs
 
             modelBuilder.Entity<ApplicationUser>()
                 .Property(u => u.Gender)
-                .HasConversion<string>();
+                .HasConversion(new EnumToStringConverter<Gender>());
 
             modelBuilder.Entity<ApplicationRole>()
                 .HasMany(r => r.Users)
@@ -67,6 +69,15 @@ namespace Bonheur.DAOs
                 .WithMany()
                 .HasForeignKey(s => s.SupplierCategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Supplier>()
+                .Property(u => u.Status)
+                .HasConversion(new EnumToStringConverter<SupplierStatus>());
+
+
+            modelBuilder.Entity<Supplier>()
+                .Property(u => u.OnBoardStatus)
+                .HasConversion(new EnumToStringConverter<OnBoardStatus>());
 
             // Configure SupplierImage -> Supplier (many-to-one relationship)
             modelBuilder.Entity<SupplierImage>()
