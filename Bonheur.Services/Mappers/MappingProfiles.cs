@@ -4,7 +4,15 @@ using Bonheur.BusinessObjects.Models;
 using Bonheur.Services.DTOs.Account;
 using Bonheur.Services.DTOs.Supplier;
 using Microsoft.AspNetCore.Identity;
-
+using Bonheur.Services.DTOs.SupplierCategory;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
+using static Bonheur.Utils.Constants;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace Bonheur.Services.Mappers
 {
@@ -50,6 +58,14 @@ namespace Bonheur.Services.Mappers
               .ForMember(d => d.Type, map => map.MapFrom(s => s.ClaimType))
               .ForMember(d => d.Value, map => map.MapFrom(s => s.ClaimValue))
               .ReverseMap();
+            CreateMap<UserRoleDTO, ApplicationRole>();
+
+            // SupplierCategory
+            CreateMap<SupplierCategoryDTO, SupplierCategory>();
+
+            CreateMap<SupplierCategory, SupplierCategoryDTO>();
+
+            CreateMap<CreateSupplierCategoryDTO, SupplierCategory>();
 
             // Supplier
             CreateMap<CreateSupplierDTO, Supplier>();
