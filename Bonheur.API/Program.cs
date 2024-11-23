@@ -268,20 +268,20 @@ namespace Bonheur.API
             // DAOs
             builder.Services.AddScoped<UserAccountDAO>();
             builder.Services.AddScoped<UserRoleDAO>();
-<<<<<<< HEAD
             builder.Services.AddScoped<SupplierCategoriesDAO>();
             //Repositories
             builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
             builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
             builder.Services.AddScoped<ISupplierCategoryRepository, SupplierCategoryRepository>();
-=======
+
             builder.Services.AddScoped<SupplierDAO>();
+            builder.Services.AddScoped<SupplierImageDAO>();
 
             //Repositories
             builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
             builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
             builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
->>>>>>> 19d5649a84542421fbac71d97439c4f5514ef65d
+            builder.Services.AddScoped<ISupplierImageRepository, SupplierImageRepository>();
 
             // Services
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();

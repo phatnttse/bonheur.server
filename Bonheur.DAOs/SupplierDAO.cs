@@ -1,4 +1,5 @@
 ﻿using Bonheur.BusinessObjects.Entities;
+using Bonheur.BusinessObjects.Enums;
 using Microsoft.EntityFrameworkCore;
 using X.PagedList;
 using X.PagedList.Extensions;
@@ -14,15 +15,18 @@ namespace Bonheur.DAOs
             _context = context;
         }
 
-        public async Task<Supplier?> GetSupplierByIdAsync(int id)
+        public async Task<Supplier?> GetSupplierByIdAsync(int id, bool isIncludeUser)
         {
-            return await _context.Suppliers
-                .Include(s => s.User)
+            IQueryable<Supplier> query = _context.Suppliers
                 .Include(s => s.SupplierCategory)
-                .Include(s => s.SupplierImages)
-                .Include(s => s.SubscriptionPackage)
-                .Include(s => s.Advertisements)
-                .SingleOrDefaultAsync(s => s.Id == id);
+                .Include(s => s.SupplierImages);
+
+            if (isIncludeUser)
+            {
+                query = query.Include(s => s.User);
+            }
+
+            return await query.SingleOrDefaultAsync(s => s.Id == id);
         }
 
         public async Task<Supplier?> GetSupplierByUserIdAsync(string userId)
@@ -32,10 +36,8 @@ namespace Bonheur.DAOs
                 .Include(s => s.SupplierCategory)
                 .Include(s => s.SupplierImages)
                 .Include(s => s.SubscriptionPackage)
-                .Include(s => s.Advertisements)
                 .SingleOrDefaultAsync(s => s.UserId == userId);
         }
-
 
         public Task<IPagedList<Supplier>> GetSuppliersAsync(
                 string? supplierName,
@@ -51,15 +53,14 @@ namespace Bonheur.DAOs
         )
         {
             IQueryable<Supplier> query = _context.Suppliers
-                .Include(s => s.User)
                 .Include(s => s.SupplierCategory)
                 .Include(s => s.SupplierImages)
-                .Include(s => s.SubscriptionPackage);
+                .Where(s => s.Status == SupplierStatus.APPROVED);
 
             // Lọc theo tên nhà cung cấp
             if (!string.IsNullOrEmpty(supplierName))
             {
-                query = query.Where(s => s.SupplierName!.ToLower().Trim().Contains(supplierName.ToLower().Trim()));
+                query = query.Where(s => EF.Functions.Like(s.SupplierName, $"%{supplierName}%"));
             }
 
             // Lọc theo danh mục
@@ -71,7 +72,7 @@ namespace Bonheur.DAOs
             // Lọc theo tỉnh thành
             if (!string.IsNullOrEmpty(province))
             {
-                query = query.Where(s => s.Province!.ToLower().Trim().Contains(province.ToLower().Trim()));
+                query = query.Where(s => EF.Functions.Like(s.Province, $"%{province}%"));
             }
 
             // Lọc theo trạng thái nổi bật
@@ -98,8 +99,12 @@ namespace Bonheur.DAOs
             }
 
             IOrderedQueryable<Supplier> orderedQuery = query
-                .OrderByDescending(s => s.BoostUntil.HasValue && s.BoostUntil > DateTime.Now) // Nhà cung cấp có gói còn hiệu lực trước
-                .ThenByDescending(s => s.SubscriptionPackage != null ? s.SubscriptionPackage.PriorityLevel : 0); // Sắp xếp theo PriorityLevel của gói
+            // Ưu tiên các supplier có BoostUntil hợp lệ trước
+            .OrderByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTime.Now)
+            // Sắp xếp trong nhóm BoostUntil hợp lệ dựa trên Priority
+            .ThenByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTime.Now ? s.Priority : 0)
+            // Sắp xếp tiếp theo trong nhóm không hợp lệ dựa trên Priority
+            .ThenByDescending(s => s.Priority);
 
             if (sortAsc.HasValue && sortAsc.Value)
             {
@@ -143,6 +148,10 @@ namespace Bonheur.DAOs
             return result > 0;
         }
 
+        public async Task<bool> IsSupplierAsync(string userId)
+        {
+            return await _context.Suppliers.AnyAsync(s => s.UserId == userId);
+        }
 
     }
 }

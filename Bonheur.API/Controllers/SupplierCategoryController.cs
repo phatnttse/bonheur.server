@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Bonheur.API.Controllers
 {
     [ApiController]
-    [Route("api/v{version:apiVersion}/supplierCategory")]
+    [Route("api/v{version:apiVersion}/suppliers/categories")]
     [ApiVersion("1.0")]
     [Authorize]
     public class SupplierCategoryController : Controller
@@ -18,7 +18,7 @@ namespace Bonheur.API.Controllers
 
         }
 
-        [HttpGet("GetAllSupplierCategory")]
+        [HttpGet]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetAllSupplierCategories()
@@ -26,38 +26,34 @@ namespace Bonheur.API.Controllers
             return Ok(await _supplierCategoryService.GetAllSupplierCategoryAsync());
         }
 
-        [HttpGet("GetSupplierCategory/{id}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
         public async Task<IActionResult> GetSupplierCategoryById(int id)
         {
             return Ok(await _supplierCategoryService.GetSupplierCategoryByIdAsync(id));
         }
 
-        [HttpPost("CreateNewSupplierCategory")]
+        [HttpPost]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
         public async Task<IActionResult> CreateNewSupplierCategory([FromBody] CreateSupplierCategoryDTO createSupplierCategoryDTO)
         {
 
             return Ok(await _supplierCategoryService.AddSupplierCategory(createSupplierCategoryDTO));
         }
 
-        [HttpPut("UpdateSupplierCategory/{id}")]
+        [HttpPut("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
         public async Task<IActionResult> UpdateSupplierCategory([FromBody] CreateSupplierCategoryDTO updateSupplierCategoryDTO, int id)
         {
             return Ok(await _supplierCategoryService.UpdateSupplierCategory(updateSupplierCategoryDTO, id));
         }
 
-        [HttpDelete("DeleteSupplierCategory/{id}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
         public async Task<IActionResult> DeleteSupplierCategory(int id)
         {
             return Ok(await _supplierCategoryService.DeleteSupplierCategory(id));

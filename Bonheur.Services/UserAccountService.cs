@@ -180,7 +180,7 @@ namespace Bonheur.Services
 
                 var responseData = new
                 {
-                    Items = userAccountDTOs,
+                    UserAccounts = userAccountDTOs,
                     usersAndRolesPagedList.PageNumber,
                     usersAndRolesPagedList.PageSize,
                     usersAndRolesPagedList.TotalItemCount,

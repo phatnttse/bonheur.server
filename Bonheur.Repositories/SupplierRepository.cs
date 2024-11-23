@@ -19,15 +19,15 @@ namespace Bonheur.Repositories
             _supplierDAO = supplierDAO;
         }
 
-        public Task<Supplier?> CreateSupplierAsync(Supplier supplier) => _supplierDAO.CreateSupplierAsync(supplier);
+        public async Task<Supplier?> CreateSupplierAsync(Supplier supplier) => await _supplierDAO.CreateSupplierAsync(supplier);
 
-        public Task<bool> DeleteSupplierAsync(int id) => _supplierDAO.DeleteSupplierAsync(id);
+        public async Task<bool> DeleteSupplierAsync(int id) => await _supplierDAO.DeleteSupplierAsync(id);
 
-        public Task<Supplier?> GetSupplierByIdAsync(int id) => _supplierDAO.GetSupplierByIdAsync(id);
+        public async Task<Supplier?> GetSupplierByIdAsync(int id, bool isIncludeUser) => await _supplierDAO.GetSupplierByIdAsync(id, isIncludeUser);
 
-        public Task<Supplier?> GetSupplierByUserIdAsync(string userId) => _supplierDAO.GetSupplierByUserIdAsync(userId);
+        public async Task<Supplier?> GetSupplierByUserIdAsync(string userId) => await _supplierDAO.GetSupplierByUserIdAsync(userId);
 
-        public Task<IPagedList<Supplier>> GetSuppliersAsync(
+        public async Task<IPagedList<Supplier>> GetSuppliersAsync(
                 string? supplierName,
                 int? supplierCategoryId,
                 string? province,
@@ -38,8 +38,9 @@ namespace Bonheur.Repositories
                 bool? sortAsc,
                 int pageNumber = 1,
                 int pageSize = 10
-            ) => _supplierDAO.GetSuppliersAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, sortAsc, pageNumber, pageSize);
+            ) => await _supplierDAO.GetSuppliersAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, sortAsc, pageNumber, pageSize);
 
-        public Task<Supplier?> UpdateSupplierAsync(Supplier supplier) => _supplierDAO.UpdateSupplierAsync(supplier);
+        public async Task<Supplier?> UpdateSupplierAsync(Supplier supplier) => await _supplierDAO.UpdateSupplierAsync(supplier);
+        public async Task<bool> IsSupplierAsync(string userId) => await _supplierDAO.IsSupplierAsync(userId);
     }
 }

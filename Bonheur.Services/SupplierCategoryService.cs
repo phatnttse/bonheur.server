@@ -59,7 +59,7 @@ namespace Bonheur.Services
             { 
                 var supplierCategory = await _supplierCategoryRepository.GetSupplierCategoryByIdAsync(id);
                 if (supplierCategory == null) { 
-                    throw new ApiException("Supplier category not found!", HttpStatusCode.InternalServerError);
+                    throw new ApiException("Supplier category not found!", HttpStatusCode.NotFound);
                 }
                 await _supplierCategoryRepository.DeleteSupplierCategory(id);
                 return new ApplicationResponse
@@ -88,13 +88,7 @@ namespace Bonheur.Services
             {
                 var supplierCategories = await _supplierCategoryRepository.GetAllSupplierCategoryAsync();
                 if (!supplierCategories.Any()) {
-                    return new ApplicationResponse
-                    {
-                        Success = true,
-                        Message = "No supplier category found!",
-                        Data = new List<SupplierCategoryDTO>(),
-                        StatusCode = System.Net.HttpStatusCode.OK
-                    };
+                    throw new ApiException("Supplier category not found!", HttpStatusCode.InternalServerError);
                 }
 
                 var supplierCategoryDTOs = _mapper.Map<List<SupplierCategoryDTO>>(supplierCategories);
@@ -125,13 +119,7 @@ namespace Bonheur.Services
             {
                 var supplierCategory = await _supplierCategoryRepository.GetSupplierCategoryByIdAsync(id);
                 if (supplierCategory == null) {
-                    return new ApplicationResponse
-                    {
-                        Success = true,
-                        Message = "No supplier category was found!",
-                        Data = null,
-                        StatusCode = System.Net.HttpStatusCode.OK
-                    };
+                    throw new ApiException("Supplier category not found!", HttpStatusCode.NotFound);
                 }
 
                 var supplierCategoryDTO = _mapper.Map<SupplierCategoryDTO>(supplierCategory);
@@ -162,13 +150,7 @@ namespace Bonheur.Services
 
                 if (existingSupplierCategory == null)
                 {
-                    return new ApplicationResponse
-                    {
-                        Success = false,
-                        Message = "Supplier category not found",
-                        Data = null,
-                        StatusCode = HttpStatusCode.NotFound
-                    };
+                    throw new ApiException("Supplier category not found!", HttpStatusCode.NotFound);
                 }
 
                 existingSupplierCategory.Name = supplierCategoryDTO.Name;

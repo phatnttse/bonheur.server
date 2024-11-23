@@ -2,10 +2,9 @@
 using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Models;
 using Bonheur.Services.DTOs.Account;
+using Bonheur.Services.DTOs.Supplier;
 using Microsoft.AspNetCore.Identity;
 using Bonheur.Services.DTOs.SupplierCategory;
-using Bonheur.Services.DTOs.UserAccount;
-using Bonheur.Services.DTOs.UserRole;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,8 +40,6 @@ namespace Bonheur.Services.Mappers
                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
 
 
-
-
             // UserRole
             CreateMap<ApplicationRole, UserRoleDTO>()
               .ForMember(d => d.Permissions, map => map.MapFrom(s => s.Claims))
@@ -69,6 +66,15 @@ namespace Bonheur.Services.Mappers
             CreateMap<SupplierCategory, SupplierCategoryDTO>();
 
             CreateMap<CreateSupplierCategoryDTO, SupplierCategory>();
+
+            // Supplier
+            CreateMap<CreateSupplierDTO, Supplier>();
+            CreateMap<Supplier, SupplierDTO>().ReverseMap();
+            CreateMap<UpdateSupplierProfileDTO, Supplier>();
+            CreateMap<UpdateSupplierAddressDTO, Supplier>();
+
+            // SupplierImage
+            CreateMap<SupplierImage, SupplierImageDTO>().ReverseMap();
         }
     }
 }
