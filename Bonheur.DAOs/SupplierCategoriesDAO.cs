@@ -29,72 +29,35 @@ namespace Bonheur.DAOs
             return supplierCategory;
         }
 
-        public async Task<(bool Succeded, object Response)> CreateNewSupplierCategory(SupplierCategory supplierCategory)
+        public async Task<bool> CreateNewSupplierCategory(SupplierCategory supplierCategory)
         {
-            try
-            {
-                var result = await _context.SupplierCategories.AddAsync(supplierCategory);
-                var saveResult = await _context.SaveChangesAsync();
-                if (saveResult <= 0)
-                {
-                    return (false, new{message = "Fail to add new supplier category!"});
-                }
-                return (true, new{category = supplierCategory });
-            }
-            catch (Exception ex)
-            {
-                return (false, new { message = $"Fail to add new supplier category! Because: {ex.Message}" });
-                throw;
-            }
+            var result = await _context.SupplierCategories.AddAsync(supplierCategory);
+            var saveResult = await _context.SaveChangesAsync();
+            return saveResult>0;
         }
 
-        public async Task<(bool Succeeded, object Response)> UpdateSupplierCategory(SupplierCategory supplierCategory)
+        public async Task<bool> UpdateSupplierCategory(SupplierCategory supplierCategory)
         {
-            try
-            {
-                if (supplierCategory == null) {
-                    return (false, new { message = "Invalid supplier category data." });
-                }
 
-                var existingSupplierCategory = await _context.SupplierCategories.FirstOrDefaultAsync(x => x.Id == supplierCategory.Id);
 
-                if (existingSupplierCategory == null)
-                {
-                    return (false, new { message = "Supplier category not found!" });
+            var existingSupplierCategory = await _context.SupplierCategories.FirstOrDefaultAsync(x => x.Id == supplierCategory.Id);
 
-                }
+            existingSupplierCategory.Name = supplierCategory.Name;
+            existingSupplierCategory.Description = supplierCategory.Description;
 
-                existingSupplierCategory.Name = supplierCategory.Name;
-                existingSupplierCategory.Description = supplierCategory.Description;
+            _context.SupplierCategories.Update(existingSupplierCategory);
+            var saveResult = await _context.SaveChangesAsync();
 
-                _context.SupplierCategories.Update(existingSupplierCategory);
-                await _context.SaveChangesAsync();
+            return saveResult>0;
 
-                return (true, existingSupplierCategory);    
-            }
-            catch (Exception ex)
-            {
-                return (false, $"An error occurred: {ex.Message}");
-            }
         }
 
-        public async Task<(bool Succeeded, object Response)> DeleteSupplierCategory(int id)
+        public async Task<bool> DeleteSupplierCategory(int id)
         {
-            try
-            {
                 var existingCategory = await _context.SupplierCategories.FindAsync(id);
-                if (existingCategory == null)
-                {
-                    return (false, new {message= $"Supplier category with id {id} does not exist!" });
-                }
                 _context.SupplierCategories.Remove(existingCategory);
-                await _context.SaveChangesAsync();
-                return (true, new {message= $"Delete category with id {id} successfully!"});
-            }
-            catch (Exception ex)
-            {
-                return (false, $"An error occurred: {ex.Message}");
-            }
+                var saveResult = await _context.SaveChangesAsync();
+                return saveResult>0;
         }
     }
 }

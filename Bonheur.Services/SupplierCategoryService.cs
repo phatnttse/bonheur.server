@@ -29,7 +29,11 @@ namespace Bonheur.Services
             try
             {
                 var supplierCategory = _mapper.Map<SupplierCategory>(supplierCategoryDTO);
-                await _supplierCategoryRepository.AddSupplierCategory(supplierCategory);
+                if (supplierCategory == null) { 
+                    throw new ApiException("Supplier category is exist!", HttpStatusCode.BadRequest);
+                }
+                var result = await _supplierCategoryRepository.AddSupplierCategory(supplierCategory);
+
                 return new ApplicationResponse
                 {
                     Message = "Supplier category create successfully!",
@@ -37,6 +41,11 @@ namespace Bonheur.Services
                     Data = supplierCategory,
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
+            }
+            catch (ApiException)
+            {
+                throw;
+
             }
             catch (Exception ex)
             {
@@ -60,6 +69,11 @@ namespace Bonheur.Services
                     Data = supplierCategory,
                     StatusCode = HttpStatusCode.OK
                 };
+            }
+            catch (ApiException)
+            {
+                throw;
+
             }
             catch (Exception ex)
             {
@@ -92,6 +106,11 @@ namespace Bonheur.Services
                     Data = supplierCategoryDTOs,
                     StatusCode = HttpStatusCode.OK
                 };
+            }
+            catch (ApiException)
+            {
+                throw;
+
             }
             catch (Exception ex)
             {
@@ -164,6 +183,11 @@ namespace Bonheur.Services
                     Data = supplierCategoryDTO, 
                     StatusCode = HttpStatusCode.OK
                 };
+
+            }
+            catch (ApiException)
+            {
+                throw;
 
             }
             catch (Exception ex)

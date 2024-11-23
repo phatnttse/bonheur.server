@@ -11,8 +11,8 @@ namespace Bonheur.Repositories.Interfaces
     {
         Task<SupplierCategory> GetSupplierCategoryByIdAsync(int id);
         Task<List<SupplierCategory>> GetAllSupplierCategoryAsync();
-        Task AddSupplierCategory(SupplierCategory supplierCategory);
-        Task UpdateSupplierCategory(SupplierCategory supplierCategory);
-        Task DeleteSupplierCategory(int id);
+        Task<bool> AddSupplierCategory(SupplierCategory supplierCategory);
+        Task<bool> UpdateSupplierCategory(SupplierCategory supplierCategory);
+        Task<bool> DeleteSupplierCategory(int id);
     }
 }
