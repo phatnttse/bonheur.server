@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using X.PagedList;
 
 namespace Bonheur.Repositories.Interfaces
 {
@@ -15,13 +16,13 @@ namespace Bonheur.Repositories.Interfaces
         Task<ApplicationUser?> GetUserByEmailAsync(string email);
         Task<IList<string>> GetUserRolesAsync(ApplicationUser user);
         Task<(ApplicationUser User, string[] Roles)?> GetUserAndRolesAsync(string userId);
-        Task<List<(ApplicationUser User, string[] Roles)>> GetUsersAndRolesAsync(int page, int pageSize);
+        Task<IPagedList<(ApplicationUser User, string[] Roles)>> GetUsersAndRolesAsync(int page, int pageSize);
         Task<(bool Succeeded, string[] Errors)> CreateUserAsync(ApplicationUser user,
             IEnumerable<string> roles, string password);
         Task<(bool Succeeded, string[] Errors)> UpdateUserAsync(ApplicationUser user);
         Task<(bool Succeeded, string[] Errors)> UpdateUserAndUserRoleAsync(ApplicationUser user,
             IEnumerable<string>? roles);
-        Task<(bool Succeeded, string[] Errors)> ResetPasswordAsync(ApplicationUser user,
+        Task<(bool Succeeded, string[] Errors)> ResetPasswordAsync(ApplicationUser user, string resetToken,
             string newPassword);
         Task<(bool Succeeded, string[] Errors)> UpdatePasswordAsync(ApplicationUser user,
             string currentPassword, string newPassword);
@@ -33,5 +34,6 @@ namespace Bonheur.Repositories.Interfaces
            IEnumerable<string> roles);
         Task<string> GenereEmailConfirmationTokenAsync(ApplicationUser user);
         Task<IdentityResult> ConfirmEmailAsync(ApplicationUser user, string token);
+        Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user);
     }
 }

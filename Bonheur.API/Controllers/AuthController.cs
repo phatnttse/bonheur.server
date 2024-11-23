@@ -19,12 +19,10 @@ namespace Bonheur.API.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthService _authService;
-        private readonly IEmailSender _emailSender;
 
-        public AuthController(IAuthService authService, IEmailSender emailSender)
+        public AuthController(IAuthService authService)
         {
             _authService = authService;
-            _emailSender = emailSender;
         }
 
         /// <summary>
@@ -59,7 +57,7 @@ namespace Bonheur.API.Controllers
                 var result =  await _authService.CheckPasswordSignInAsync(user, request.Password, true);
 
                 if (result.IsLockedOut)
-                    return GetForbidResult("The specified user account has been suspended.");
+                    return GetForbidResult("The specified user account has been locked.");
 
                 if (result.IsNotAllowed)
                     return GetForbidResult("The specified user is not allowed to sign in.");
@@ -81,7 +79,7 @@ namespace Bonheur.API.Controllers
                 if (user == null)
                     return GetForbidResult("The refresh token is no longer valid.");
 
-                if (!user.IsLockedOut)
+                if (user.IsLockedOut)
                     return GetForbidResult("The specified user account has been locked.");
 
                 if (!await _authService.CanSignInAsync(user))
@@ -121,20 +119,38 @@ namespace Bonheur.API.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("signup")]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        [ProducesResponseType(200)] 
         public async Task<IActionResult> SignUpUserAccount([FromBody] CreateAccountDTO createAccountDTO)
         {
             return Ok(await _authService.SignUpUserAccount(createAccountDTO));
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("confirm-email")]
-        [ProducesResponseType(400)]
         [ProducesResponseType(200)]
-        public async Task<IActionResult> ConfirmEmail([FromQuery] string email, [FromQuery] string token)
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> ConfirmEmail([FromBody] EmailRequestDTO request)
         {
-            return Ok(await _authService.ConfirmEmail(email, token));
+            return Ok(await _authService.ConfirmEmail(request.Email, request.Token));
+        }
+
+        [HttpPost]
+        [Route("reset-password")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> ResetPassword([FromBody] EmailRequestDTO request)
+        {
+            return Ok(await _authService.ResetPasswordAsync(request.Email, request.Token, request.Password!));
+        }
+
+        [HttpPost]
+        [Route("forgot-password")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> ForgotPassword([FromBody] string email)
+        {
+            return Ok(await _authService.ForgotPasswordAsync(email));
         }
 
         /// Unfinished
@@ -147,7 +163,7 @@ namespace Bonheur.API.Controllers
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }
 
-
+        /// Unfinished
         [HttpGet("signin-google")]
         [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<IActionResult> GoogleCallback()

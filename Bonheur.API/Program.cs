@@ -29,6 +29,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication;
 using Bonheur.Services.Email;
+using Microsoft.Extensions.Azure;
 
 namespace Bonheur.API
 {
@@ -48,6 +49,8 @@ namespace Bonheur.API
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                    throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            var azureConnectionString = Environment.GetEnvironmentVariable("AZURE_BLOB_CONNECTION_STRING") ??
+                   throw new InvalidOperationException("Connection string 'AZURE_BLOB_CONNECTION_STRING' not found.");
 
             var migrationsAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
 
@@ -55,6 +58,12 @@ namespace Bonheur.API
             {
                 options.UseSqlServer(connectionString, b => b.MigrationsAssembly(migrationsAssembly));
                 options.UseOpenIddict();
+            });
+
+            // Add Azure Blob Storage
+            builder.Services.AddAzureClients(azureBuilder =>
+            {
+                azureBuilder.AddBlobServiceClient(azureConnectionString);
             });
 
             // Configure Google Authentication using the environment variables
@@ -259,17 +268,29 @@ namespace Bonheur.API
             // DAOs
             builder.Services.AddScoped<UserAccountDAO>();
             builder.Services.AddScoped<UserRoleDAO>();
+<<<<<<< HEAD
             builder.Services.AddScoped<SupplierCategoriesDAO>();
             //Repositories
             builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
             builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
             builder.Services.AddScoped<ISupplierCategoryRepository, SupplierCategoryRepository>();
+=======
+            builder.Services.AddScoped<SupplierDAO>();
+
+            //Repositories
+            builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
+            builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+            builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+>>>>>>> 19d5649a84542421fbac71d97439c4f5514ef65d
 
             // Services
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IUserRoleService, UserRoleService>();
             builder.Services.AddScoped<IEmailSender, EmailSender>();
+            builder.Services.AddScoped<ISupplierService, SupplierService>();
+            builder.Services.AddScoped<IStorageService, StorageService>();
+
 
             // Auth Handlers
             builder.Services.AddSingleton<IAuthorizationHandler, ViewUserAuthorizationHandler>();

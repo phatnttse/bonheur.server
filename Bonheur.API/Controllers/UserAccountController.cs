@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using Bonheur.API.Authorization;
-using Bonheur.BusinessObjects.Entities;
+﻿using Bonheur.API.Authorization;
 using Bonheur.BusinessObjects.Models;
 using Bonheur.Services.DTOs.Account;
 using Bonheur.Services.Interfaces;
@@ -43,14 +41,6 @@ namespace Bonheur.API.Controllers
         }
 
 
-        [HttpGet("users")]
-        [Authorize(AuthPolicies.ViewAllUsersPolicy)]
-        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
-        public async Task<IActionResult> GetUsers()
-        {
-            return await GetUsers(-1, -1);
-        }
-
         [HttpGet("users/{pageNumber:int}/{pageSize:int}")]
         [Authorize(AuthPolicies.ViewAllUsersPolicy)]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
@@ -87,7 +77,7 @@ namespace Bonheur.API.Controllers
 
         [HttpPatch("users/{id}/status")]
         [Authorize(AuthPolicies.ManageAllUsersPolicy)]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
@@ -98,6 +88,22 @@ namespace Bonheur.API.Controllers
                 return new ChallengeResult();
 
             return Ok(await _userAccountService.UpdateUserAccountStatusAsync(id, userAccountStatusDTO));
+        }
+
+        [HttpPatch("users/password")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePassswordDTO updatePassswordDTO)
+        {      
+            return Ok(await _userAccountService.UpdatePasswordAsync(updatePassswordDTO.CurrentPassword, updatePassswordDTO.NewPassword));
+        }
+
+        [HttpPost("users/avatar")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> UploadAvatar(IFormFile file)
+        {
+            return Ok(await _userAccountService.UploadAvatar(file));
         }
 
     }

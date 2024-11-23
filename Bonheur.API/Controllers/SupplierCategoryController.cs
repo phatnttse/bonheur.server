@@ -23,8 +23,7 @@ namespace Bonheur.API.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetAllSupplierCategories()
         {
-            var response = await _supplierCategoryService.GetAllSupplierCategoryAsync();            
-            return Ok(response);
+            return Ok(await _supplierCategoryService.GetAllSupplierCategoryAsync());
         }
 
         [HttpGet("GetSupplierCategory/{id}")]
@@ -33,23 +32,7 @@ namespace Bonheur.API.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetSupplierCategoryById(int id)
         {
-            var response = await _supplierCategoryService.GetSupplierCategoryByIdAsync(id);
-
-            if (response == null)
-            {
-                return NotFound(new
-                {
-                    Success = false,
-                    Message = $"Supplier category with id {id} not found."
-                });
-            }
-
-            return Ok(new
-            {
-                Success = true,
-                Message = "Supplier category retrieved successfully",
-                Data = response
-            });
+            return Ok(await _supplierCategoryService.GetSupplierCategoryByIdAsync(id));
         }
 
         [HttpPost("CreateNewSupplierCategory")]
@@ -58,9 +41,8 @@ namespace Bonheur.API.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> CreateNewSupplierCategory([FromBody] CreateSupplierCategoryDTO createSupplierCategoryDTO)
         {
-            var response = await _supplierCategoryService.AddSupplierCategory(createSupplierCategoryDTO);
 
-            return Ok(response);
+            return Ok(await _supplierCategoryService.AddSupplierCategory(createSupplierCategoryDTO));
         }
 
         [HttpPut("UpdateSupplierCategory/{id}")]
@@ -69,8 +51,7 @@ namespace Bonheur.API.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> UpdateSupplierCategory([FromBody] CreateSupplierCategoryDTO updateSupplierCategoryDTO, int id)
         {
-            var response = await _supplierCategoryService.UpdateSupplierCategory(updateSupplierCategoryDTO, id);
-            return Ok(response);
+            return Ok(await _supplierCategoryService.UpdateSupplierCategory(updateSupplierCategoryDTO, id));
         }
 
         [HttpDelete("DeleteSupplierCategory/{id}")]
@@ -79,8 +60,7 @@ namespace Bonheur.API.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> DeleteSupplierCategory(int id)
         {
-            var response = await _supplierCategoryService.DeleteSupplierCategory(id);
-            return Ok(response);
+            return Ok(await _supplierCategoryService.DeleteSupplierCategory(id));
         }
     }
 }

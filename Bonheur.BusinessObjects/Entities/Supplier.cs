@@ -23,6 +23,9 @@ namespace Bonheur.BusinessObjects.Entities
         [Column(TypeName = "nvarchar(max)")]
         public string? SupplierDescription { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? Price { get; set; }
+
         public string? Street { get; set; }
         public string? Province { get; set; }
         public string? Ward { get; set; }

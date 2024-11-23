@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
 using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Models;
-using Bonheur.DAOs;
 using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Account;
+using Bonheur.Services.DTOs.Storage;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
+using Microsoft.AspNetCore.Http;
 
 namespace Bonheur.Services
 {
@@ -13,11 +14,13 @@ namespace Bonheur.Services
     {
         private readonly IUserAccountRepository _userAccountRepository;
         private readonly IMapper _mapper;
+        private readonly IStorageService _storageService;
 
-        public UserAccountService(IUserAccountRepository userAccountRepository, IMapper mapper)
+        public UserAccountService(IUserAccountRepository userAccountRepository, IMapper mapper, IStorageService storageService)
         {
             _userAccountRepository = userAccountRepository;
             _mapper = mapper;
+            _storageService = storageService;
         }
 
         public async Task<ApplicationResponse> GetCurrentUserAsync()
@@ -163,11 +166,11 @@ namespace Bonheur.Services
         {
             try
             {
-                var usersAndRoles = await _userAccountRepository.GetUsersAndRolesAsync(page, pageSize);
+                var usersAndRolesPagedList = await _userAccountRepository.GetUsersAndRolesAsync(page, pageSize);
 
                 var userAccountDTOs = new List<UserAccountDTO>();
 
-                foreach (var item in usersAndRoles)
+                foreach (var item in usersAndRolesPagedList)
                 {
                     var userAccountDTO = _mapper.Map<UserAccountDTO>(item.User);
                     userAccountDTO.Roles = item.Roles;
@@ -175,12 +178,26 @@ namespace Bonheur.Services
                     userAccountDTOs.Add(userAccountDTO);
                 }
 
+                var responseData = new
+                {
+                    Items = userAccountDTOs,
+                    usersAndRolesPagedList.PageNumber,
+                    usersAndRolesPagedList.PageSize,
+                    usersAndRolesPagedList.TotalItemCount,
+                    usersAndRolesPagedList.PageCount,
+                    usersAndRolesPagedList.IsFirstPage,
+                    usersAndRolesPagedList.IsLastPage,
+                    usersAndRolesPagedList.HasNextPage,
+                    usersAndRolesPagedList.HasPreviousPage,
+                };
+
+
                 return new ApplicationResponse
                 {
                     Success = true,
                     Message = "Get users and roles successful",
                     StatusCode = System.Net.HttpStatusCode.OK,
-                    Data = userAccountDTOs
+                    Data = responseData
                 };
 
             }
@@ -248,35 +265,7 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> ResetPasswordAsync(string newPassword)
-        {
-            try
-            {
-                var existingUser = await GetCurrentUser();
-
-                var result = await _userAccountRepository.ResetPasswordAsync(existingUser!, newPassword);
-
-                if (!result.Succeeded) throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
-
-                return new ApplicationResponse
-                {
-                    Success = true,
-                    Message = "Password reset successfully",
-                    StatusCode = System.Net.HttpStatusCode.OK
-                };
-
-            }
-            catch (ApiException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
-            }
-        }
-
-        public async Task<ApplicationResponse> UpdatePasswordAsync(UserAccountDTO user, string currentPassword, string newPassword)
+        public async Task<ApplicationResponse> UpdatePasswordAsync(string currentPassword, string newPassword)
         {
             try
             {
@@ -420,6 +409,43 @@ namespace Bonheur.Services
             {
                 throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
             }
+        }
+
+        public async Task<ApplicationResponse> UploadAvatar(IFormFile file)
+        {        
+            try
+            {
+                var existingUser = await GetCurrentUser();
+
+                AzureBlobResponseDTO response = await _storageService.UploadAsync(file);
+
+                if (response.Error) throw new ApiException(response.Status!, System.Net.HttpStatusCode.BadRequest);
+
+                existingUser!.PictureUrl = response.Blob.Uri;
+
+                var result = await _userAccountRepository.UpdateUserAsync(existingUser!);
+
+                if (!result.Succeeded) throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
+
+                return new ApplicationResponse
+                {
+                    Success = true,
+                    Message = "Avatar uploaded successfully",
+                    StatusCode = System.Net.HttpStatusCode.OK,
+                    Data = response.Blob
+                };
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+
+
         }
     }
 }
