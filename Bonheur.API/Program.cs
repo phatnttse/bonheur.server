@@ -269,6 +269,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<UserAccountDAO>();
             builder.Services.AddScoped<UserRoleDAO>();
             builder.Services.AddScoped<SupplierCategoriesDAO>();
+            builder.Services.AddScoped<RequestPricingDAO>();
             //Repositories
             builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
             builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
@@ -282,6 +283,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
             builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
             builder.Services.AddScoped<ISupplierImageRepository, SupplierImageRepository>();
+            builder.Services.AddScoped<IRequestPricingsRepository, RequestPricingsRepository>();    
 
             // Services
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();
@@ -290,6 +292,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<IEmailSender, EmailSender>();
             builder.Services.AddScoped<ISupplierService, SupplierService>();
             builder.Services.AddScoped<IStorageService, StorageService>();
+            builder.Services.AddScoped<IRequestPricingsService, RequestPricingsService>();
 
 
             // Auth Handlers

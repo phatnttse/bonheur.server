@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Bonheur.Utils.Constants;
 using static OpenIddict.Abstractions.OpenIddictConstants;
+using Bonheur.Services.DTOs.RequestPricing;
 
 namespace Bonheur.Services.Mappers
 {
@@ -75,6 +76,13 @@ namespace Bonheur.Services.Mappers
 
             // SupplierImage
             CreateMap<SupplierImage, SupplierImageDTO>().ReverseMap();
+
+            //RequestPricing
+            CreateMap<CreateRequestPricingDTO, RequestPricing>();
+            CreateMap<RequestPricing, RequestPricingsDTO>();
+            CreateMap<RequestPricingsDTO, RequestPricing>();
+
+
         }
     }
 }
