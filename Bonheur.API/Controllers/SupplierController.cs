@@ -1,4 +1,5 @@
 ﻿using Bonheur.BusinessObjects.Models;
+using Bonheur.Services;
 using Bonheur.Services.DTOs.Supplier;
 using Bonheur.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -14,10 +15,12 @@ namespace Bonheur.API.Controllers
     public class SupplierController : ControllerBase
     {
         private readonly ISupplierService _supplierService;
+        private readonly IRequestPricingsService _requestPricingsService;
 
-        public SupplierController(ISupplierService supplierService)
+        public SupplierController(ISupplierService supplierService, IRequestPricingsService requestPricingsService)
         {
             _supplierService = supplierService;
+            _requestPricingsService = requestPricingsService;
         }
 
         [HttpGet]
@@ -109,6 +112,42 @@ namespace Bonheur.API.Controllers
         public async Task<IActionResult> UploadSupplierImages([FromForm] List<IFormFile> files, [FromForm] int primaryImageIndex)
         {
             return Ok(await _supplierService.UploadSupplierImages(files, primaryImageIndex));
+        }
+
+        [HttpGet("request-pricing")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [Authorize]
+        public async Task<IActionResult> GetAllRequestPricings()
+        {
+            return Ok(await _requestPricingsService.GetAllRequestPricing());
+        }
+
+        [HttpGet("request-pricing/{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [Authorize]
+        public async Task<IActionResult> GetRequestPricingById(int id)
+        {
+            return Ok(await _requestPricingsService.GetRequestPricingById(id));
+        }
+
+        [HttpPut("request-pricing/update/status/responsed/{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [Authorize]
+        public async Task<IActionResult> RequestPricingResponsed(int id)
+        {
+            return Ok(await _requestPricingsService.RequestPricingResponsed(id));
+        }
+
+        [HttpPut("request-pricing/update/status/rejected/{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [Authorize]
+        public async Task<IActionResult> RequestPricingRejected(int id)
+        {
+            return Ok(await _requestPricingsService.RequestPricingRejected(id));
         }
     }
 }
