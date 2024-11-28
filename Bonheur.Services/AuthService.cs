@@ -30,15 +30,40 @@ namespace Bonheur.Services
             _emailSender = emailSender;
 
         }
-        public Task<SignInResult> CheckPasswordSignInAsync(ApplicationUser user, string password, bool lockoutOnFailure)
+        public async Task<ApplicationUser> HandleLoginAsync(string username, string password)
         {
             try
             {
-                return _signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure);
+                if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+                    throw new ApiException("Please provide a valid email and password", System.Net.HttpStatusCode.BadRequest);
+
+                var user = _userAccountRepository.GetUserByUserNameAsync(username).Result;
+
+                if (user == null)
+                    throw new ApiException("Please check that your email and password is correct.", System.Net.HttpStatusCode.BadRequest);
+
+                if (!user.EmailConfirmed) throw new ApiException("Email has not been confirmed. Please check your mailbox", System.Net.HttpStatusCode.BadRequest);
+
+                if (!user.IsEnabled) throw new ApiException("The specified user account is disabled.", System.Net.HttpStatusCode.BadRequest);
+
+                SignInResult result = await _signInManager.CheckPasswordSignInAsync(user, password, true);
+
+                if (result.IsLockedOut) throw new ApiException("The specified user account has been locked.", System.Net.HttpStatusCode.BadRequest);
+
+                if (result.IsNotAllowed) throw new ApiException("The specified user account is not allowed to sign in.", System.Net.HttpStatusCode.BadRequest);
+
+                if (!result.Succeeded) throw new ApiException("Please check that your email and password is correct.", System.Net.HttpStatusCode.BadRequest);
+
+                return user;
+
+            }
+            catch (ApiException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
             }
         }
 
@@ -61,7 +86,7 @@ namespace Bonheur.Services
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
             }
         }
 
@@ -113,6 +138,24 @@ namespace Bonheur.Services
 
                     yield break;
 
+                case CustomClaims.Gender:
+                    if (claim.Subject.HasScope(Scopes.Profile))
+                        yield return Destinations.IdentityToken;
+
+                    yield break;
+
+                case CustomClaims.EmailConfirmed:
+                    if (claim.Subject.HasScope(Scopes.Profile))
+                        yield return Destinations.IdentityToken;
+
+                    yield break;
+
+                case CustomClaims.PictureUrl:
+                    if (claim.Subject.HasScope(Scopes.Profile))
+                        yield return Destinations.IdentityToken;
+
+                    yield break;
+
                 // IdentityOptions.ClaimsIdentity.SecurityStampClaimType
                 case "AspNet.Identity.SecurityStamp":
                     // Never include the security stamp in the access and identity tokens, as it's a secret value.
@@ -124,16 +167,25 @@ namespace Bonheur.Services
             }
         }
 
-        public Task<bool> CanSignInAsync(ApplicationUser user)
+        public async Task<bool> CanSignInAsync(ApplicationUser user)
         {
             try
             {
-                return _signInManager.CanSignInAsync(user);
+               
+                if (!await _signInManager.CanSignInAsync(user))
+                {
+                    throw new ApiException("The specified user account is not allowed to sign in.", System.Net.HttpStatusCode.BadRequest);
+                }
 
+                return true;
+            }
+            catch (ApiException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
             }
         }
 
@@ -142,26 +194,25 @@ namespace Bonheur.Services
         {
             try
             {
-                return await _userAccountRepository.GetUserByIdAsync(id);
+                var user = await _userAccountRepository.GetUserByIdAsync(id);
+                
+                if (user == null) throw new ApiException("The refresh token is no longer valid.", System.Net.HttpStatusCode.NotFound);
+
+                if (user.IsLockedOut) throw new ApiException("The specified user account has been locked.", System.Net.HttpStatusCode.BadRequest);
+
+                return user;
+
+            }
+            catch (ApiException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
             }
         }
 
-        public async Task<ApplicationUser> GetUserByUsername(string username)
-        {
-            try
-            {
-                return await _userAccountRepository.GetUserByUserNameAsync(username);
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
 
         public async Task<ApplicationResponse> SignUpUserAccount(CreateAccountDTO createAccountDTO)
         {
@@ -215,7 +266,7 @@ namespace Bonheur.Services
                 };
 
             }
-            catch (ApiException ex)
+            catch (ApiException)
             {
                 throw;
             }
