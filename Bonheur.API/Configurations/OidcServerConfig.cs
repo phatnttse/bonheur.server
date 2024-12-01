@@ -1,4 +1,5 @@
-﻿using OpenIddict.Abstractions;
+﻿using Bonheur.Utils;
+using OpenIddict.Abstractions;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace Bonheur.API.Configurations
@@ -30,7 +31,8 @@ namespace Bonheur.API.Configurations
                         Permissions.Scopes.Email,
                         Permissions.Scopes.Phone,
                         Permissions.Scopes.Address,
-                        Permissions.Scopes.Roles
+                        Permissions.Scopes.Roles,
+                        Permissions.Prefixes.GrantType + Constants.GrantTypes.ASSERTION                    
                     }
                 });
             }
