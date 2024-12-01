@@ -14,7 +14,7 @@ namespace Bonheur.Services.Interfaces
         Task<ApplicationUser> GetUserByIdAsync(string id);
         Task<ApplicationResponse> SignUpUserAccount(CreateAccountDTO createAccountDTO);
         Task<ApplicationResponse> ConfirmEmail(string email, string token);
-        Task<ApplicationUser> HandleGoogleLoginAsync(GoogleAccountDTO googleAccountDTO);
+        Task<ApplicationUser> HandleSocialLoginAsync(string assertion, string provider);
         Task<ApplicationResponse> ResetPasswordAsync(string email, string resetToken, string newPassword);
         Task<ApplicationResponse> ForgotPasswordAsync(string email);
     }

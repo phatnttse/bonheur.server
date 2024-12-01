@@ -137,7 +137,8 @@ namespace Bonheur.API
                     options.SetTokenEndpointUris("connect/token");
 
                     options.AllowPasswordFlow()
-                           .AllowRefreshTokenFlow();
+                           .AllowRefreshTokenFlow()
+                           .AllowCustomFlow(Constants.GrantTypes.ASSERTION);
 
                     options.RegisterScopes(
                         Scopes.Profile,
