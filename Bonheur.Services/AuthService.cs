@@ -23,10 +23,10 @@ namespace Bonheur.Services
         private readonly IUserAccountRepository _userAccountRepository;
         private readonly IMapper _mapper;
         private readonly IEmailSender _emailSender;
-        private readonly ILogger _logger;
+        private readonly ILogger<AuthService> _logger;
 
 
-        public AuthService(SignInManager<ApplicationUser> signInManager, IUserAccountRepository userAccountRepository, IMapper mapper, IEmailSender emailSender, ILogger logger)
+        public AuthService(SignInManager<ApplicationUser> signInManager, IUserAccountRepository userAccountRepository, IMapper mapper, IEmailSender emailSender, ILogger<AuthService> logger)
         {
             _signInManager = signInManager;
             _userAccountRepository = userAccountRepository;

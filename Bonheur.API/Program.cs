@@ -294,6 +294,8 @@ namespace Bonheur.API
             builder.Services.AddScoped<ISupplierService, SupplierService>();
             builder.Services.AddScoped<IStorageService, StorageService>();
             builder.Services.AddScoped<IRequestPricingsService, RequestPricingsService>();
+            builder.Services.AddScoped<ISupplierCategoryService, SupplierCategoryService>();
+
 
 
             // Auth Handlers
@@ -302,7 +304,6 @@ namespace Bonheur.API
             builder.Services.AddSingleton<IAuthorizationHandler, ViewRoleAuthorizationHandler>();
             builder.Services.AddSingleton<IAuthorizationHandler, AssignRolesAuthorizationHandler>();
 
-            builder.Services.AddScoped<ISupplierCategoryService, SupplierCategoryService>();
             //File Logger
             builder.Logging.AddFile(builder.Configuration.GetSection("Logging"));
 
