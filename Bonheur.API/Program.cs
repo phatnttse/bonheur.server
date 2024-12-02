@@ -66,23 +66,6 @@ namespace Bonheur.API
                 azureBuilder.AddBlobServiceClient(azureConnectionString);
             });
 
-            // Configure Google Authentication using the environment variables
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-            })
-            .AddCookie()
-            .AddGoogle(options =>
-            {
-                options.ClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID")!;
-                options.ClientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET")!;
-                options.Scope.Add("email");
-                options.Scope.Add("profile");
-                options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
-                options.SaveTokens = true;  
-            });
-
             // Add Identity
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
