@@ -153,17 +153,17 @@ namespace Bonheur.Services
 
                 var suppliersDTO = _mapper.Map<List<SupplierDTO>>(suppliersPagedList);
 
-                var responseData = new
+                var responseData = new PagedData<SupplierDTO>
                 {
-                    Suppliers = suppliersDTO,
-                    suppliersPagedList.PageNumber,
-                    suppliersPagedList.PageSize,
-                    suppliersPagedList.TotalItemCount,
-                    suppliersPagedList.PageCount,
-                    suppliersPagedList.IsFirstPage,
-                    suppliersPagedList.IsLastPage,
-                    suppliersPagedList.HasNextPage,
-                    suppliersPagedList.HasPreviousPage,
+                    Items = suppliersDTO,
+                    PageNumber = suppliersPagedList.PageNumber,
+                    PageSize = suppliersPagedList.PageSize,
+                    TotalItemCount = suppliersPagedList.TotalItemCount,
+                    PageCount = suppliersPagedList.PageCount,
+                    IsFirstPage = suppliersPagedList.IsFirstPage,
+                    IsLastPage = suppliersPagedList.IsLastPage,
+                    HasNextPage = suppliersPagedList.HasNextPage,
+                    HasPreviousPage = suppliersPagedList.HasPreviousPage
                 };
 
 

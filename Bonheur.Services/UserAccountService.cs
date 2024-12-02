@@ -4,6 +4,7 @@ using Bonheur.BusinessObjects.Models;
 using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Account;
 using Bonheur.Services.DTOs.Storage;
+using Bonheur.Services.DTOs.Supplier;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
 using Microsoft.AspNetCore.Http;
@@ -178,17 +179,17 @@ namespace Bonheur.Services
                     userAccountDTOs.Add(userAccountDTO);
                 }
 
-                var responseData = new
+                var responseData = new PagedData<UserAccountDTO>
                 {
-                    UserAccounts = userAccountDTOs,
-                    usersAndRolesPagedList.PageNumber,
-                    usersAndRolesPagedList.PageSize,
-                    usersAndRolesPagedList.TotalItemCount,
-                    usersAndRolesPagedList.PageCount,
-                    usersAndRolesPagedList.IsFirstPage,
-                    usersAndRolesPagedList.IsLastPage,
-                    usersAndRolesPagedList.HasNextPage,
-                    usersAndRolesPagedList.HasPreviousPage,
+                    Items = userAccountDTOs,
+                    PageNumber = usersAndRolesPagedList.PageNumber,
+                    PageSize = usersAndRolesPagedList.PageSize,
+                    TotalItemCount = usersAndRolesPagedList.TotalItemCount,
+                    PageCount = usersAndRolesPagedList.PageCount,
+                    IsFirstPage = usersAndRolesPagedList.IsFirstPage,
+                    IsLastPage = usersAndRolesPagedList.IsLastPage,
+                    HasNextPage = usersAndRolesPagedList.HasNextPage,
+                    HasPreviousPage = usersAndRolesPagedList.HasPreviousPage
                 };
 
 
