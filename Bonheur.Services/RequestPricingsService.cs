@@ -63,7 +63,6 @@ namespace Bonheur.Services
             {
                 string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
 
-                //if (await _supplierRepository.IsSupplierAsync(currentUserId)) throw new ApiException("User is already a supplier", System.Net.HttpStatusCode.BadRequest);
 
                 var currentUser = await _userAccountRepository.GetUserByIdAsync(currentUserId);
 
@@ -73,6 +72,7 @@ namespace Bonheur.Services
                 {
                     throw new ApiException("Your are not the supplier!");
                 }
+
                 var listRequestPricing = await _requestPricingsRepository.GetAllRequestPricing(currentUserId);
 
                 return new ApplicationResponse
@@ -99,16 +99,11 @@ namespace Bonheur.Services
         {
             try
             {
-                string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);  
-
-                var currentUser = await _userAccountRepository.GetUserByIdAsync(currentUserId);
-
-                if (currentUser == null) throw new ApiException("User not found", System.Net.HttpStatusCode.NotFound);
-                if (await _supplierRepository.IsSupplierAsync(currentUserId) == false)
+                var requestPricing = await _requestPricingsRepository.GetRequestPricingById(id);
+                if(requestPricing == null)
                 {
-                    throw new ApiException("Your are not the supplier!");
+                    throw new ApiException("Request Pricing does not exist!", HttpStatusCode.NotFound);
                 }
-                var requestPricing = await _requestPricingsRepository.GetRequestPricingById(currentUserId, id);
                 return new ApplicationResponse
                 {
                     Message = "Request pricing query successfully!",
@@ -129,27 +124,29 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> RequestPricingRejected(int id)
+        public async Task<ApplicationResponse> UpdateRequestPricingStatus(int id, RequestPricingStatus status)
         {
             try
             {
-                string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
+                var requestPricingExist = await _requestPricingsRepository.GetRequestPricingById(id);
 
-               
-
-                var currentUser = await _userAccountRepository.GetUserByIdAsync(currentUserId);
-
-                if (currentUser == null) throw new ApiException("User not found", System.Net.HttpStatusCode.NotFound);
-                if (await _supplierRepository.IsSupplierAsync(currentUserId) == false)
-                {
-                    throw new ApiException("Your are not the supplier!");
+                if (requestPricingExist == null) {
+                    throw new ApiException("Request Pricing does not exist!");
                 }
-                var requestPricing = await _requestPricingsRepository.ChangeRequestPricingStatus(currentUserId, id, RequestPricingStatus.Rejected);
+
+                if (!Enum.IsDefined(typeof(RequestPricingStatus), status))
+                {
+                    throw new ApiException("Invalid Request Pricing Status!", HttpStatusCode.BadRequest);
+                }
+
+                requestPricingExist.Status = status;
+                await _requestPricingsRepository.UpdateRequestPricingStatus(requestPricingExist);
+                
                 return new ApplicationResponse
                 {
                     Message = "Request pricing status update successfully!",
                     Success = true,
-                    Data = requestPricing,
+                    Data = requestPricingExist,
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
 
@@ -165,40 +162,5 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> RequestPricingResponsed(int id)
-        {
-            try
-            {
-                string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
-
-               
-
-                var currentUser = await _userAccountRepository.GetUserByIdAsync(currentUserId);
-
-                if (currentUser == null) throw new ApiException("User not found", System.Net.HttpStatusCode.NotFound);
-                if (await _supplierRepository.IsSupplierAsync(currentUserId) == false)
-                {
-                    throw new ApiException("Your are not the supplier!");
-                }
-                var requestPricing = await  _requestPricingsRepository.ChangeRequestPricingStatus(currentUserId, id, RequestPricingStatus.Responded);
-                return new ApplicationResponse
-                {
-                    Message = "Request pricing status update successfully!",
-                    Success = true,
-                    Data = requestPricing,
-                    StatusCode = System.Net.HttpStatusCode.OK
-                };
-
-            }
-            catch (ApiException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-
-                throw new ApiException(ex.Message, HttpStatusCode.InternalServerError);
-            }
-        }
     }
 }

@@ -23,39 +23,25 @@ namespace Bonheur.DAOs
             return requestPricing;
         }
 
-        public async Task<List<RequestPricing?>> GetAllRequestPricing(string supplierId)
+        public async Task<List<RequestPricing?>> GetAllRequestPricing(string currentUserId)
         {
             var result = await _context.RequestPricings
-                .Include(rp => rp.Supplier)
-                .Where(rp => rp.Supplier != null &&  rp.Supplier.UserId == supplierId)
+                .Where(rp => rp.Supplier != null &&  rp.Supplier.UserId == currentUserId)
                 .ToListAsync();
             return result;
         }
 
-        public async Task<RequestPricing> GetRequestPricingById(string supplierId, int id)
+        public async Task<RequestPricing> GetRequestPricingById(int id)
         {
             var result = await _context.RequestPricings
-                .Include(rp => rp.Supplier)
-                .Where(rp => rp.Supplier != null && rp.Supplier.UserId == supplierId)
                 .FirstOrDefaultAsync(x => x.Id == id);
             return result;
         }
 
-        public async Task<RequestPricing> ChangeRequestPricingStatus(string supplierId, int id, RequestPricingStatus status)
+        public async Task UpdateRequestPricingStatus(RequestPricing requestPricing)
         {
-            var requestPricing = await _context.RequestPricings
-                .Include(rp => rp.Supplier) 
-                .FirstOrDefaultAsync(rp => rp.Supplier != null && rp.Supplier.UserId == supplierId && rp.Id == id);
-
-            if (requestPricing == null)
-            {
-                throw new KeyNotFoundException("RequestPricing not found.");
-            } 
-
-            requestPricing.Status = status; 
-
+            _context.RequestPricings.Update(requestPricing);
             await _context.SaveChangesAsync();
-            return requestPricing;
         }
     }
 }

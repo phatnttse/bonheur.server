@@ -19,8 +19,7 @@ namespace Bonheur.Services.Interfaces
 
         Task<ApplicationResponse> GetRequestPricingById(int id);
 
-        Task<ApplicationResponse> RequestPricingResponsed(int id);
+        Task<ApplicationResponse> UpdateRequestPricingStatus(int id, RequestPricingStatus status);
 
-        Task<ApplicationResponse> RequestPricingRejected(int id);
     }
 }
