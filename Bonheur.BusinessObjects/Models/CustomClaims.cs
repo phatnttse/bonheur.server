@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bonheur.BusinessObjects.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,5 +17,14 @@ namespace Bonheur.BusinessObjects.Models
 
         ///<summary>A claim that specifies the permission of an entity</summary>
         public const string Permission = "permission";
+
+        ///<summary>A claim that specifies the gender of an entity</summary>
+        public const string Gender = "gender";
+
+        ///<summary>A claim that specifies the email confirm status of an entity</summary>
+        public const string EmailConfirmed = "emailConfirmed";
+
+        ///<summary>A claim that specifies the picture url of an entity</summary>
+        public const string PictureUrl = "pictureUrl";
     }
 }

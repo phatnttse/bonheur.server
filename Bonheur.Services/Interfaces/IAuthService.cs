@@ -8,14 +8,13 @@ namespace Bonheur.Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<Microsoft.AspNetCore.Identity.SignInResult> CheckPasswordSignInAsync(ApplicationUser user, string password, bool lockoutOnFailure);
+        Task<ApplicationUser> HandleLoginAsync(string username, string password);
         Task<ClaimsPrincipal> CreateClaimsPrincipalAsync(ApplicationUser user, IEnumerable<string> scopes);
         Task<bool> CanSignInAsync(ApplicationUser user);
         Task<ApplicationUser> GetUserByIdAsync(string id);
-        Task<ApplicationUser> GetUserByUsername(string username);
         Task<ApplicationResponse> SignUpUserAccount(CreateAccountDTO createAccountDTO);
         Task<ApplicationResponse> ConfirmEmail(string email, string token);
-        Task<ApplicationUser> HandleGoogleLoginAsync(GoogleAccountDTO googleAccountDTO);
+        Task<ApplicationUser> HandleSocialLoginAsync(string assertion, string provider);
         Task<ApplicationResponse> ResetPasswordAsync(string email, string resetToken, string newPassword);
         Task<ApplicationResponse> ForgotPasswordAsync(string email);
     }

@@ -66,23 +66,6 @@ namespace Bonheur.API
                 azureBuilder.AddBlobServiceClient(azureConnectionString);
             });
 
-            // Configure Google Authentication using the environment variables
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-            })
-            .AddCookie()
-            .AddGoogle(options =>
-            {
-                options.ClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID")!;
-                options.ClientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET")!;
-                options.Scope.Add("email");
-                options.Scope.Add("profile");
-                options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
-                options.SaveTokens = true;  
-            });
-
             // Add Identity
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -137,7 +120,8 @@ namespace Bonheur.API
                     options.SetTokenEndpointUris("connect/token");
 
                     options.AllowPasswordFlow()
-                           .AllowRefreshTokenFlow();
+                           .AllowRefreshTokenFlow()
+                           .AllowCustomFlow(Constants.GrantTypes.ASSERTION);
 
                     options.RegisterScopes(
                         Scopes.Profile,
@@ -293,6 +277,8 @@ namespace Bonheur.API
             builder.Services.AddScoped<ISupplierService, SupplierService>();
             builder.Services.AddScoped<IStorageService, StorageService>();
             builder.Services.AddScoped<IRequestPricingsService, RequestPricingsService>();
+            builder.Services.AddScoped<ISupplierCategoryService, SupplierCategoryService>();
+
 
 
             // Auth Handlers
@@ -301,7 +287,6 @@ namespace Bonheur.API
             builder.Services.AddSingleton<IAuthorizationHandler, ViewRoleAuthorizationHandler>();
             builder.Services.AddSingleton<IAuthorizationHandler, AssignRolesAuthorizationHandler>();
 
-            builder.Services.AddScoped<ISupplierCategoryService, SupplierCategoryService>();
             //File Logger
             builder.Logging.AddFile(builder.Configuration.GetSection("Logging"));
 
