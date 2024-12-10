@@ -117,32 +117,7 @@ namespace Bonheur.API.Controllers
             return Ok(await _supplierService.UploadSupplierImages(files, primaryImageIndex));
         }
 
-        [HttpGet("request-pricing")]
-        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
-        [ProducesResponseType(400)]
-        [Authorize]
-        public async Task<IActionResult> GetAllRequestPricings()
-        {
-            return Ok(await _requestPricingsService.GetAllRequestPricing());
-        }
-
-        [HttpGet("request-pricing/{id}")]
-        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
-        [ProducesResponseType(400)]
-        [Authorize]
-        public async Task<IActionResult> GetRequestPricingById(int id)
-        {
-            return Ok(await _requestPricingsService.GetRequestPricingById(id));
-        }
-
-        [HttpPut("request-pricing/update/status/{id}")]
-        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
-        [ProducesResponseType(400)]
-        [Authorize]
-        public async Task<IActionResult> UpdateRequestPricingStatus(int id, [FromBody] UpdateRequestPricingStatusDTO status)
-        {
-            return Ok(await _requestPricingsService.UpdateRequestPricingStatus(id, status.Status));
-        }
+       
 
     }
 }
