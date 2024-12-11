@@ -26,6 +26,8 @@ namespace Bonheur.BusinessObjects.Entities
 
         public bool IsFeatured { get; set; } // Có hiển thị trên trang đầu không?
 
-        public int Priority { get; set; } // Mức ưu tiên khi tìm kiếm (số càng cao, càng ưu tiên)
+        public int Priority { get; set; } // Mức ưu tiên khi tìm kiếm (số càng cao, càng ưu tiên) (ex: 0, 1, 2, 3)
+
+        public bool IsDeleted { get; set; } = false; 
     }
 }

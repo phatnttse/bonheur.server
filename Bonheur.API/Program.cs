@@ -66,23 +66,6 @@ namespace Bonheur.API
                 azureBuilder.AddBlobServiceClient(azureConnectionString);
             });
 
-            // Configure Google Authentication using the environment variables
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-            })
-            .AddCookie()
-            .AddGoogle(options =>
-            {
-                options.ClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID")!;
-                options.ClientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET")!;
-                options.Scope.Add("email");
-                options.Scope.Add("profile");
-                options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
-                options.SaveTokens = true;  
-            });
-
             // Add Identity
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -271,20 +254,20 @@ namespace Bonheur.API
             builder.Services.AddScoped<UserRoleDAO>();
             builder.Services.AddScoped<SupplierCategoriesDAO>();
             builder.Services.AddScoped<RequestPricingDAO>();
-            //Repositories
-            builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
-            builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
-            builder.Services.AddScoped<ISupplierCategoryRepository, SupplierCategoryRepository>();
-
             builder.Services.AddScoped<SupplierDAO>();
             builder.Services.AddScoped<SupplierImageDAO>();
+            builder.Services.AddScoped<SubscriptionPackageDAO>();
 
+        
             //Repositories
             builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
             builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
             builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
             builder.Services.AddScoped<ISupplierImageRepository, SupplierImageRepository>();
-            builder.Services.AddScoped<IRequestPricingsRepository, RequestPricingsRepository>();    
+            builder.Services.AddScoped<IRequestPricingsRepository, RequestPricingsRepository>();
+            builder.Services.AddScoped<ISupplierCategoryRepository, SupplierCategoryRepository>();
+            builder.Services.AddScoped<ISubscriptionPackageRepository, SubscriptionPackageRepository>();
+
 
             // Services
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();
@@ -295,7 +278,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<IStorageService, StorageService>();
             builder.Services.AddScoped<IRequestPricingsService, RequestPricingsService>();
             builder.Services.AddScoped<ISupplierCategoryService, SupplierCategoryService>();
-
+            builder.Services.AddScoped<ISubscriptionPackageService, SubscriptionPackageService>();
 
 
             // Auth Handlers

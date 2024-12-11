@@ -5,15 +5,8 @@ using Bonheur.Services.DTOs.Account;
 using Bonheur.Services.DTOs.Supplier;
 using Microsoft.AspNetCore.Identity;
 using Bonheur.Services.DTOs.SupplierCategory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using static Bonheur.Utils.Constants;
-using static OpenIddict.Abstractions.OpenIddictConstants;
 using Bonheur.Services.DTOs.RequestPricing;
+using Bonheur.Services.DTOs.SubscriptionPackage;
 
 namespace Bonheur.Services.Mappers
 {
@@ -82,6 +75,9 @@ namespace Bonheur.Services.Mappers
             CreateMap<RequestPricing, RequestPricingsDTO>();
             CreateMap<RequestPricingsDTO, RequestPricing>();
 
+            //SubscriptionPackage
+            CreateMap<SubscriptionPackageDTO, SubscriptionPackage>();
+            CreateMap<SubscriptionPackage, SubscriptionPackageDTO>().ReverseMap();
 
         }
     }
