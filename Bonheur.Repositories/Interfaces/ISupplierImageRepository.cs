@@ -13,5 +13,9 @@ namespace Bonheur.Repositories.Interfaces
         Task AddSupplierImagesAsync(IEnumerable<SupplierImage> supplierImages);
         Task DeleteSupplierImageAsync(int id);
         Task DeleteSupplierImagesBySupplierIdAsync(int supplierId);
+        Task<IEnumerable<SupplierImage>> GetSupplierImagesBySupplierIdAsync(int supplierId);
+        Task<SupplierImage> GetSupplierImageByIdAsync(int id);
+        Task UpdatePrimaryImageAsync(SupplierImage supplierImage);
+        Task<SupplierImage> GetPrimaryImageBySupplierId(int supplierId);
     }
 }

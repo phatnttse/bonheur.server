@@ -30,7 +30,10 @@ namespace Bonheur.Services.Interfaces
         Task<ApplicationResponse> CreateSupplierAsync(CreateSupplierDTO supplier);
         Task<ApplicationResponse> UpdateSupplierProfileAsync(UpdateSupplierProfileDTO supplier);
         Task<ApplicationResponse> UpdateSupplierAddressAsync(UpdateSupplierAddressDTO supplier);
-        Task<ApplicationResponse> UploadSupplierImages(List<IFormFile> files, int primaryImageIndex);
+        Task<ApplicationResponse> UploadSupplierImages(List<IFormFile> files, int? primaryImageIndex);
+        Task<ApplicationResponse> GetSupplierImagesBySupplier(int supplierId);
+        Task<ApplicationResponse> DeleteSupplierImageAsync(int supplierImageId);
+        Task<ApplicationResponse> UpdatePrimaryImageAsync(int imageId);
 
     }
 }
