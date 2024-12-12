@@ -22,5 +22,9 @@ namespace Bonheur.Repositories
         public async Task AddSupplierImagesAsync(IEnumerable<SupplierImage> supplierImages) => await _supplierImageDAO.AddSupplierImagesAsync(supplierImages);
         public async Task DeleteSupplierImageAsync(int id) => await _supplierImageDAO.DeleteSupplierImageAsync(id);
         public async Task DeleteSupplierImagesBySupplierIdAsync(int supplierId) => await _supplierImageDAO.DeleteSupplierImagesBySupplierIdAsync(supplierId);
+        public async Task<IEnumerable<SupplierImage>> GetSupplierImagesBySupplierIdAsync(int supplierId) => await _supplierImageDAO.GetSupplierImagesBySupplierIdAsync(supplierId);
+        public async Task<SupplierImage> GetSupplierImageByIdAsync(int id) => await _supplierImageDAO.GetSupplierImageByIdAsync(id);
+        public async Task UpdatePrimaryImageAsync(SupplierImage supplierImage) => await _supplierImageDAO.UpdateSupplierImageAsync(supplierImage);
+        public async Task<SupplierImage> GetPrimaryImageBySupplierId(int supplierId) => await _supplierImageDAO.GetPrimaryImageBySupplierId(supplierId);
     }
 }

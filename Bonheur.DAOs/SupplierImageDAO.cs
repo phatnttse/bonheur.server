@@ -48,5 +48,26 @@ namespace Bonheur.DAOs
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<IEnumerable<SupplierImage>> GetSupplierImagesBySupplierIdAsync(int supplierId)
+        {
+            return await _context.SupplierImages.Where(si => si.SupplierId == supplierId).ToListAsync();
+        }
+
+        public async Task<SupplierImage> GetSupplierImageByIdAsync(int id)
+        {
+            return await _context.SupplierImages.FindAsync(id);
+        }
+
+        public async Task UpdateSupplierImageAsync(SupplierImage supplierImage)
+        {
+            _context.SupplierImages.Update(supplierImage);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<SupplierImage> GetPrimaryImageBySupplierId(int supplierId)
+        {
+            return await _context.SupplierImages.Where(si => si.SupplierId == supplierId && si.IsPrimary).FirstOrDefaultAsync();
+        }
     }
 }

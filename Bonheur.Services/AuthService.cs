@@ -381,28 +381,33 @@ namespace Bonheur.Services
 
                 var resetToken = await _userAccountRepository.GeneratePasswordResetTokenAsync(existingUser);
 
-                var recipientName = existingUser.FullName!;
-                var recipientEmail = existingUser.Email!;
+                _ = Task.Run(async () =>
+                {
 
-                var param = new Dictionary<string, string?>
+                    var recipientName = existingUser.FullName!;
+                    var recipientEmail = existingUser.Email!;
+
+                    var param = new Dictionary<string, string?>
                 {
                     {"token", resetToken },
                     {"email", existingUser.Email }
                 };
 
-                var resetPasswordLink = Environment.GetEnvironmentVariable("EMAIL_RESET_PASSWORD_URL");
+                    var resetPasswordLink = Environment.GetEnvironmentVariable("EMAIL_RESET_PASSWORD_URL");
 
-                var callback = QueryHelpers.AddQueryString(resetPasswordLink!, param);
+                    var callback = QueryHelpers.AddQueryString(resetPasswordLink!, param);
 
-                var decodedCallback = Uri.UnescapeDataString(callback);
+                    var decodedCallback = Uri.UnescapeDataString(callback);
 
 
-                var message = EmailTemplates.GetResetPasswordEmail(recipientName, decodedCallback);
+                    var message = EmailTemplates.GetResetPasswordEmail(recipientName, decodedCallback);
 
-                (var success, var errorMsg) = await _emailSender.SendEmailAsync(recipientName, recipientEmail,
-                    "Bonheur Reset Password", message);
+                    (var success, var errorMsg) = await _emailSender.SendEmailAsync(recipientName, recipientEmail,
+                        "Bonheur Reset Password", message);
 
-                if (!success) throw new ApiException(errorMsg ?? "Send email failed", System.Net.HttpStatusCode.InternalServerError);
+                    if (!success) _logger.LogError($"Failed to send email with {recipientEmail}: {errorMsg}");
+
+                });
 
                 return new ApplicationResponse
                 {

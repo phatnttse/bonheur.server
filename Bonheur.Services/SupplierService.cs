@@ -7,6 +7,7 @@ using Bonheur.Services.DTOs.Supplier;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
 using Microsoft.AspNetCore.Http;
+using static System.Net.Mime.MediaTypeNames;
 
 
 namespace Bonheur.Services
@@ -266,7 +267,7 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> UploadSupplierImages(List<IFormFile> files, int primaryImageIndex)
+        public async Task<ApplicationResponse> UploadSupplierImages(List<IFormFile> files, int? primaryImageIndex)
         {
             try
             {
@@ -275,7 +276,7 @@ namespace Bonheur.Services
                     throw new ApiException("No files were uploaded.", System.Net.HttpStatusCode.BadRequest);
                 }
 
-                if (primaryImageIndex < 0 || primaryImageIndex >= files.Count)
+                if ((primaryImageIndex < 0 || primaryImageIndex >= files.Count()) && primaryImageIndex != null)
                 {
                     throw new ApiException("Invalid primary image index.", System.Net.HttpStatusCode.BadRequest);
                 }
@@ -337,5 +338,109 @@ namespace Bonheur.Services
             }
         }
 
+        public async Task<ApplicationResponse> DeleteSupplierImageAsync(int imageId)
+        {
+            try
+            {
+                var supplierImage = await _supplierImageRepository.GetSupplierImageByIdAsync(imageId);
+
+                if (supplierImage == null)  throw new ApiException("Image not found", System.Net.HttpStatusCode.NotFound);
+
+                var supplierImages = await _supplierImageRepository.GetSupplierImagesBySupplierIdAsync(supplierImage.SupplierId);
+
+                if (supplierImages.Count() == 1) throw new ApiException("Cannot delete the only image", System.Net.HttpStatusCode.BadRequest);
+
+                await _supplierImageRepository.DeleteSupplierImageAsync(imageId);
+
+                var result = await _storageService.DeleteAsync(supplierImage.ImageFileName!);
+
+                if (result.Error) throw new ApiException(result.Status!, System.Net.HttpStatusCode.InternalServerError);
+                
+                return new ApplicationResponse
+                {
+                    Message = "Supplier image deleted successfully",
+                    Data = _mapper.Map<SupplierImageDTO>(supplierImage),
+                    Success = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+            }
+            catch (ApiException)
+            {
+                throw;
+
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<ApplicationResponse> UpdatePrimaryImageAsync(int imageId)
+        {
+            try
+            {
+                var supplierImage = await _supplierImageRepository.GetSupplierImageByIdAsync(imageId);
+
+                if (supplierImage == null)  throw new ApiException("Image not found", System.Net.HttpStatusCode.NotFound);
+
+                var primaryImage = await _supplierImageRepository.GetPrimaryImageBySupplierId(supplierImage.SupplierId);
+
+                if (primaryImage != null)
+                {
+                    primaryImage.IsPrimary = false;
+                    await _supplierImageRepository.UpdatePrimaryImageAsync(primaryImage);
+                }
+
+                supplierImage.IsPrimary = true;
+
+                await _supplierImageRepository.UpdatePrimaryImageAsync(supplierImage);
+
+                return new ApplicationResponse
+                {
+                    Message = "Supplier image updated successfully",
+                    Data = _mapper.Map<SupplierImageDTO>(supplierImage),
+                    Success = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+            }
+            catch (ApiException)
+            {
+                throw;
+
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<ApplicationResponse> GetSupplierImagesBySupplier(int supplierId)
+        {
+            try
+            {
+                var supplier = await _supplierRepository.GetSupplierByIdAsync(supplierId, false);
+
+                if (supplier == null) throw new ApiException("Supplier not found", System.Net.HttpStatusCode.NotFound);
+
+                var supplierImages = await _supplierImageRepository.GetSupplierImagesBySupplierIdAsync(supplierId);
+
+                return new ApplicationResponse
+                {
+                    Message = "Get images successfully",
+                    Data = _mapper.Map<List<SupplierImageDTO>>(supplierImages),
+                    Success = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+            }
+            catch (ApiException)
+            {
+                throw;
+
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
     }
 }

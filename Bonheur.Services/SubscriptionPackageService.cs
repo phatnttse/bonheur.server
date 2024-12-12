@@ -31,7 +31,7 @@ namespace Bonheur.Services
                     Message = "Get supscription packages successful",
                     StatusCode = System.Net.HttpStatusCode.OK,
                     Success = true,
-                    Data = subscriptionPackages,
+                    Data = _mapper.Map<List<SubscriptionPackageDTO>>(subscriptionPackages),
                 };
             }
             catch (ApiException)
@@ -58,7 +58,7 @@ namespace Bonheur.Services
                     Message = "Get supscription package successful",
                     StatusCode = System.Net.HttpStatusCode.OK,
                     Success = true,
-                    Data = subscriptionPackage,
+                    Data = _mapper.Map<SubscriptionPackageDTO>(subscriptionPackage),
                 };
             }
             catch (ApiException)
@@ -84,6 +84,7 @@ namespace Bonheur.Services
                 {
                     Message = "Create supscription package successful",
                     StatusCode = System.Net.HttpStatusCode.OK,
+                    Data = _mapper.Map<SubscriptionPackageDTO>(subscriptionPackage),
                     Success = true,
                 };
             }
@@ -114,6 +115,7 @@ namespace Bonheur.Services
                 {
                     Message = "Update supscription package successful",
                     StatusCode = System.Net.HttpStatusCode.OK,
+                    Data = _mapper.Map<SubscriptionPackageDTO>(subscriptionPackage),
                     Success = true,
                 };
             }
@@ -144,6 +146,7 @@ namespace Bonheur.Services
                 {
                     Message = "Delete supscription package successful",
                     StatusCode = System.Net.HttpStatusCode.OK,
+                    Data = _mapper.Map<SubscriptionPackageDTO>(subscriptionPackage),
                     Success = true,
                 };
             }
