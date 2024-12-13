@@ -2,6 +2,7 @@
 using Bonheur.Services.DTOs.PaginationParams;
 using Bonheur.Services.DTOs.RequestPricing;
 using Bonheur.Services.Interfaces;
+using Bonheur.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,7 @@ namespace Bonheur.API.Controllers
         [HttpGet("admin")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = Constants.Roles.ADMIN)]
         public async Task<IActionResult> GetAllRequestPricings([FromQuery] int pageNumber =1, [FromQuery] int pageSize = 10)
         {
             return Ok(await _requestPricingsService.GetAllRequestPricing(pageNumber, pageSize));
@@ -41,7 +42,7 @@ namespace Bonheur.API.Controllers
         [HttpGet("supplier")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "SUPPLIER")]
+        [Authorize(Roles = Constants.Roles.SUPPLIER)]
         public async Task<IActionResult> GetAllRequestPricingsBySupplierId([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             return Ok(await _requestPricingsService.GetAllRequestPricingBySupplierId(pageNumber, pageSize));
@@ -59,7 +60,7 @@ namespace Bonheur.API.Controllers
         [HttpPut("status/{id}")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "SUPPLIER")]
+        [Authorize(Roles = Constants.Roles.SUPPLIER)]
         public async Task<IActionResult> UpdateRequestPricingStatus(int id, [FromBody] UpdateRequestPricingStatusDTO status)
         {
             return Ok(await _requestPricingsService.UpdateRequestPricingStatus(id, status.Status));
