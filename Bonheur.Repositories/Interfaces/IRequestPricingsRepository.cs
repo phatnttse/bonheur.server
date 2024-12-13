@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using X.PagedList;
 
 namespace Bonheur.Repositories.Interfaces
 {
@@ -12,7 +13,9 @@ namespace Bonheur.Repositories.Interfaces
     {
         Task<RequestPricing?> CreateRequestPricing(RequestPricing requestPricing);
 
-        Task<List<RequestPricing?>> GetAllRequestPricing(string supplierId);
+        Task<IPagedList<RequestPricing?>> GetAllRequestPricing(int pageNumber=1, int pageSize=10);
+        
+        Task<IPagedList<RequestPricing>> GetAllRequestPricingBySupplierId(int supplierId, int pageNumber = 1, int pageSize=10);
 
         Task<RequestPricing> GetRequestPricingById(int id);
 

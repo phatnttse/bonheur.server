@@ -1,4 +1,5 @@
 ﻿using Bonheur.BusinessObjects.Models;
+using Bonheur.Services.DTOs.PaginationParams;
 using Bonheur.Services.DTOs.RequestPricing;
 using Bonheur.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -28,19 +29,28 @@ namespace Bonheur.API.Controllers
             return Ok(await _requestPricingsService.CreateRequestPricing(createRequestPricingDTO));
         }
 
-        [HttpGet]
+        [HttpGet("admin")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "Supplier")]
-        public async Task<IActionResult> GetAllRequestPricings()
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> GetAllRequestPricings([FromQuery] int pageNumber =1, [FromQuery] int pageSize = 10)
         {
-            return Ok(await _requestPricingsService.GetAllRequestPricing());
+            return Ok(await _requestPricingsService.GetAllRequestPricing(pageNumber, pageSize));
+        }
+
+        [HttpGet("supplier")]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        [ProducesResponseType(400)]
+        [Authorize(Roles = "SUPPLIER")]
+        public async Task<IActionResult> GetAllRequestPricingsBySupplierId([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return Ok(await _requestPricingsService.GetAllRequestPricingBySupplierId(pageNumber, pageSize));
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "Supplier")]
+        [Authorize]
         public async Task<IActionResult> GetRequestPricingById(int id)
         {
             return Ok(await _requestPricingsService.GetRequestPricingById(id));
@@ -49,7 +59,7 @@ namespace Bonheur.API.Controllers
         [HttpPut("status/{id}")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "Supplier")]
+        [Authorize(Roles = "SUPPLIER")]
         public async Task<IActionResult> UpdateRequestPricingStatus(int id, [FromBody] UpdateRequestPricingStatusDTO status)
         {
             return Ok(await _requestPricingsService.UpdateRequestPricingStatus(id, status.Status));

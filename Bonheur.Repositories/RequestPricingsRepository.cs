@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using X.PagedList;
 
 namespace Bonheur.Repositories
 {
@@ -22,8 +23,10 @@ namespace Bonheur.Repositories
 
         public Task<RequestPricing?> CreateRequestPricing(RequestPricing requestPricing) => _requestPricingDAO.CreateRequestPricing(requestPricing);
 
-        public Task<List<RequestPricing?>> GetAllRequestPricing(string supplierId) => _requestPricingDAO.GetAllRequestPricing(supplierId);
+        public async Task<IPagedList<RequestPricing?>> GetAllRequestPricing(int pageNumber=1, int pageSize=10) => await _requestPricingDAO.GetAllRequestPricing(pageNumber, pageSize);
 
         public Task<RequestPricing> GetRequestPricingById(int id) => _requestPricingDAO.GetRequestPricingById(id);
+
+        public async Task<IPagedList<RequestPricing>> GetAllRequestPricingBySupplierId(int supplierId, int pageNumber = 1, int pageSize = 10) => await _requestPricingDAO.GetAllRequestPricingBySupplierId(supplierId,pageNumber, pageSize);
     }
 }
