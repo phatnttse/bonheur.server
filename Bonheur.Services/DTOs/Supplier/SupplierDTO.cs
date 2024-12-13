@@ -1,13 +1,4 @@
-﻿using Bonheur.BusinessObjects.Entities;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Bonheur.Services.DTOs.Account;
-using Bonheur.BusinessObjects.Enums;
+﻿using Bonheur.BusinessObjects.Enums;
 using Bonheur.Services.DTOs.SupplierCategory;
 
 namespace Bonheur.Services.DTOs.Supplier
@@ -15,7 +6,6 @@ namespace Bonheur.Services.DTOs.Supplier
     public class SupplierDTO
     {
         public int Id { get; set; }
-        public UserAccountDTO? User { get; set; }
         public SupplierCategoryDTO? SupplierCategory { get; set; }
         public string? SupplierName { get; set; }
         public string? SupplierDescription { get; set; }
@@ -33,8 +23,6 @@ namespace Bonheur.Services.DTOs.Supplier
         public bool IsFeatured { get; set; }
         public DateTime? PriorityEnd { get; set; }
         public decimal AverageRating { get; set; }
-        public SubscriptionPackage? SubscriptionPackage { get; set; }
-        public List<Advertisement>? Advertisements { get; set; }
         public List<SupplierImageDTO>? SupplierImages { get; set; }
     }
 }

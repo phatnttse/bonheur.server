@@ -254,20 +254,20 @@ namespace Bonheur.API
             builder.Services.AddScoped<UserRoleDAO>();
             builder.Services.AddScoped<SupplierCategoriesDAO>();
             builder.Services.AddScoped<RequestPricingDAO>();
-            //Repositories
-            builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
-            builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
-            builder.Services.AddScoped<ISupplierCategoryRepository, SupplierCategoryRepository>();
-
             builder.Services.AddScoped<SupplierDAO>();
             builder.Services.AddScoped<SupplierImageDAO>();
+            builder.Services.AddScoped<SubscriptionPackageDAO>();
 
+        
             //Repositories
             builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
             builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
             builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
             builder.Services.AddScoped<ISupplierImageRepository, SupplierImageRepository>();
-            builder.Services.AddScoped<IRequestPricingsRepository, RequestPricingsRepository>();    
+            builder.Services.AddScoped<IRequestPricingsRepository, RequestPricingsRepository>();
+            builder.Services.AddScoped<ISupplierCategoryRepository, SupplierCategoryRepository>();
+            builder.Services.AddScoped<ISubscriptionPackageRepository, SubscriptionPackageRepository>();
+
 
             // Services
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();
@@ -278,7 +278,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<IStorageService, StorageService>();
             builder.Services.AddScoped<IRequestPricingsService, RequestPricingsService>();
             builder.Services.AddScoped<ISupplierCategoryService, SupplierCategoryService>();
-
+            builder.Services.AddScoped<ISubscriptionPackageService, SubscriptionPackageService>();
 
 
             // Auth Handlers

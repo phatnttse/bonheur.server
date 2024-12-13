@@ -32,5 +32,7 @@ namespace Bonheur.BusinessObjects.Entities
 
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Cost { get; set; } // Chi phí quảng cáo
+
+        public bool IsDeleted { get; set; } = false;
     }
 }

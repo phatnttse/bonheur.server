@@ -99,11 +99,8 @@ namespace Bonheur.DAOs
             }
 
             IOrderedQueryable<Supplier> orderedQuery = query
-            // Ưu tiên các supplier có BoostUntil hợp lệ trước
             .OrderByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTime.Now)
-            // Sắp xếp trong nhóm BoostUntil hợp lệ dựa trên Priority
             .ThenByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTime.Now ? s.Priority : 0)
-            // Sắp xếp tiếp theo trong nhóm không hợp lệ dựa trên Priority
             .ThenByDescending(s => s.Priority);
 
             if (sortAsc.HasValue && sortAsc.Value)
