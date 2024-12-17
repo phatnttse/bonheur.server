@@ -18,7 +18,7 @@ namespace Bonheur.Services.Interfaces
         Task<ApplicationUser?> GetUserByEmailAsync(string email);
         Task<ApplicationResponse> GetUserRolesAsync(ApplicationUser user);
         Task<ApplicationResponse> GetUserAndRolesAsync(string userId);
-        Task<ApplicationResponse> GetUsersAndRolesAsync(int page, int pageSize);
+        Task<ApplicationResponse> GetUsersAndRolesAsync(int page, int pageSize, string? search, string? role);
         Task<ApplicationResponse> CreateUserAsync(UserAccountDTO user,
             IEnumerable<string> roles, string password);
         Task<ApplicationResponse> UpdateCurrentUserAsync(UpdateUserProfileDTO updateUserProfile);

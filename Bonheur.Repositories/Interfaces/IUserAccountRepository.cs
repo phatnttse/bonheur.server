@@ -16,7 +16,7 @@ namespace Bonheur.Repositories.Interfaces
         Task<ApplicationUser?> GetUserByEmailAsync(string email);
         Task<IList<string>> GetUserRolesAsync(ApplicationUser user);
         Task<(ApplicationUser User, string[] Roles)?> GetUserAndRolesAsync(string userId);
-        Task<IPagedList<(ApplicationUser User, string[] Roles)>> GetUsersAndRolesAsync(int page, int pageSize);
+        Task<IPagedList<(ApplicationUser User, string[] Roles)>> GetUsersAndRolesAsync(int page, int pageSize, string? search, string? role);
         Task<(bool Succeeded, string[] Errors)> CreateUserAsync(ApplicationUser user,
             IEnumerable<string> roles, string password);
         Task<(bool Succeeded, string[] Errors)> UpdateUserAsync(ApplicationUser user);

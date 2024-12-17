@@ -80,7 +80,7 @@ namespace Bonheur.Services
             {
                 bool isIncludeUser = false;
 
-                string currentUserId = Utilities.GetCurrentUserId();
+                string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
 
                 if (currentUserId != null)
                 {
