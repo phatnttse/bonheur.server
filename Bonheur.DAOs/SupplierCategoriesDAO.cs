@@ -40,12 +40,7 @@ namespace Bonheur.DAOs
         {
 
 
-            var existingSupplierCategory = await _context.SupplierCategories.FirstOrDefaultAsync(x => x.Id == supplierCategory.Id);
-
-            existingSupplierCategory.Name = supplierCategory.Name;
-            existingSupplierCategory.Description = supplierCategory.Description;
-
-            _context.SupplierCategories.Update(existingSupplierCategory);
+            _context.SupplierCategories.Update(supplierCategory);
             var saveResult = await _context.SaveChangesAsync();
 
             return saveResult>0;

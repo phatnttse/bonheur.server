@@ -137,7 +137,7 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> UpdateSupplierCategory(CreateSupplierCategoryDTO supplierCategoryDTO, int id)
+        public async Task<ApplicationResponse> UpdateSupplierCategory(SupplierCategoryDTO supplierCategoryDTO, int id)
         {
             try
             {
@@ -158,11 +158,13 @@ namespace Bonheur.Services
 
                 await _supplierCategoryRepository.UpdateSupplierCategory(existingSupplierCategory);
 
+                var result = _mapper.Map<SupplierCategoryDTO>(existingSupplierCategory);
+
                 return new ApplicationResponse
                 {
                     Success = true,
                     Message = "Supplier category updated successfully",
-                    Data = supplierCategoryDTO, 
+                    Data = result, 
                     StatusCode = HttpStatusCode.OK
                 };
 

@@ -11,6 +11,7 @@ namespace Bonheur.Services.DTOs.RequestPricing
 {
     public class RequestPricingsDTO
     {
+        public int Id { get; set; }
         public string? Name { get; set; }
         public string? Email { get; set; }
         public string? PhoneNumber { get; set; }
@@ -20,7 +21,7 @@ namespace Bonheur.Services.DTOs.RequestPricing
         public int SupplierId { get; set; }
 
         [ForeignKey("SupplierId")]
-        public virtual SupplierDTO? Supplier { get; set; }
+        public virtual SupplierRequestPricingDTO? Supplier { get; set; }
         public DateTime? ExpirationDate { get; set; }
         public string? RejectReason { get; set; }
     }

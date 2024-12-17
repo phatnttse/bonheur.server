@@ -46,7 +46,7 @@ namespace Bonheur.API.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> UpdateSupplierCategory([FromBody] CreateSupplierCategoryDTO updateSupplierCategoryDTO, int id)
+        public async Task<IActionResult> UpdateSupplierCategory([FromBody] SupplierCategoryDTO updateSupplierCategoryDTO, int id)
         {
             return Ok(await _supplierCategoryService.UpdateSupplierCategory(updateSupplierCategoryDTO, id));
         }

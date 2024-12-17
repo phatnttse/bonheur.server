@@ -1,10 +1,13 @@
-﻿using Bonheur.BusinessObjects.Models;
+﻿using Bonheur.BusinessObjects.Enums;
+using Bonheur.BusinessObjects.Models;
 using Bonheur.Services;
+using Bonheur.Services.DTOs.RequestPricing;
 using Bonheur.Services.DTOs.Supplier;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Tls;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -143,40 +146,6 @@ namespace Bonheur.API.Controllers
             return Ok(await _supplierService.UpdatePrimaryImageAsync(imageId));
         }
 
-        [HttpGet("request-pricing")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [Authorize]
-        public async Task<IActionResult> GetAllRequestPricings()
-        {
-            return Ok(await _requestPricingsService.GetAllRequestPricing());
-        }
 
-        [HttpGet("request-pricing/{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [Authorize]
-        public async Task<IActionResult> GetRequestPricingById(int id)
-        {
-            return Ok(await _requestPricingsService.GetRequestPricingById(id));
-        }
-
-        [HttpPut("request-pricing/update/status/responsed/{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [Authorize]
-        public async Task<IActionResult> RequestPricingResponsed(int id)
-        {
-            return Ok(await _requestPricingsService.RequestPricingResponsed(id));
-        }
-
-        [HttpPut("request-pricing/update/status/rejected/{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [Authorize]
-        public async Task<IActionResult> RequestPricingRejected(int id)
-        {
-            return Ok(await _requestPricingsService.RequestPricingRejected(id));
-        }
     }
 }
