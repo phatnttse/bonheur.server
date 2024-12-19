@@ -179,18 +179,18 @@ namespace Bonheur.Services
             }
         }
 
-        public Task<ApplicationResponse> GetAllPermissions()
+        public ApplicationResponse GetAllPermissions()
         {
             try
             {
                 var permissions = _mapper.Map<List<PermissionDTO>>(ApplicationPermissions.AllPermissions);
 
-                return Task.FromResult(new ApplicationResponse
+                return new ApplicationResponse
                 {
                     Data = permissions,
                     Success = true,
                     StatusCode = System.Net.HttpStatusCode.OK
-                });
+                };
             }
             catch (Exception ex)
             {
