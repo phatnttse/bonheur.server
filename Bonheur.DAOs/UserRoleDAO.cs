@@ -20,7 +20,11 @@ namespace Bonheur.DAOs
 
         public async Task<ApplicationRole?> GetRoleByIdAsync(string roleId)
         {
-            return await _roleManager.FindByIdAsync(roleId);
+            return await _context.Roles
+                .Include(r => r.Claims)
+                .Include(r => r.Users)
+                .Where(r => r.Id == roleId)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<ApplicationRole?> GetRoleByNameAsync(string roleName)
@@ -30,14 +34,12 @@ namespace Bonheur.DAOs
 
         public async Task<ApplicationRole?> GetRoleLoadRelatedAsync(string roleName)
         {
-            var role = await _context.Roles
+            return await _context.Roles
                 .Include(r => r.Claims)
                 .Include(r => r.Users)
                 .AsSingleQuery()
                 .Where(r => r.Name == roleName)
                 .SingleOrDefaultAsync();
-
-            return role;
         }
 
         public async Task<List<ApplicationRole>> GetRolesLoadRelatedAsync(int page, int pageSize)
