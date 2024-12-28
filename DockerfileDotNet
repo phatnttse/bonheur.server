@@ -1,0 +1,40 @@
+# Use the official .NET SDK image for building the application
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+# Set the working directory inside the container
+WORKDIR /src
+
+# Copy the solution file and restore any dependencies (via NuGet)
+COPY ["Bonheur.Server.sln", "./"]
+COPY ["Bonheur.API/Bonheur.API.csproj", "Bonheur.API/"]
+COPY ["Bonheur.Repositories/Bonheur.Repositories.csproj", "Bonheur.Repositories/"]
+COPY ["Bonheur.DAOs/Bonheur.DAOs.csproj", "Bonheur.DAOs/"]
+COPY ["Bonheur.Services/Bonheur.Services.csproj", "Bonheur.Services/"]
+COPY ["Bonheur.Utils/Bonheur.Utils.csproj", "Bonheur.Utils/"]
+COPY ["Bonheur.BusinessObjects/Bonheur.BusinessObjects.csproj", "Bonheur.BusinessObjects/"]
+
+
+# Restore dependencies for all projects
+RUN dotnet restore "Bonheur.Server.sln"
+
+# Copy the entire solution into the container
+COPY . .
+
+# Publish the Bonheur.API project
+WORKDIR "/src/Bonheur.API"
+RUN dotnet publish "Bonheur.API.csproj" -c Release -o /app/publish
+
+# Use the runtime image for running the application
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+EXPOSE 7175
+
+# Install the missing library
+# RUN apt-get update && apt-get install -y \
+#     libgssapi-krb5-2
+
+# Copy the published files from the build image
+COPY --from=build /app/publish .
+
+# Set the entry point for the container to run the .NET Web API
+ENTRYPOINT ["dotnet", "Bonheur.API.dll"]

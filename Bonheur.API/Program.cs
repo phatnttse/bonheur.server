@@ -47,8 +47,8 @@ namespace Bonheur.API
 
             // Add services to the container.
 
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
-                   throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ??
+                   throw new InvalidOperationException("Connection string 'DB_CONNECTION_STRING' not found.");
             var azureConnectionString = Environment.GetEnvironmentVariable("AZURE_BLOB_CONNECTION_STRING") ??
                    throw new InvalidOperationException("Connection string 'AZURE_BLOB_CONNECTION_STRING' not found.");
 

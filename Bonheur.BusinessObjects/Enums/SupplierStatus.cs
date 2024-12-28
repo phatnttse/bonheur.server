@@ -9,7 +9,7 @@ namespace Bonheur.BusinessObjects.Enums
     public enum SupplierStatus
     {
         PENDING,
-        INREVIEW,
+        IN_REVIEW,
         APPROVED,
         REJECTED
     }

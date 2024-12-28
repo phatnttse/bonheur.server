@@ -1,0 +1,68 @@
+version: "3.8"
+services:
+  # SQL Server Container
+  mssql-container:
+    container_name: mssql-container
+    image: phatnttse1923/mssql-container:latest
+    environment:
+      SA_PASSWORD: ${SA_PASSWORD}
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - bonheur-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "1433"]
+      interval: 30s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  # SQLPad Container
+  sqlpad:
+    container_name: sqlpad-container
+    image: phatnttse1923/sqlpad:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - bonheur-network
+    environment:
+      SQLPAD_ADMIN: "admin"
+      SQLPAD_ADMIN_PASSWORD: "${SA_PASSWORD}"
+      SQLPAD_CONNECTIONS__mssql-container__name: "Bonheur SQL Server"
+      SQLPAD_CONNECTIONS__mssql-container__driver: "sqlserver"
+      SQLPAD_CONNECTIONS__mssql-container__host: "mssql-container"
+      SQLPAD_CONNECTIONS__mssql-container__port: 1433
+      SQLPAD_CONNECTIONS__mssql-container__username: "sa"
+      SQLPAD_CONNECTIONS__mssql-container__password: "${SA_PASSWORD}"
+      SQLPAD_CONNECTIONS__mssql-container__database: "master"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  # Bonheur Server Container
+  bonheur-server-container:
+    container_name: bonheur-server-container
+    image: phatnttse1923/bonheur-server:latest
+    ports:
+      - "7175:7175"
+    depends_on:
+      - mssql-container
+    networks:
+      - bonheur-network
+    env_file:
+      - Bonheur.API/.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7175"]
+      interval: 30s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+networks:
+  bonheur-network:
+    name: bonheur-network
+    driver: bridge
