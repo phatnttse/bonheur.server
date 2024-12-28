@@ -63,7 +63,7 @@ namespace Bonheur.Services.Mappers
 
             // Supplier
             CreateMap<CreateSupplierDTO, Supplier>();
-            CreateMap<Supplier, SupplierDTO>().ReverseMap();
+            CreateMap<Supplier, SupplierDTO>().ReverseMap(); 
             CreateMap<UpdateSupplierProfileDTO, Supplier>();
             CreateMap<UpdateSupplierAddressDTO, Supplier>();
 
