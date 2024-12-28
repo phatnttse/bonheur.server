@@ -4,6 +4,7 @@ using Bonheur.DAOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bonheur.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241222100518_update_review_constraint")]
+    partial class update_review_constraint
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -252,13 +255,15 @@ namespace Bonheur.API.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Rate")
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ReviewId")
                         .HasColumnType("int");
 
                     b.Property<int>("SupplierId")
@@ -267,11 +272,16 @@ namespace Bonheur.API.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ReviewId");
 
                     b.HasIndex("SupplierId");
 
@@ -815,6 +825,10 @@ namespace Bonheur.API.Migrations
 
             modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Review", b =>
                 {
+                    b.HasOne("Bonheur.BusinessObjects.Entities.Review", null)
+                        .WithMany("Replies")
+                        .HasForeignKey("ReviewId");
+
                     b.HasOne("Bonheur.BusinessObjects.Entities.Supplier", "Supplier")
                         .WithMany()
                         .HasForeignKey("SupplierId")
@@ -955,6 +969,11 @@ namespace Bonheur.API.Migrations
                     b.Navigation("Claims");
 
                     b.Navigation("Roles");
+                });
+
+            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Review", b =>
+                {
+                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Supplier", b =>
