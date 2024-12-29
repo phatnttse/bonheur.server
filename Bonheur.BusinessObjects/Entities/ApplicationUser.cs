@@ -16,9 +16,9 @@ namespace Bonheur.BusinessObjects.Entities
         public string? PictureUrl { get; set; }
         public Gender? Gender { get; set; }
         public bool IsEnabled { get; set; } = true;
-        public bool IsLockedOut => LockoutEnabled && LockoutEnd >= DateTimeOffset.Now;
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public bool IsLockedOut => LockoutEnabled && LockoutEnd >= DateTimeOffset.UtcNow;
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Navigation property for the roles this user belongs to.

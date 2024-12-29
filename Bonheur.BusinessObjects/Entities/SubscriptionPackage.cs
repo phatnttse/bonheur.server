@@ -21,7 +21,6 @@ namespace Bonheur.BusinessObjects.Entities
         public int DurationInDays { get; set; } // Số ngày sử dụng gói
 
         [Required]
-        [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; } // Giá gói
 
         public bool IsFeatured { get; set; } // Có hiển thị trên trang đầu không?

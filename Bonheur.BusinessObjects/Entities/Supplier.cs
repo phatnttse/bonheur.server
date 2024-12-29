@@ -13,18 +13,16 @@ namespace Bonheur.BusinessObjects.Entities
         public string? UserId { get; set; }
         public virtual ApplicationUser? User { get; set; }
 
-        [ForeignKey("SupplierCategoryId")]
-        public int SupplierCategoryId { get; set; }
-        public virtual SupplierCategory? SupplierCategory { get; set; }
+        [ForeignKey("CategoryId")]
+        public int CategoryId { get; set; }
+        public virtual SupplierCategory? Category { get; set; }
 
         [Required]
         [StringLength(255)]
-        public string? SupplierName { get; set; }
+        public string? Name { get; set; }
 
-        [Column(TypeName = "nvarchar(max)")]
-        public string? SupplierDescription { get; set; }
+        public string? Description { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")]
         public decimal? Price { get; set; }
 
         [StringLength(100)]
@@ -43,14 +41,13 @@ namespace Bonheur.BusinessObjects.Entities
         [StringLength(255)]
         public string? WebsiteUrl { get; set; }
 
-        [Column(TypeName = "nvarchar(50)")]
         public string? ResponseTime { get; set; }
 
         public int Priority { get; set; } = 0; 
 
         public bool IsFeatured { get; set; } = false; 
 
-        public DateTime? ProrityEnd { get; set; }
+        public DateTimeOffset? ProrityEnd { get; set; }
 
         [StringLength(50)]
         public SupplierStatus? Status { get; set; } = SupplierStatus.PENDING;
@@ -77,7 +74,8 @@ namespace Bonheur.BusinessObjects.Entities
             }
         }
 
-        [Column(TypeName = "decimal(18, 2)")]
+        public decimal Discount { get; set; } = 0;
+
         public decimal AverageRating { get; set; } = 0;
 
         // Gói dịch vụ
@@ -88,7 +86,7 @@ namespace Bonheur.BusinessObjects.Entities
         public virtual ICollection<Advertisement>? Advertisements { get; set; }
 
         // Hình ảnh
-        public virtual ICollection<SupplierImage>? SupplierImages { get; set; }
+        public virtual ICollection<SupplierImage>? Images { get; set; }
 
 
     }

@@ -32,13 +32,12 @@ namespace Bonheur.DAOs
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
-
             modelBuilder.Entity<ApplicationUser>()
-               .HasMany(u => u.Claims)
-               .WithOne()
-               .HasForeignKey(c => c.UserId)
-               .IsRequired()
-               .OnDelete(DeleteBehavior.Cascade);
+                .HasMany(u => u.Claims)
+                .WithOne()
+                .HasForeignKey(c => c.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ApplicationUser>()
                 .Property(u => u.Gender)
@@ -58,24 +57,23 @@ namespace Bonheur.DAOs
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
-
+            // Configure Supplier -> User (many-to-one relationship)
             modelBuilder.Entity<Supplier>()
                 .HasOne(s => s.User)
                 .WithMany()  // Assuming one-to-many relationship with ApplicationUser
                 .HasForeignKey(s => s.UserId)
-                .OnDelete(DeleteBehavior.SetNull); // Adjust delete behavior as needed
+                .OnDelete(DeleteBehavior.SetNull);
 
             // Configure Supplier -> SupplierCategory (many-to-one relationship)
             modelBuilder.Entity<Supplier>()
-                .HasOne(s => s.SupplierCategory)
+                .HasOne(s => s.Category)
                 .WithMany()
-                .HasForeignKey(s => s.SupplierCategoryId)
+                .HasForeignKey(s => s.CategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Supplier>()
                 .Property(u => u.Status)
                 .HasConversion(new EnumToStringConverter<SupplierStatus>());
-
 
             modelBuilder.Entity<Supplier>()
                 .Property(u => u.OnBoardStatus)
@@ -84,7 +82,7 @@ namespace Bonheur.DAOs
             // Configure SupplierImage -> Supplier (many-to-one relationship)
             modelBuilder.Entity<SupplierImage>()
                 .HasOne(si => si.Supplier)
-                .WithMany(s => s.SupplierImages)
+                .WithMany(s => s.Images)
                 .HasForeignKey(si => si.SupplierId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -123,12 +121,92 @@ namespace Bonheur.DAOs
                 .HasOne(s => s.SubscriptionPackage)
                 .WithMany() // Assuming one-to-many relationship with SubscriptionPackage
                 .HasForeignKey(s => s.SubscriptionPackageId)
-                .OnDelete(DeleteBehavior.SetNull); // Optional, change based on business rules
+                .OnDelete(DeleteBehavior.SetNull);
 
             // Additional configurations or indices if needed
             modelBuilder.Entity<Supplier>()
-                .HasIndex(s => s.SupplierName)  // Adding index on SupplierName for faster lookup
+                .HasIndex(s => s.Name)  // Adding index on SupplierName for faster lookup
                 .IsUnique();
+
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(s => s.Status);  // Adding index on SupplierStatus for faster lookup
+
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(s => s.Priority);  // Adding index on SupplierPriority for faster lookup
+
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(s => s.IsFeatured);  // Adding index on SupplierIsFeatured for faster lookup
+
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(s => s.OnBoardStatus);  // Adding index on SupplierOnBoardStatus for faster lookup
+
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(s => s.SubscriptionPackageId);  // Adding index on SupplierSubscriptionPackageId for faster lookup
+
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(s => s.UserId);  // Adding index on SupplierUserId for faster lookup
+
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(s => s.CategoryId);  // Adding index on SupplierCategoryId for faster lookup
+
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(s => s.CreatedAt);  // Adding index on SupplierCreatedAt for faster lookup
+
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(s => s.UpdatedAt);  // Adding index on SupplierUpdatedAt for faster lookup
+
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(s => s.ProrityEnd);  // Adding index on SupplierProrityEnd for faster lookup
+
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(s => s.Discount);  // Adding index on SupplierDiscount for faster lookup
+
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(s => s.AverageRating);  // Adding index on SupplierAverageRating for faster lookup
+
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(s => s.Ward);  // Adding index on SupplierWard for faster lookup
+
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(s => s.District);  // Adding index on SupplierDistrict for faster lookup
+
+            modelBuilder.Entity<Supplier>()
+                .HasIndex(s => s.Province);  // Adding index on SupplierProvince for faster lookup
+
+            // Configure QuotationMessage -> Sender (many-to-one relationship)
+            modelBuilder.Entity<QuotationMessage>()
+                .HasOne(qm => qm.Sender)
+                .WithMany()
+                .HasForeignKey(qm => qm.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);  // Prevent cascading delete for Sender
+
+            modelBuilder.Entity<QuotationMessage>()
+                .HasOne(qm => qm.Receiver)
+                .WithMany()
+                .HasForeignKey(qm => qm.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);  // Prevent cascading delete for Receiver
+
+            // Configure QuotationMessageAttachment -> QuotationMessage (many-to-one relationship)
+            modelBuilder.Entity<QuotationMessageAttachment>()
+                .HasOne(qma => qma.QuotationMessage)
+                .WithMany(qm => qm.Attachments)
+                .HasForeignKey(qma => qma.QuotationMessageId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure Advertisement -> AdPackage (many-to-one relationship)
+            modelBuilder.Entity<Advertisement>()
+                .HasOne(a => a.AdPackage)
+                .WithMany()
+                .HasForeignKey(a => a.AdPackageId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Additional index or configuration for Advertisement entity
+            modelBuilder.Entity<Advertisement>()
+                .HasIndex(a => a.IsActive);  // Adding index on AdvertisementIsActive for faster lookup
+
+            modelBuilder.Entity<AdPackage>()
+                .Property(u => u.AdType)
+                .HasConversion(new EnumToStringConverter<AdType>());
         }
 
         public override int SaveChanges()
@@ -166,7 +244,7 @@ namespace Bonheur.DAOs
             foreach (var entry in modifiedEntries)
             {
                 var entity = (IAuditableEntity)entry.Entity;
-                var now = DateTime.Now;
+                var now = DateTimeOffset.UtcNow;
 
                 if (entry.State == EntityState.Added)
                 {

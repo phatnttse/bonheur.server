@@ -56,7 +56,7 @@ namespace Bonheur.API
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(connectionString, b => b.MigrationsAssembly(migrationsAssembly));
+                options.UseNpgsql(connectionString, b => b.MigrationsAssembly(migrationsAssembly));
                 options.UseOpenIddict();
             });
 

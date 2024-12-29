@@ -45,8 +45,8 @@ namespace Bonheur.BusinessObjects.Entities
         /// Gets or sets the description for this role.
         /// </summary>
         public string? Description { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Navigation property for the users in this role.

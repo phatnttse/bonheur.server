@@ -20,7 +20,7 @@ namespace Bonheur.API.Configurations
             var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
             var migrationsAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
 
-            builder.UseSqlServer(configuration["ConnectionStrings:DefaultConnection"], b => b.MigrationsAssembly(migrationsAssembly));
+            builder.UseNpgsql(Environment.GetEnvironmentVariable("DB_CONNECTION_STRING"), b => b.MigrationsAssembly(migrationsAssembly));
             builder.UseOpenIddict();
 
             return new ApplicationDbContext(builder.Options);
