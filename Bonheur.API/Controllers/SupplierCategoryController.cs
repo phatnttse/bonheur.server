@@ -1,5 +1,6 @@
 ﻿using Bonheur.Services.DTOs.SupplierCategory;
 using Bonheur.Services.Interfaces;
+using Bonheur.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +9,6 @@ namespace Bonheur.API.Controllers
     [ApiController]
     [Route("api/v{version:apiVersion}/suppliers/categories")]
     [ApiVersion("1.0")]
-    [Authorize]
     public class SupplierCategoryController : Controller
     {
         private readonly ISupplierCategoryService _supplierCategoryService;
@@ -29,6 +29,7 @@ namespace Bonheur.API.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = Constants.Roles.ADMIN)]
         public async Task<IActionResult> GetSupplierCategoryById(int id)
         {
             return Ok(await _supplierCategoryService.GetSupplierCategoryByIdAsync(id));
@@ -37,6 +38,7 @@ namespace Bonheur.API.Controllers
         [HttpPost]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = Constants.Roles.ADMIN)]
         public async Task<IActionResult> CreateNewSupplierCategory([FromBody] CreateSupplierCategoryDTO createSupplierCategoryDTO)
         {
 
@@ -46,6 +48,7 @@ namespace Bonheur.API.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = Constants.Roles.ADMIN)]
         public async Task<IActionResult> UpdateSupplierCategory([FromBody] SupplierCategoryDTO updateSupplierCategoryDTO, int id)
         {
             return Ok(await _supplierCategoryService.UpdateSupplierCategory(updateSupplierCategoryDTO, id));
@@ -54,6 +57,7 @@ namespace Bonheur.API.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = Constants.Roles.ADMIN)]
         public async Task<IActionResult> DeleteSupplierCategory(int id)
         {
             return Ok(await _supplierCategoryService.DeleteSupplierCategory(id));

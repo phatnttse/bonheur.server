@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Bonheur.Services.DTOs.SupplierCategory;
 using Bonheur.Services.DTOs.RequestPricing;
 using Bonheur.Services.DTOs.SubscriptionPackage;
+using Bonheur.Services.DTOs.Review;
 
 namespace Bonheur.Services.Mappers
 {
@@ -78,6 +79,11 @@ namespace Bonheur.Services.Mappers
             //SubscriptionPackage
             CreateMap<SubscriptionPackageDTO, SubscriptionPackage>();
             CreateMap<SubscriptionPackage, SubscriptionPackageDTO>().ReverseMap();
+
+            //Review
+            CreateMap<ReviewDTO, Review>();
+            CreateMap<Review, ReviewDTO>().ReverseMap();
+            CreateMap<Review, CreateUpdateReviewDTO>().ReverseMap();
 
         }
     }

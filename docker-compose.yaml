@@ -5,6 +5,7 @@ services:
     container_name: mssql-container
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
+      SA_PASSWORD: Phuc1510@
       SA_PASSWORD: Phat1910@
       ACCEPT_EULA: "Y"
     ports:
@@ -18,7 +19,7 @@ services:
       interval: 30s
       retries: 5
       start_period: 30s
-      timeout: 10s  
+      timeout: 10s
 
   # SQLPad Container
   sqlpad:
@@ -30,12 +31,14 @@ services:
       - bonheur-network
     environment:
       SQLPAD_ADMIN: "admin"
+      SQLPAD_ADMIN_PASSWORD: Phuc1510@
       SQLPAD_ADMIN_PASSWORD: "Phat1910@"
       SQLPAD_CONNECTIONS__mssql-container__name: "Bonheur SQL Server"
       SQLPAD_CONNECTIONS__mssql-container__driver: "sqlserver"
       SQLPAD_CONNECTIONS__mssql-container__host: "mssql-container"
       SQLPAD_CONNECTIONS__mssql-container__port: 1433
       SQLPAD_CONNECTIONS__mssql-container__username: "sa"
+      SQLPAD_CONNECTIONS__mssql-container__password: "Phuc1510@"
       SQLPAD_CONNECTIONS__mssql-container__password: "Phat1910@"
       SQLPAD_CONNECTIONS__mssql-container__database: "master"
     healthcheck:
@@ -58,20 +61,18 @@ services:
     networks:
       - bonheur-network
     env_file:
-      - Bonheur.API/.env  
+      - Bonheur.API/.env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080"]
       interval: 30s
       retries: 5
       start_period: 30s
-      timeout: 10s  
-  
+      timeout: 10s
+
 networks:
   bonheur-network:
     name: bonheur-network
     driver: bridge
-
-
 #docker-compose -f ./docker-compose.yaml up -d mssql-container
 #docker-compose -f ./docker-compose.yaml up -d sqlpad
 #docker-compose -f ./docker-compose.yaml up -d bonheur-server-container

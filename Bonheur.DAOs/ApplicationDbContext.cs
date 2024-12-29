@@ -17,6 +17,8 @@ namespace Bonheur.DAOs
         public DbSet<RequestPricing> RequestPricings { get; set; }
         public DbSet<Advertisement> Advertisements { get; set; }
         public DbSet<SubscriptionPackage> SubscriptionPackages { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -94,6 +96,18 @@ namespace Bonheur.DAOs
             modelBuilder.Entity<RequestPricing>()
                 .Property(rp => rp.Status)
                 .HasConversion<string>();
+
+            // Configure Review -> Supplier (many-to-one relationship)
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.Supplier)
+                .WithMany()
+                .HasForeignKey(r => r.SupplierId);
+
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.User)
+                .WithMany() 
+                .HasForeignKey(r => r.UserId);
+
 
             // Configure Advertisement -> Supplier (many-to-one relationship)
             modelBuilder.Entity<Advertisement>()
