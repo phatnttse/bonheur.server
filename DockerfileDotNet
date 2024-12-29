@@ -27,7 +27,7 @@ RUN dotnet publish "Bonheur.API.csproj" -c Release -o /app/publish
 # Use the runtime image for running the application
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
-EXPOSE 7175
+EXPOSE 8080
 
 # Install the missing library
 # RUN apt-get update && apt-get install -y \
