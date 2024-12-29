@@ -7,7 +7,6 @@ using Bonheur.Services.DTOs.Supplier;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
 using Microsoft.AspNetCore.Http;
-using static System.Net.Mime.MediaTypeNames;
 
 
 namespace Bonheur.Services
@@ -99,7 +98,7 @@ namespace Bonheur.Services
 
                 return new ApplicationResponse
                 {
-                    Message = $"Supplier {supplier.SupplierName} found",
+                    Message = $"Supplier {supplier.Name} found",
                     Data = _mapper.Map<SupplierDTO>(supplier),
                     Success = true,
                     StatusCode = System.Net.HttpStatusCode.OK
@@ -128,7 +127,7 @@ namespace Bonheur.Services
 
                 return new ApplicationResponse
                 {
-                    Message = $"Supplier {supplier.SupplierName} found",
+                    Message = $"Supplier {supplier.Name} found",
                     Data = _mapper.Map<SupplierDTO>(supplier),
                     Success = true,
                     StatusCode = System.Net.HttpStatusCode.OK

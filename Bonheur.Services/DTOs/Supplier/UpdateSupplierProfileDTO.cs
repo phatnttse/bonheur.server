@@ -23,5 +23,7 @@ namespace Bonheur.Services.DTOs.Supplier
         [Required]
         public required string ResponseTime { get; set; }
 
+        public string? Discount { get; set; }
+
     }
 }
