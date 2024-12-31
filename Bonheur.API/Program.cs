@@ -192,6 +192,16 @@ namespace Bonheur.API
             // Add cors
             builder.Services.AddCors();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin",
+                    builder => builder
+                        .WithOrigins("http://localhost:4200")  // Chỉ cho phép origin này
+                        .AllowCredentials()                    // Cho phép gửi cookies hoặc thông tin xác thực khác
+                        .AllowAnyHeader()                      // Cho phép tất cả headers
+                        .AllowAnyMethod());                    // Cho phép tất cả phương thức HTTP
+            });
+
             // Add controllers
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>
@@ -282,6 +292,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<ISupplierCategoryService, SupplierCategoryService>();
             builder.Services.AddScoped<ISubscriptionPackageService, SubscriptionPackageService>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
+            //builder.Services.AddScoped<IChatHubService, ChatHubService>();
 
 
             // Auth Handlers
@@ -296,9 +307,12 @@ namespace Bonheur.API
             //Email Templates
             EmailTemplates.Initialize(builder.Environment);
 
+            //SignalR
+            builder.Services.AddSignalR();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
+
 
             var app = builder.Build();
  
@@ -327,7 +341,11 @@ namespace Bonheur.API
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
+
+            app.UseRouting();
+
+            app.UseCors("AllowSpecificOrigin");
 
             app.UseCors(builder => builder
                .AllowAnyOrigin()
@@ -338,6 +356,9 @@ namespace Bonheur.API
             app.UseAuthorization();
 
             app.MapControllers();
+
+
+            app.MapHub<ChatHubService>("/hubs/chat");
 
             app.MapFallbackToFile("/index.html");
 

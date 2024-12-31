@@ -40,7 +40,7 @@ namespace Bonheur.API.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTimeOffset>("EndDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
@@ -49,7 +49,7 @@ namespace Bonheur.API.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTimeOffset>("StartDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Title")
@@ -61,7 +61,7 @@ namespace Bonheur.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AdPackage");
+                    b.ToTable("AdPackages");
                 });
 
             modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Advertisement", b =>
@@ -230,7 +230,7 @@ namespace Bonheur.API.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.QuotationMessage", b =>
+            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Message", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -274,10 +274,10 @@ namespace Bonheur.API.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("QuotationMessage");
+                    b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.QuotationMessageAttachment", b =>
+            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.MessageAttachment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -307,7 +307,7 @@ namespace Bonheur.API.Migrations
 
                     b.HasIndex("QuotationMessageId");
 
-                    b.ToTable("QuotationMessageAttachment");
+                    b.ToTable("MessageAttachments");
                 });
 
             modelBuilder.Entity("Bonheur.BusinessObjects.Entities.RequestPricing", b =>
@@ -495,8 +495,7 @@ namespace Bonheur.API.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Status")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Street")
                         .HasMaxLength(100)
@@ -950,7 +949,7 @@ namespace Bonheur.API.Migrations
                     b.Navigation("Supplier");
                 });
 
-            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.QuotationMessage", b =>
+            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Message", b =>
                 {
                     b.HasOne("Bonheur.BusinessObjects.Entities.ApplicationUser", "Receiver")
                         .WithMany()
@@ -967,15 +966,15 @@ namespace Bonheur.API.Migrations
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.QuotationMessageAttachment", b =>
+            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.MessageAttachment", b =>
                 {
-                    b.HasOne("Bonheur.BusinessObjects.Entities.QuotationMessage", "QuotationMessage")
+                    b.HasOne("Bonheur.BusinessObjects.Entities.Message", "Message")
                         .WithMany("Attachments")
                         .HasForeignKey("QuotationMessageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("QuotationMessage");
+                    b.Navigation("Message");
                 });
 
             modelBuilder.Entity("Bonheur.BusinessObjects.Entities.RequestPricing", b =>
@@ -1133,7 +1132,7 @@ namespace Bonheur.API.Migrations
                     b.Navigation("Roles");
                 });
 
-            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.QuotationMessage", b =>
+            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Message", b =>
                 {
                     b.Navigation("Attachments");
                 });

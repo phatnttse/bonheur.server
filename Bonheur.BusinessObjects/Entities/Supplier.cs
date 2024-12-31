@@ -49,10 +49,11 @@ namespace Bonheur.BusinessObjects.Entities
 
         public DateTimeOffset? ProrityEnd { get; set; }
 
-        [StringLength(50)]
+        [EnumDataType(typeof(SupplierStatus))]
         public SupplierStatus? Status { get; set; } = SupplierStatus.PENDING;
 
         [StringLength(50)]
+        [EnumDataType(typeof(OnBoardStatus))]
         public OnBoardStatus? OnBoardStatus { get; set; } = Enums.OnBoardStatus.SUPPLIER_INFO;
         public int OnBoardPercent
         {

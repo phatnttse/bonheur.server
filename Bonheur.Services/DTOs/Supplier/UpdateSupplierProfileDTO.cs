@@ -9,8 +9,8 @@ namespace Bonheur.Services.DTOs.Supplier
 {
     public class UpdateSupplierProfileDTO
     {
-        public string? SupplierName { get; set; }
-        public int? SupplierCategoryId { get; set; }
+        public string? Name { get; set; }
+        public int CategoryId { get; set; }
         public string? PhoneNumber { get; set; }
         public string? WebsiteUrl { get; set; }
 
@@ -18,7 +18,7 @@ namespace Bonheur.Services.DTOs.Supplier
         public required decimal Price { get; set; }
 
         [Required]
-        public required string SupplierDescription { get; set; }
+        public required string Description { get; set; }
 
         [Required]
         public required string ResponseTime { get; set; }

@@ -35,6 +35,11 @@ namespace Bonheur.Services
                     throw new ApiException("Role already exists", System.Net.HttpStatusCode.BadRequest);
                 }
 
+                if (role.Id == null)
+                {
+                    role.Id = Guid.NewGuid().ToString();
+                }
+
                 var result = await _userRoleRepository.CreateRoleAsync(role, claims);
 
                 if (!result.Succeeded)
@@ -47,7 +52,6 @@ namespace Bonheur.Services
                     Message = $"Role {createUserRoleDTO.Name} created successfully",
                     Success = true,
                     StatusCode = System.Net.HttpStatusCode.OK
-
                 };
 
             }
@@ -265,7 +269,8 @@ namespace Bonheur.Services
                 {
                     Message = $"Role {existingRole.Name} deleted successfully",
                     Success = true,
-                    StatusCode = System.Net.HttpStatusCode.OK
+                    StatusCode = System.Net.HttpStatusCode.OK,
+                    Data = existingRole
                 };
 
             }

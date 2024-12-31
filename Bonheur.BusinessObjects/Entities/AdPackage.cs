@@ -17,10 +17,11 @@ namespace Bonheur.BusinessObjects.Entities
 
         public decimal Price { get; set; } // Giá của gói quảng cáo
 
-        public DateTime StartDate { get; set; } // Ngày bắt đầu
+        public DateTimeOffset StartDate { get; set; } // Ngày bắt đầu
 
-        public DateTime EndDate { get; set; } // Ngày kết thúc
+        public DateTimeOffset EndDate { get; set; } // Ngày kết thúc
 
+        [EnumDataType(typeof(AdType))]
         public AdType AdType { get; set; } // Loại quảng cáo (ví dụ: banner, popup)
 
         public bool IsActive { get; set; } = true; // Trạng thái gói quảng cáo

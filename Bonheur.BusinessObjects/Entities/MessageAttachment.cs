@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Bonheur.BusinessObjects.Entities
 {
-    public class QuotationMessageAttachment : BaseEntity
+    public class MessageAttachment : BaseEntity
     {
         public int QuotationMessageId { get; set; }
-        public virtual QuotationMessage? QuotationMessage { get; set; } // Tin nhắn
+        public virtual Message? Message { get; set; } // Tin nhắn
 
         public string? FileName { get; set; } // Tên file đính kèm
         public string? FilePath { get; set; } // Đường dẫn đến file lưu trữ

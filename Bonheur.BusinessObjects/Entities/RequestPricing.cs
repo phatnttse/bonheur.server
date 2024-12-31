@@ -1,6 +1,7 @@
 ﻿using Bonheur.BusinessObjects.Enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -15,7 +16,10 @@ namespace Bonheur.BusinessObjects.Entities
         public string? PhoneNumber { get; set; }
         public DateTime? EventDate { get; set; }
         public string? Message { get; set; }
+
+        [EnumDataType(typeof(RequestPricingStatus))]
         public RequestPricingStatus? Status { get; set; }
+
         public int SupplierId { get; set; }
 
         [ForeignKey("SupplierId")]

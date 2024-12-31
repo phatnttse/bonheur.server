@@ -17,7 +17,7 @@ namespace Bonheur.Services.DTOs.Supplier
         public string? WebsiteUrl { get; set; }
         public string? ResponseTime { get; set; }
         public int Priority { get; set; }
-        public SupplierStatus? SupplierStatus { get; set; } 
+        public SupplierStatus? Status { get; set; } 
         public OnBoardStatus? OnBoardStatus { get; set; }
         public int OnBoardPercent { get; set; }
         public bool IsFeatured { get; set; }

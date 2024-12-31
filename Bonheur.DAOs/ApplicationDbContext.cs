@@ -18,6 +18,9 @@ namespace Bonheur.DAOs
         public DbSet<Advertisement> Advertisements { get; set; }
         public DbSet<SubscriptionPackage> SubscriptionPackages { get; set; }
         public DbSet<Review> Reviews { get; set; }
+        public DbSet<AdPackage> AdPackages { get; set; }
+        public DbSet<Message> Messages { get; set; }
+        public DbSet<MessageAttachment> MessageAttachments { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -174,21 +177,21 @@ namespace Bonheur.DAOs
                 .HasIndex(s => s.Province);  // Adding index on SupplierProvince for faster lookup
 
             // Configure QuotationMessage -> Sender (many-to-one relationship)
-            modelBuilder.Entity<QuotationMessage>()
+            modelBuilder.Entity<Message>()
                 .HasOne(qm => qm.Sender)
                 .WithMany()
                 .HasForeignKey(qm => qm.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);  // Prevent cascading delete for Sender
 
-            modelBuilder.Entity<QuotationMessage>()
+            modelBuilder.Entity<Message>()
                 .HasOne(qm => qm.Receiver)
                 .WithMany()
                 .HasForeignKey(qm => qm.ReceiverId)
                 .OnDelete(DeleteBehavior.Restrict);  // Prevent cascading delete for Receiver
 
             // Configure QuotationMessageAttachment -> QuotationMessage (many-to-one relationship)
-            modelBuilder.Entity<QuotationMessageAttachment>()
-                .HasOne(qma => qma.QuotationMessage)
+            modelBuilder.Entity<MessageAttachment>()
+                .HasOne(qma => qma.Message)
                 .WithMany(qm => qm.Attachments)
                 .HasForeignKey(qma => qma.QuotationMessageId)
                 .OnDelete(DeleteBehavior.Cascade);

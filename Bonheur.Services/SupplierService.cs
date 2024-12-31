@@ -18,14 +18,17 @@ namespace Bonheur.Services
         private readonly IUserAccountRepository _userAccountRepository;
         private readonly IMapper _mapper;
         private readonly ISupplierImageRepository _supplierImageRepository;
+        private readonly ISupplierCategoryRepository _supplierCategoryRepository;
 
-        public SupplierService(ISupplierRepository supplierRepository, IStorageService storageService, IUserAccountRepository userAccountRepository, IMapper mapper, ISupplierImageRepository supplierImageRepository)
+        public SupplierService(ISupplierRepository supplierRepository, IStorageService storageService, IUserAccountRepository userAccountRepository, IMapper mapper, ISupplierImageRepository supplierImageRepository, 
+            ISupplierCategoryRepository supplierCategoryRepository)
         {
             _supplierRepository = supplierRepository;
             _storageService = storageService;
             _userAccountRepository = userAccountRepository;
             _mapper = mapper;
             _supplierImageRepository = supplierImageRepository;
+            _supplierCategoryRepository = supplierCategoryRepository;
         }
 
         public async Task<ApplicationResponse> CreateSupplierAsync(CreateSupplierDTO createSupplierDTO)
@@ -35,7 +38,9 @@ namespace Bonheur.Services
                 string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
 
                 if (await _supplierRepository.IsSupplierAsync(currentUserId)) throw new ApiException("User is already a supplier", System.Net.HttpStatusCode.BadRequest);
-                
+
+                if (await _supplierCategoryRepository.GetSupplierCategoryByIdAsync(createSupplierDTO.CategoryId) == null) throw new ApiException("Category not found", System.Net.HttpStatusCode.NotFound);
+
                 var currentUser = await _userAccountRepository.GetUserByIdAsync(currentUserId);
 
                 if (currentUser == null) throw new ApiException("User not found", System.Net.HttpStatusCode.NotFound);
@@ -195,6 +200,12 @@ namespace Bonheur.Services
                 var supplier = await _supplierRepository.GetSupplierByUserIdAsync(currentUserId);
 
                 if (supplier == null) throw new ApiException("Supplier not found", System.Net.HttpStatusCode.NotFound);
+
+                var category = await _supplierCategoryRepository.GetSupplierCategoryByIdAsync(supplierProfileDTO.CategoryId);
+
+                if (category == null) throw new ApiException("Category not found", System.Net.HttpStatusCode.NotFound);
+
+                if (supplierProfileDTO.Price > 1000000000000) throw new ApiException("Price is too high", System.Net.HttpStatusCode.BadRequest);
 
                 var updatedSupplier = _mapper.Map(supplierProfileDTO, supplier);
 

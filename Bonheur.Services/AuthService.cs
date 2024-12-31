@@ -253,7 +253,7 @@ namespace Bonheur.Services
                         break;
                 }
 
-                var result = await _userAccountRepository.CreateUserAsync(user, new string[] { Constants.Roles.USER }, createAccountDTO.Password!);
+                var result = await _userAccountRepository.CreateUserAsync(user, new string[] { Constants.Roles.ADMIN }, createAccountDTO.Password!);
 
                 if (!result.Succeeded)
                 {

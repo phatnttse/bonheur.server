@@ -10,10 +10,10 @@ namespace Bonheur.Services.DTOs.Supplier
     public class CreateSupplierDTO
     {
         [Required]
-        public string? SupplierName { get; set; }
+        public string? Name { get; set; }
 
         [Required]
-        public int SupplierCategoryId { get; set; }
+        public int CategoryId { get; set; }
 
         [Required]
         public string? PhoneNumber { get; set; }

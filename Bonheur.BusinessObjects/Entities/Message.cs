@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Bonheur.BusinessObjects.Entities
 {
-    public class QuotationMessage : BaseEntity
+    public class Message : BaseEntity
     {
         public string? SenderId { get; set; }  // Khóa ngoại đến ApplicationUser (người gửi)
         public virtual ApplicationUser? Sender { get; set; } // Người gửi (có thể là Supplier hoặc khách hàng)
@@ -24,6 +24,6 @@ namespace Bonheur.BusinessObjects.Entities
         public string? AttachmentUrl { get; set; }  // Đường dẫn tới file đính kèm
         public string? AttachmentType { get; set; }  // Kiểu file đính kèm
 
-        public virtual ICollection<QuotationMessageAttachment>? Attachments { get; set; } // Các file đính kèm khác
+        public virtual ICollection<MessageAttachment>? Attachments { get; set; } // Các file đính kèm khác
     }
 }

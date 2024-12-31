@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,8 @@ namespace Bonheur.BusinessObjects.Entities
         public string? FullName { get; set; }
         public string? PartnerName { get; set; }
         public string? PictureUrl { get; set; }
+
+        [EnumDataType(typeof(Gender))]
         public Gender? Gender { get; set; }
         public bool IsEnabled { get; set; } = true;
         public bool IsLockedOut => LockoutEnabled && LockoutEnd >= DateTimeOffset.UtcNow;

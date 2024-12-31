@@ -7,13 +7,13 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Bonheur.API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialPostgresMigration : Migration
+    public partial class InitialPostgreMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "AdPackage",
+                name: "AdPackages",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -21,8 +21,8 @@ namespace Bonheur.API.Migrations
                     Title = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: true),
                     Price = table.Column<decimal>(type: "numeric", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    StartDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    EndDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     AdType = table.Column<string>(type: "text", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -30,7 +30,7 @@ namespace Bonheur.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AdPackage", x => x.Id);
+                    table.PrimaryKey("PK_AdPackages", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -271,7 +271,7 @@ namespace Bonheur.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "QuotationMessage",
+                name: "Messages",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -289,15 +289,15 @@ namespace Bonheur.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_QuotationMessage", x => x.Id);
+                    table.PrimaryKey("PK_Messages", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_QuotationMessage_AspNetUsers_ReceiverId",
+                        name: "FK_Messages_AspNetUsers_ReceiverId",
                         column: x => x.ReceiverId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_QuotationMessage_AspNetUsers_SenderId",
+                        name: "FK_Messages_AspNetUsers_SenderId",
                         column: x => x.SenderId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -348,7 +348,7 @@ namespace Bonheur.API.Migrations
                     Priority = table.Column<int>(type: "integer", nullable: false),
                     IsFeatured = table.Column<bool>(type: "boolean", nullable: false),
                     ProrityEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    Status = table.Column<string>(type: "text", nullable: true),
                     OnBoardStatus = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     Discount = table.Column<decimal>(type: "numeric", nullable: false),
                     AverageRating = table.Column<decimal>(type: "numeric", nullable: false),
@@ -380,7 +380,7 @@ namespace Bonheur.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "QuotationMessageAttachment",
+                name: "MessageAttachments",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -394,11 +394,11 @@ namespace Bonheur.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_QuotationMessageAttachment", x => x.Id);
+                    table.PrimaryKey("PK_MessageAttachments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_QuotationMessageAttachment_QuotationMessage_QuotationMessag~",
+                        name: "FK_MessageAttachments_Messages_QuotationMessageId",
                         column: x => x.QuotationMessageId,
-                        principalTable: "QuotationMessage",
+                        principalTable: "Messages",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -456,9 +456,9 @@ namespace Bonheur.API.Migrations
                 {
                     table.PrimaryKey("PK_Advertisements", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Advertisements_AdPackage_AdPackageId",
+                        name: "FK_Advertisements_AdPackages_AdPackageId",
                         column: x => x.AdPackageId,
-                        principalTable: "AdPackage",
+                        principalTable: "AdPackages",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -605,6 +605,21 @@ namespace Bonheur.API.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_MessageAttachments_QuotationMessageId",
+                table: "MessageAttachments",
+                column: "QuotationMessageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messages_ReceiverId",
+                table: "Messages",
+                column: "ReceiverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messages_SenderId",
+                table: "Messages",
+                column: "SenderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OpenIddictApplications_ClientId",
                 table: "OpenIddictApplications",
                 column: "ClientId",
@@ -636,21 +651,6 @@ namespace Bonheur.API.Migrations
                 table: "OpenIddictTokens",
                 column: "ReferenceId",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_QuotationMessage_ReceiverId",
-                table: "QuotationMessage",
-                column: "ReceiverId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_QuotationMessage_SenderId",
-                table: "QuotationMessage",
-                column: "SenderId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_QuotationMessageAttachment_QuotationMessageId",
-                table: "QuotationMessageAttachment",
-                column: "QuotationMessageId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RequestPricings_SupplierId",
@@ -776,13 +776,13 @@ namespace Bonheur.API.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "MessageAttachments");
+
+            migrationBuilder.DropTable(
                 name: "OpenIddictScopes");
 
             migrationBuilder.DropTable(
                 name: "OpenIddictTokens");
-
-            migrationBuilder.DropTable(
-                name: "QuotationMessageAttachment");
 
             migrationBuilder.DropTable(
                 name: "RequestPricings");
@@ -794,16 +794,16 @@ namespace Bonheur.API.Migrations
                 name: "SupplierImages");
 
             migrationBuilder.DropTable(
-                name: "AdPackage");
+                name: "AdPackages");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "OpenIddictAuthorizations");
+                name: "Messages");
 
             migrationBuilder.DropTable(
-                name: "QuotationMessage");
+                name: "OpenIddictAuthorizations");
 
             migrationBuilder.DropTable(
                 name: "Suppliers");
