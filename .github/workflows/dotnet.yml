@@ -1,0 +1,33 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: production  # Chỉ định environment
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      # Đăng nhập Docker Hub bằng secrets
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # Tạo file .env từ GitHub Secrets
+      - name: Create .env file
+        run: echo "${{ secrets.ENV_FILE }}" > Bonheur.API/.env
+
+      # Build và push Docker image lên Docker Hub
+      - name: Build and Push Docker image
+        run: |
+          docker-compose -f docker-compose.yml build
+          docker tag bonheur-server-container:latest ${{ secrets.DOCKER_USERNAME }}/bonheur-server:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/bonheur-server:latest
