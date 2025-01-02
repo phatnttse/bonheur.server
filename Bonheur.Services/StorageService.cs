@@ -52,7 +52,7 @@ namespace Bonheur.Services
         {
             AzureBlobResponseDTO response = new AzureBlobResponseDTO();
 
-            string uniqueFileName = $"{Guid.NewGuid()}_{DateTime.UtcNow.Ticks}_{blob.FileName}";
+            string uniqueFileName = $"{DateTime.UtcNow.Ticks}_{blob.FileName}";
 
             BlobClient client = _blobContainerClient.GetBlobClient(uniqueFileName);
 

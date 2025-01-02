@@ -284,5 +284,10 @@ namespace Bonheur.DAOs
             return await _userManager.GeneratePasswordResetTokenAsync(user);
         }
 
+        public async Task AddToRolesAsync(ApplicationUser user, IEnumerable<string> roles)
+        {
+            await _userManager.AddToRolesAsync(user, roles);
+        }
+
     }
 }

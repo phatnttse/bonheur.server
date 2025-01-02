@@ -205,7 +205,7 @@ namespace Bonheur.Services
 
                 if (category == null) throw new ApiException("Category not found", System.Net.HttpStatusCode.NotFound);
 
-                if (supplierProfileDTO.Price > 1000000000000) throw new ApiException("Price is too high", System.Net.HttpStatusCode.BadRequest);
+                if (supplierProfileDTO.Price > Constants.Common.MAX_PRICE) throw new ApiException("Price is too high", System.Net.HttpStatusCode.BadRequest);
 
                 var updatedSupplier = _mapper.Map(supplierProfileDTO, supplier);
 

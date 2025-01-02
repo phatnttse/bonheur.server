@@ -32,5 +32,12 @@ namespace Bonheur.Utils
             public const string ASSERTION = "assertion";
 
         }
+
+        public static class Common
+        {
+            public const long MAX_PRICE = 10000000000;
+        }
+
+
     }
 }
