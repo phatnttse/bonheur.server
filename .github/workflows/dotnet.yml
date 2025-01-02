@@ -11,16 +11,24 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: production  
+    environment: production  # Chỉ định environment
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      # Đăng nhập Docker Hub
-      - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{  secrets.DOCKER_USERNAME }}" --password-stdin
+      # Cài đặt Docker Compose
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version  # Kiểm tra phiên bản Docker Compose đã được cài đặt
 
+      # Đăng nhập Docker Hub bằng secrets
+      - name: Login to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          
       # Tạo file .env từ GitHub Secrets
       - name: Create .env file
         run: echo "${{ secrets.ENV_SECRET }}" > Bonheur.API/.env
