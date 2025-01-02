@@ -163,11 +163,11 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> GetUsersAndRolesAsync(int page, int pageSize)
+        public async Task<ApplicationResponse> GetUsersAndRolesAsync(int page, int pageSize, string? search = null, string? role = null)
         {
             try
             {
-                var usersAndRolesPagedList = await _userAccountRepository.GetUsersAndRolesAsync(page, pageSize);
+                var usersAndRolesPagedList = await _userAccountRepository.GetUsersAndRolesAsync(page, pageSize, search, role);
 
                 var userAccountDTOs = new List<UserAccountDTO>();
 

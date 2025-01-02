@@ -62,34 +62,54 @@ namespace Bonheur.DAOs
             return (user, roles);
         }
 
-        public async Task<IPagedList<(ApplicationUser User, string[] Roles)>> GetUsersAndRolesAsync(int page, int pageSize)
+        public async Task<IPagedList<(ApplicationUser User, string[] Roles)>> GetUsersAndRolesAsync(int page, int pageSize, string? search, string? role)
         {
             IQueryable<ApplicationUser> usersQuery = _context.Users
-                .Include(u => u.Roles)
+                .Include(u => u.Roles) 
                 .OrderBy(u => u.UserName);
 
-            var usersPagedList =  usersQuery.ToPagedList(page, pageSize);
+            if (!string.IsNullOrEmpty(search))
+            {
+                usersQuery = usersQuery.Where(u => u.UserName!.Contains(search) || u.FullName!.Contains(search));
+            }
 
+            if (!string.IsNullOrEmpty(role))
+            {
+                var roleEntity = await _context.Roles
+                    .FirstOrDefaultAsync(r => r.Name == role);
+
+                if (roleEntity != null)
+                {
+                    usersQuery = usersQuery.Where(u => u.Roles.Any(ur => ur.RoleId == roleEntity.Id));
+                }
+            }
+
+            var usersPagedList = usersQuery.ToPagedList(page, pageSize);
             var users = usersPagedList.ToList();
 
-            var userRoleIds = users.SelectMany(u => u.Roles.Select(r => r.RoleId)).ToList();
+            var userRoleIds = users.SelectMany(u => u.Roles.Select(ur => ur.RoleId)).ToList();
 
             var roles = await _context.Roles
                 .Where(r => userRoleIds.Contains(r.Id))
                 .ToArrayAsync();
 
             var usersWithRoles = users
-                .Select(u => (u, roles.Where(r => u.Roles.Select(ur => ur.RoleId).Contains(r.Id)).Select(r => r.Name!).ToArray()))
+                .Select(u => (
+                    u,
+                    u.Roles.Select(ur => roles.FirstOrDefault(r => r.Id == ur.RoleId)?.Name).ToArray()
+                ))
                 .ToList();
 
             var result = new StaticPagedList<(ApplicationUser User, string[] Roles)>(
-                usersWithRoles,
+                usersWithRoles!,
                 usersPagedList.PageNumber,
                 usersPagedList.PageSize,
                 usersPagedList.TotalItemCount);
 
             return result;
         }
+
+
 
         public async Task<(bool Succeeded, string[] Errors)> CreateUserAsync(ApplicationUser user,
             IEnumerable<string> roles, string password)
@@ -262,6 +282,11 @@ namespace Bonheur.DAOs
         public async Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user)
         {
             return await _userManager.GeneratePasswordResetTokenAsync(user);
+        }
+
+        public async Task AddToRolesAsync(ApplicationUser user, IEnumerable<string> roles)
+        {
+            await _userManager.AddToRolesAsync(user, roles);
         }
 
     }

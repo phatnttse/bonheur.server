@@ -15,7 +15,7 @@ namespace Bonheur.Services.Interfaces
         Task<ApplicationResponse> GetRoleByNameAsync(string roleName);
         Task<ApplicationResponse> GetRoleLoadRelatedAsync(string roleName);
         Task<ApplicationResponse> GetRolesLoadRelatedAsync(int page, int pageSize);
-        Task<ApplicationResponse> GetAllPermissions();
+        ApplicationResponse GetAllPermissions();
         Task<ApplicationResponse> CreateRoleAsync(UserRoleDTO createUserRoleDTO,
            IEnumerable<string> claims);
         Task<ApplicationResponse> UpdateRoleAsync(string id, UserRoleDTO userRoleDTO,

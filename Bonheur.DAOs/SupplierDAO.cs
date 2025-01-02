@@ -18,8 +18,8 @@ namespace Bonheur.DAOs
         public async Task<Supplier?> GetSupplierByIdAsync(int id, bool isIncludeUser)
         {
             IQueryable<Supplier> query = _context.Suppliers
-                .Include(s => s.SupplierCategory)
-                .Include(s => s.SupplierImages);
+                .Include(s => s.Category)
+                .Include(s => s.Images);
 
             if (isIncludeUser)
             {
@@ -33,8 +33,8 @@ namespace Bonheur.DAOs
         {
             return await _context.Suppliers
                 .Include(s => s.User)
-                .Include(s => s.SupplierCategory)
-                .Include(s => s.SupplierImages)
+                .Include(s => s.Category)
+                .Include(s => s.Images)
                 .Include(s => s.SubscriptionPackage)
                 .SingleOrDefaultAsync(s => s.UserId == userId);
         }
@@ -53,20 +53,20 @@ namespace Bonheur.DAOs
         )
         {
             IQueryable<Supplier> query = _context.Suppliers
-                .Include(s => s.SupplierCategory)
-                .Include(s => s.SupplierImages)
+                .Include(s => s.Category)
+                .Include(s => s.Images)
                 .Where(s => s.Status == SupplierStatus.APPROVED);
 
             // Lọc theo tên nhà cung cấp
             if (!string.IsNullOrEmpty(supplierName))
             {
-                query = query.Where(s => EF.Functions.Like(s.SupplierName, $"%{supplierName}%"));
+                query = query.Where(s => EF.Functions.Like(s.Name, $"%{supplierName}%"));
             }
 
             // Lọc theo danh mục
             if (supplierCategoryId.HasValue)
             {
-                query = query.Where(s => s.SupplierCategoryId == supplierCategoryId);
+                query = query.Where(s => s.CategoryId == supplierCategoryId);
             }
 
             // Lọc theo tỉnh thành
@@ -99,17 +99,17 @@ namespace Bonheur.DAOs
             }
 
             IOrderedQueryable<Supplier> orderedQuery = query
-            .OrderByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTime.Now)
-            .ThenByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTime.Now ? s.Priority : 0)
+            .OrderByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow)
+            .ThenByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow ? s.Priority : 0)
             .ThenByDescending(s => s.Priority);
 
             if (sortAsc.HasValue && sortAsc.Value)
             {
-                orderedQuery = orderedQuery.ThenBy(s => s.SupplierName);
+                orderedQuery = orderedQuery.ThenBy(s => s.Name);
             }
             else if (sortAsc.HasValue && !sortAsc.Value)
             {
-                orderedQuery = orderedQuery.ThenByDescending(s => s.SupplierName);
+                orderedQuery = orderedQuery.ThenByDescending(s => s.Name);
             }
 
             var suppliers = orderedQuery.ToPagedList(pageNumber, pageSize);

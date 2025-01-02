@@ -9,13 +9,8 @@ namespace Bonheur.BusinessObjects.Enums
 {
     public enum RequestPricingStatus
     {
-        [EnumMember(Value = "PENDING")]
-        Pending,
-
-        [EnumMember(Value = "RESPONDED")]
-        Responded,
-
-        [EnumMember(Value = "REJECTED")]
-        Rejected
+        PENDING,
+        RESPONDED,
+        REJECTED
     }
 }

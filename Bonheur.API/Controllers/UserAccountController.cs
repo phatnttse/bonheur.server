@@ -41,12 +41,16 @@ namespace Bonheur.API.Controllers
         }
 
 
-        [HttpGet("users/{pageNumber:int}/{pageSize:int}")]
+        [HttpGet("users")]
         [Authorize(AuthPolicies.ViewAllUsersPolicy)]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
-        public async Task<IActionResult> GetUsers(int pageNumber, int pageSize)
+        public async Task<IActionResult> GetUsers(
+            [FromQuery] string? search,
+            [FromQuery] string? role,
+            [FromQuery] int pageNumber, 
+            [FromQuery] int pageSize)
         {
-            return Ok(await _userAccountService.GetUsersAndRolesAsync(pageNumber, pageSize));
+            return Ok(await _userAccountService.GetUsersAndRolesAsync(pageNumber, pageSize, search, role));
         }
 
 

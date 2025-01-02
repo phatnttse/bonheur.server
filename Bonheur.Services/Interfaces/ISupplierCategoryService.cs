@@ -14,7 +14,7 @@ namespace Bonheur.Services.Interfaces
         Task<ApplicationResponse> GetSupplierCategoryByIdAsync(int id);
         Task<ApplicationResponse> GetAllSupplierCategoryAsync();
         Task<ApplicationResponse> AddSupplierCategory(CreateSupplierCategoryDTO supplierCategoryDTO);
-        Task<ApplicationResponse> UpdateSupplierCategory(CreateSupplierCategoryDTO supplierCategoryDTO, int id);
+        Task<ApplicationResponse> UpdateSupplierCategory(SupplierCategoryDTO supplierCategoryDTO, int id);
         Task<ApplicationResponse> DeleteSupplierCategory(int id);
     }
 }

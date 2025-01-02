@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using X.PagedList;
+using X.PagedList.Extensions;
 
 namespace Bonheur.DAOs
 {
@@ -23,39 +25,37 @@ namespace Bonheur.DAOs
             return requestPricing;
         }
 
-        public async Task<List<RequestPricing?>> GetAllRequestPricing(string supplierId)
+        public Task<IPagedList<RequestPricing>> GetAllRequestPricing(int pageNumber = 1, int pageSize= 10)
         {
-            var result = await _context.RequestPricings
-                .Include(rp => rp.Supplier)
-                .Where(rp => rp.Supplier != null &&  rp.Supplier.UserId == supplierId)
-                .ToListAsync();
-            return result;
+            IQueryable<RequestPricing> query = _context.RequestPricings
+                 .Where(rp => rp.Status != RequestPricingStatus.REJECTED); 
+            var orderedQuery =  query.OrderByDescending(rp => rp.CreatedAt);
+            var requestPricings =  orderedQuery.ToPagedList(pageNumber, pageSize);
+            return Task.FromResult(requestPricings);
         }
 
-        public async Task<RequestPricing> GetRequestPricingById(string supplierId, int id)
+        public Task<IPagedList<RequestPricing>> GetAllRequestPricingBySupplierId(int supplierId, int pageNumber = 1, int pageSize = 10)
+        {
+            IQueryable<RequestPricing> query = _context.RequestPricings
+                 .Where(rp => rp.Status != RequestPricingStatus.REJECTED && rp.SupplierId == supplierId);
+            var orderedQuery = query.OrderByDescending(rp => rp.CreatedAt);
+            var requestPricings = orderedQuery.ToPagedList(pageNumber, pageSize);
+            return Task.FromResult(requestPricings);
+        }
+
+        public async Task<RequestPricing> GetRequestPricingById(int id)
         {
             var result = await _context.RequestPricings
-                .Include(rp => rp.Supplier)
-                .Where(rp => rp.Supplier != null && rp.Supplier.UserId == supplierId)
+                .Include(rp=> rp.Supplier)
                 .FirstOrDefaultAsync(x => x.Id == id);
             return result;
         }
 
-        public async Task<RequestPricing> ChangeRequestPricingStatus(string supplierId, int id, RequestPricingStatus status)
+
+        public async Task UpdateRequestPricingStatus(RequestPricing requestPricing)
         {
-            var requestPricing = await _context.RequestPricings
-                .Include(rp => rp.Supplier) 
-                .FirstOrDefaultAsync(rp => rp.Supplier != null && rp.Supplier.UserId == supplierId && rp.Id == id);
-
-            if (requestPricing == null)
-            {
-                throw new KeyNotFoundException("RequestPricing not found.");
-            } 
-
-            requestPricing.Status = status; 
-
+            _context.RequestPricings.Update(requestPricing);
             await _context.SaveChangesAsync();
-            return requestPricing;
         }
     }
 }

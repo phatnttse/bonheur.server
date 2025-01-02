@@ -10,29 +10,23 @@ namespace Bonheur.BusinessObjects.Entities
 {
     public class Advertisement : BaseEntity
     {
+
         [Required]
         public int SupplierId { get; set; }
         public virtual Supplier? Supplier { get; set; }
 
         [Required]
-        [StringLength(100)]
-        public string? Title { get; set; }
+        public int AdPackageId { get; set; } // Mối quan hệ với gói quảng cáo đã chọn
+        public virtual AdPackage? AdPackage { get; set; } // Quảng cáo sử dụng gói quảng cáo nào
 
-        [Column(TypeName = "nvarchar(max)")]
-        public string? Content { get; set; }
+        public string? Title { get; set; } // Tiêu đề quảng cáo
 
-        [Url]
+        public string? Content { get; set; } // Nội dung quảng cáo
+
         public string? ImageUrl { get; set; } // URL hình ảnh quảng cáo
 
-        [Url]
-        public string? TargetUrl { get; set; } // URL khi click vào quảng cáo
+        public string? TargetUrl { get; set; } // URL khi người dùng click vào quảng cáo
 
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-
-        [Column(TypeName = "decimal(18, 2)")]
-        public decimal Cost { get; set; } // Chi phí quảng cáo
-
-        public bool IsDeleted { get; set; } = false;
+        public bool IsActive { get; set; } = true; // Trạng thái của quảng cáo
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,11 +15,13 @@ namespace Bonheur.BusinessObjects.Entities
         public string? FullName { get; set; }
         public string? PartnerName { get; set; }
         public string? PictureUrl { get; set; }
+
+        [EnumDataType(typeof(Gender))]
         public Gender? Gender { get; set; }
         public bool IsEnabled { get; set; } = true;
-        public bool IsLockedOut => LockoutEnabled && LockoutEnd >= DateTimeOffset.Now;
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public bool IsLockedOut => LockoutEnabled && LockoutEnd >= DateTimeOffset.UtcNow;
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
         /// Navigation property for the roles this user belongs to.

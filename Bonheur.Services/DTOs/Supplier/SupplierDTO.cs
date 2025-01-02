@@ -6,9 +6,9 @@ namespace Bonheur.Services.DTOs.Supplier
     public class SupplierDTO
     {
         public int Id { get; set; }
-        public SupplierCategoryDTO? SupplierCategory { get; set; }
-        public string? SupplierName { get; set; }
-        public string? SupplierDescription { get; set; }
+        public SupplierCategoryDTO? Category { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
         public decimal? Price { get; set; }
         public string? Street { get; set; }
         public string? Province { get; set; }
@@ -23,6 +23,7 @@ namespace Bonheur.Services.DTOs.Supplier
         public bool IsFeatured { get; set; }
         public DateTime? PriorityEnd { get; set; }
         public decimal AverageRating { get; set; }
-        public List<SupplierImageDTO>? SupplierImages { get; set; }
+        public decimal Discount { get; set; }
+        public List<SupplierImageDTO>? Images { get; set; }
     }
 }
