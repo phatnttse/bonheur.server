@@ -17,7 +17,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      # Đăng nhập Docker Hub bằng secrets
+      # Đăng nhập Docker Hub
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{  secrets.DOCKER_USERNAME }}" --password-stdin
 
