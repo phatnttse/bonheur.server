@@ -37,5 +37,4 @@ jobs:
       - name: Build and Push Docker image
         run: |
           docker-compose -f docker-compose.yaml build
-          docker tag bonheur-server-container:latest ${{ secrets.DOCKER_USERNAME }}/bonheur-server:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/bonheur-server:latest
