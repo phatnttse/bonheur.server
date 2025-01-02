@@ -23,7 +23,7 @@ jobs:
 
       # Tạo file .env từ GitHub Secrets
       - name: Create .env file
-        run: echo "${{ secrets.ENV_FILE }}" > Bonheur.API/.env
+        run: echo "${{ secrets.ENV_SECRET }}" > Bonheur.API/.env
 
       # Build và push Docker image lên Docker Hub
       - name: Build and Push Docker image
