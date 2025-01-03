@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace Bonheur.Utils
@@ -36,5 +37,17 @@ namespace Bonheur.Utils
                 .Select(c => c.Value)
                 .ToArray();
         }
+
+        public static string GenerateSlug(string text)
+        {
+            text = text.ToLower();
+            text = Regex.Replace(text, @"[^a-z0-9\s-]", "");  
+            text = Regex.Replace(text, @"\s+", " ").Trim();   
+            text = text.Substring(0, text.Length <= 45 ? text.Length : 45).Trim();  
+            text = Regex.Replace(text, @"\s", "-");          
+            string ticks = DateTime.Now.Ticks.ToString();     
+            return $"{text}_{ticks}";
+        }
+
     }
 }

@@ -49,19 +49,15 @@ namespace Bonheur.Services
 
                 supplier.UserId = currentUserId;
 
+                supplier.Slug = Utilities.GenerateSlug(supplier.Name!);
+
                 var createdSupplier = await _supplierRepository.CreateSupplierAsync(supplier);
 
                 if (createdSupplier == null) throw new ApiException("Failed to create supplier", System.Net.HttpStatusCode.InternalServerError);
-
-                currentUser.PhoneNumber = createSupplierDTO.PhoneNumber;
-
-                var updateUserResult = await _userAccountRepository.UpdateUserAndUserRoleAsync(currentUser, new string[] { Constants.Roles.SUPPLIER });
-
-                if (!updateUserResult.Succeeded) throw new ApiException(string.Join("; ", updateUserResult.Errors.Select(error => error)), System.Net.HttpStatusCode.InternalServerError);
-
+            
                 return new ApplicationResponse
                 {
-                    Message = "Sign up to become a successful supplier",
+                    Message = "Sign up to become a supplier successfully",
                     StatusCode = System.Net.HttpStatusCode.OK,
                     Success = true,
                     Data = _mapper.Map<SupplierDTO>(createdSupplier),
@@ -112,7 +108,6 @@ namespace Bonheur.Services
             catch (ApiException)
             {
                 throw;
-
             }
             catch (Exception ex)
             {
@@ -142,7 +137,6 @@ namespace Bonheur.Services
             catch (ApiException)
             {
                 throw;
-
             }
             catch (Exception ex)
             {
@@ -183,7 +177,6 @@ namespace Bonheur.Services
             catch (ApiException)
             {
                 throw;
-
             }
             catch (Exception ex)
             {
@@ -229,7 +222,6 @@ namespace Bonheur.Services
             catch (ApiException)
             {
                 throw;
-
             }
             catch (Exception ex)
             {
@@ -269,7 +261,6 @@ namespace Bonheur.Services
             catch (ApiException)
             {
                 throw;
-
             }
             catch (Exception ex)
             {
@@ -377,7 +368,6 @@ namespace Bonheur.Services
             catch (ApiException)
             {
                 throw;
-
             }
             catch (Exception ex)
             {
@@ -416,7 +406,6 @@ namespace Bonheur.Services
             catch (ApiException)
             {
                 throw;
-
             }
             catch (Exception ex)
             {
@@ -445,7 +434,79 @@ namespace Bonheur.Services
             catch (ApiException)
             {
                 throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
 
+        public async Task<ApplicationResponse> UpdateSupplierStatus(int supplierId, SupplierStatus status)
+        {
+            try
+            {
+                var existingSupplier = await _supplierRepository.GetSupplierByIdAsync(supplierId, false);
+
+                if (existingSupplier == null) throw new ApiException("Supplier not found", System.Net.HttpStatusCode.NotFound);
+
+                if (existingSupplier.Status == status) throw new ApiException("Supplier is already in this status", System.Net.HttpStatusCode.BadRequest);
+
+                if (status == SupplierStatus.APPROVED && existingSupplier.OnBoardStatus != OnBoardStatus.COMPLETED)
+                    throw new ApiException("Supplier onboarding is not completed", System.Net.HttpStatusCode.BadRequest);
+
+                existingSupplier.Status = status;
+
+                var result = await _supplierRepository.UpdateSupplierAsync(existingSupplier);
+
+                if (result == null) throw new ApiException("Failed to update supplier status", System.Net.HttpStatusCode.InternalServerError);
+
+                if (existingSupplier.Status == SupplierStatus.APPROVED)
+                {
+                    var user = await _userAccountRepository.GetUserByIdAsync(existingSupplier.UserId!);
+
+                    if (user == null) throw new ApiException("User not found", System.Net.HttpStatusCode.NotFound);
+
+                    await _userAccountRepository.AddToRolesAsync(user, new string[] { Constants.Roles.SUPPLIER });
+                }
+
+                return new ApplicationResponse
+                {
+                    Message = "Supplier status updated successfully",
+                    Data = _mapper.Map<SupplierDTO>(result),
+                    Success = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<ApplicationResponse> GetSupplierBySlugAsync(string slug)
+        {
+            try
+            {
+                var existingSupplier = await _supplierRepository.GetSupplierBySlugAsync(slug);
+
+                if (existingSupplier == null) throw new ApiException("Supplier not found", System.Net.HttpStatusCode.NotFound);
+
+                return new ApplicationResponse
+                {
+                    Message = $"Supplier {existingSupplier.Name} found",
+                    Data = _mapper.Map<SupplierDTO>(existingSupplier),
+                    Success = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+            }
+            catch (ApiException)
+            {
+                throw;
             }
             catch (Exception ex)
             {

@@ -21,6 +21,11 @@ namespace Bonheur.BusinessObjects.Entities
         [StringLength(255)]
         public string? Name { get; set; }
 
+        [Required]
+        public string? Slug { get; set; }
+
+        public string? PhoneNumber { get; set; }
+
         public string? Description { get; set; }
 
         public decimal? Price { get; set; }
