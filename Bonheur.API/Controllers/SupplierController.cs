@@ -77,7 +77,7 @@ namespace Bonheur.API.Controllers
         [HttpGet("users/{id}")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(404)]
-        [Authorize(Roles = Constants.Roles.SUPPLIER + "," + Constants.Roles.ADMIN)]
+        [Authorize(Roles = Constants.Roles.USER + "," + Constants.Roles.ADMIN)]
         public async Task<IActionResult> GetSupplierByUserId(string id)
         {
             return Ok(await _supplierService.GetSupplierByUserIdAsync(id));
@@ -95,7 +95,7 @@ namespace Bonheur.API.Controllers
         [HttpPatch("update/profile")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(404)]
-        [Authorize(Roles = Constants.Roles.SUPPLIER + "," + Constants.Roles.ADMIN)]
+        [Authorize(Roles = Constants.Roles.USER + "," + Constants.Roles.ADMIN)]
         public async Task<IActionResult> UpdateSupplierProfile([FromBody] UpdateSupplierProfileDTO updateSupplierProfileDTO)
         {
             return Ok(await _supplierService.UpdateSupplierProfileAsync(updateSupplierProfileDTO));
@@ -104,7 +104,7 @@ namespace Bonheur.API.Controllers
         [HttpPatch("update/address")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(404)]
-        [Authorize(Roles = Constants.Roles.SUPPLIER + "," + Constants.Roles.ADMIN)]
+        [Authorize(Roles = Constants.Roles.USER + "," + Constants.Roles.ADMIN)]
         public async Task<IActionResult> UpdateSupplierAddress([FromBody] UpdateSupplierAddressDTO updateSupplierAddressDTO)
         {
             return Ok(await _supplierService.UpdateSupplierAddressAsync(updateSupplierAddressDTO));
@@ -113,7 +113,7 @@ namespace Bonheur.API.Controllers
         [HttpPost("images/upload")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(404)]
-        [Authorize(Roles = Constants.Roles.SUPPLIER + "," + Constants.Roles.ADMIN)]
+        [Authorize(Roles = Constants.Roles.USER + "," + Constants.Roles.ADMIN)]
         public async Task<IActionResult> UploadSupplierImages([FromForm] List<IFormFile> files, [FromForm] int? primaryImageIndex)
         {
             return Ok(await _supplierService.UploadSupplierImages(files, primaryImageIndex));
@@ -122,7 +122,7 @@ namespace Bonheur.API.Controllers
         [HttpGet("images/{supplierId}")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(404)]
-        [Authorize(Roles = Constants.Roles.SUPPLIER + "," + Constants.Roles.ADMIN)]
+        [Authorize(Roles = Constants.Roles.USER + "," + Constants.Roles.ADMIN)]
         public async Task<IActionResult> GetSupplierImagesBySupplier(int supplierId)
         {
             return Ok(await _supplierService.GetSupplierImagesBySupplier(supplierId));
@@ -131,7 +131,7 @@ namespace Bonheur.API.Controllers
         [HttpDelete("images/{supplierImageId}")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(404)]
-        [Authorize(Roles = Constants.Roles.SUPPLIER + "," + Constants.Roles.ADMIN)]
+        [Authorize(Roles = Constants.Roles.USER + "," + Constants.Roles.ADMIN)]
         public async Task<IActionResult> DeleteSupplierImage(int supplierImageId)
         {
             return Ok(await _supplierService.DeleteSupplierImageAsync(supplierImageId));
@@ -140,12 +140,27 @@ namespace Bonheur.API.Controllers
         [HttpPatch("images/update/primary/{imageId}")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(404)]
-        [Authorize(Roles = Constants.Roles.SUPPLIER + "," + Constants.Roles.ADMIN)]
+        [Authorize(Roles = Constants.Roles.USER + "," + Constants.Roles.ADMIN)]
         public async Task<IActionResult> UpdatePrimaryImage(int imageId)
         {
             return Ok(await _supplierService.UpdatePrimaryImageAsync(imageId));
         }
 
+        [HttpPatch("status/{supplierId}")]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        [ProducesResponseType(404)]
+        [Authorize(Roles = Constants.Roles.ADMIN)]
+        public async Task<IActionResult> UpdateSupplierStatus(int supplierId, [FromQuery] SupplierStatus status)
+        {
+            return Ok(await _supplierService.UpdateSupplierStatus(supplierId, status));
+        }
 
+        [HttpGet("slug/{slug}")]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetSupplierBySlug(string slug)
+        {
+            return Ok(await _supplierService.GetSupplierBySlugAsync(slug));
+        }
     }
 }
