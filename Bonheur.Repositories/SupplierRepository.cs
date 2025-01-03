@@ -42,5 +42,6 @@ namespace Bonheur.Repositories
 
         public async Task<Supplier?> UpdateSupplierAsync(Supplier supplier) => await _supplierDAO.UpdateSupplierAsync(supplier);
         public async Task<bool> IsSupplierAsync(string userId) => await _supplierDAO.IsSupplierAsync(userId);
+        public async Task<Supplier?> GetSupplierBySlugAsync(string slug) => await _supplierDAO.GetSupplierBySlugAsync(slug);
     }
 }

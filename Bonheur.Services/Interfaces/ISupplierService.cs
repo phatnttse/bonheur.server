@@ -1,4 +1,5 @@
 ﻿using Bonheur.BusinessObjects.Entities;
+using Bonheur.BusinessObjects.Enums;
 using Bonheur.BusinessObjects.Models;
 using Bonheur.Services.DTOs.Supplier;
 using Microsoft.AspNetCore.Http;
@@ -34,6 +35,8 @@ namespace Bonheur.Services.Interfaces
         Task<ApplicationResponse> GetSupplierImagesBySupplier(int supplierId);
         Task<ApplicationResponse> DeleteSupplierImageAsync(int supplierImageId);
         Task<ApplicationResponse> UpdatePrimaryImageAsync(int imageId);
+        Task<ApplicationResponse> UpdateSupplierStatus(int supplierId, SupplierStatus status);
+        Task<ApplicationResponse> GetSupplierBySlugAsync(string slug);
 
     }
 }
