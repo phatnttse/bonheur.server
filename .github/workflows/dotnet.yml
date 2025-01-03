@@ -49,6 +49,7 @@ jobs:
             docker stop bonheur-app || true
             docker rm bonheur-app || true
             docker run -d --name bonheur-app \
+              -p 8080:8080 \
               -e GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" \
               -e SMTP_HOST="${{ secrets.SMTP_HOST }}" \
               -e SMTP_PORT="${{ secrets.SMTP_PORT }}" \
