@@ -130,10 +130,13 @@ namespace Bonheur.API
                         Scopes.Phone,
                         Scopes.Roles);
 
-                    if (builder.Environment.IsDevelopment() || builder.Environment.IsProduction())
+                    if (builder.Environment.IsDevelopment())
                     {
                         options.AddDevelopmentEncryptionCertificate()
                                .AddDevelopmentSigningCertificate();
+
+                        options.UseAspNetCore().DisableTransportSecurityRequirement();
+
                     }
                     else
                     {
@@ -146,6 +149,8 @@ namespace Bonheur.API
                             // See https://documentation.openiddict.com/configuration/encryption-and-signing-credentials.html
                             options.AddEphemeralEncryptionKey()
                                    .AddEphemeralSigningKey();
+
+                            options.UseAspNetCore().DisableTransportSecurityRequirement();
                         }
                         else
                         {
