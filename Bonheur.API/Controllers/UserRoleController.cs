@@ -32,6 +32,7 @@ namespace Bonheur.API.Controllers
         /// <param name="createUserRoleDTO"></param>
         /// <returns></returns>
         [HttpPost("roles")]
+        [Authorize(AuthPolicies.ManageAllRolesPolicy)]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateRole([FromBody] UserRoleDTO createUserRoleDTO)
