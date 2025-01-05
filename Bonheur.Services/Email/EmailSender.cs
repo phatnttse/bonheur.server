@@ -70,17 +70,8 @@ namespace Bonheur.Services.Email
                             (sender2, certificate, chain, sslPolicyErrors) => true;
                     }
 
-                    // Kết nối đến SMTP server, sử dụng cổng 587 và STARTTLS
-                    if (_config.UseSSL)
-                    {
-                        // Dùng SSL ngay từ đầu (cổng 465)
-                        await client.ConnectAsync(_config.Host, 465, SecureSocketOptions.SslOnConnect).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        // Sử dụng STARTTLS cho cổng 587
-                        await client.ConnectAsync(_config.Host, 587, SecureSocketOptions.StartTls).ConfigureAwait(false);
-                    }
+                    // Sử dụng STARTTLS cho cổng 587
+                    await client.ConnectAsync(_config.Host, 587, SecureSocketOptions.StartTls).ConfigureAwait(false);
 
                     client.AuthenticationMechanisms.Remove("XOAUTH2");
 
@@ -100,5 +91,6 @@ namespace Bonheur.Services.Email
                 return (false, ex.Message);
             }
         }
+
     }
 }
