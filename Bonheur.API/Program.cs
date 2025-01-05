@@ -130,7 +130,7 @@ namespace Bonheur.API
                         Scopes.Phone,
                         Scopes.Roles);
 
-                    if (builder.Environment.IsDevelopment())
+                    if (builder.Environment.IsDevelopment() || builder.Environment.IsProduction())
                     {
                         options.AddDevelopmentEncryptionCertificate()
                                .AddDevelopmentSigningCertificate();
