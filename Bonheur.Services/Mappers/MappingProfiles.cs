@@ -79,10 +79,7 @@ namespace Bonheur.Services.Mappers
             //SubscriptionPackage
             CreateMap<SubscriptionPackageDTO, SubscriptionPackage>();
             CreateMap<SubscriptionPackage, SubscriptionPackageDTO>().ReverseMap();
-            CreateMap<CreateSubscriptionPackageDTO, SubscriptionPackage>();
-            CreateMap<SubscriptionPackage, CreateSubscriptionPackageDTO>().ReverseMap();
-
-
+            
             //Review
             CreateMap<ReviewDTO, Review>();
             CreateMap<Review, ReviewDTO>().ReverseMap();

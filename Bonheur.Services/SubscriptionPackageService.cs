@@ -72,7 +72,7 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> CreateSubscriptionPackageAsync(CreateSubscriptionPackageDTO subscriptionPackageDTO)
+        public async Task<ApplicationResponse> CreateSubscriptionPackageAsync(SubscriptionPackageDTO subscriptionPackageDTO)
         {
             try
             {
@@ -84,7 +84,7 @@ namespace Bonheur.Services
                 {
                     Message = "Create supscription package successful",
                     StatusCode = System.Net.HttpStatusCode.OK,
-                    Data = _mapper.Map<CreateSubscriptionPackageDTO>(subscriptionPackage),
+                    Data = _mapper.Map<SubscriptionPackageDTO>(subscriptionPackage),
                     Success = true,
                 };
             }
@@ -108,6 +108,8 @@ namespace Bonheur.Services
                 if (subscriptionPackage == null) throw new ApiException("Subscription package not found", System.Net.HttpStatusCode.NotFound);
 
                 _mapper.Map(subscriptionPackageDTO, subscriptionPackage);
+
+                if (subscriptionPackage.Id != id) throw new ApiException("Subscription package id mismatch", System.Net.HttpStatusCode.BadRequest);
 
                 await _subscriptionPackageRepository.UpdateSubscriptionPackageAsync(subscriptionPackage);
 

@@ -38,7 +38,7 @@ namespace Bonheur.API.Controllers
         [Authorize(Roles = Constants.Roles.ADMIN)]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(403)]
-        public async Task<IActionResult> CreateSubscriptionPackageAsync([FromBody] CreateSubscriptionPackageDTO subscriptionPackageDTO)
+        public async Task<IActionResult> CreateSubscriptionPackageAsync([FromBody] SubscriptionPackageDTO subscriptionPackageDTO)
         {
             return Ok(await _subscriptionPackageService.CreateSubscriptionPackageAsync(subscriptionPackageDTO));
         }

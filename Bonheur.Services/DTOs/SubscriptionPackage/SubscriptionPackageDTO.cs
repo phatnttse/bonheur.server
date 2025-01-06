@@ -5,8 +5,8 @@ namespace Bonheur.Services.DTOs.SubscriptionPackage
 {
     public class SubscriptionPackageDTO
     {
-        [Required]
         public int? Id { get; set; }
+
         [Required]
         public string? Name { get; set; } 
 
@@ -26,24 +26,4 @@ namespace Bonheur.Services.DTOs.SubscriptionPackage
         public int Priority { get; set; }
     }
 
-    public class CreateSubscriptionPackageDTO
-    {
-        [Required]
-        public string? Name { get; set; }
-
-        [Required]
-        public string? Description { get; set; }
-
-        [Required]
-        public int DurationInDays { get; set; }
-
-        [Required]
-        public decimal Price { get; set; }
-
-        [Required]
-        public bool IsFeatured { get; set; }
-
-        [Required]
-        public int Priority { get; set; }
-    }
 }

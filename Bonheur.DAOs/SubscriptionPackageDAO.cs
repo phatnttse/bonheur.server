@@ -24,7 +24,7 @@ namespace Bonheur.DAOs
 
         public async Task<List<SubscriptionPackage>> GetAllSubscriptionPackagesAsync()
         {
-            return await _context.SubscriptionPackages.ToListAsync();
+            return await _context.SubscriptionPackages.Where(sp => !sp.IsDeleted).ToListAsync();
         }
 
         public async Task CreateSubscriptionPackageAsync(SubscriptionPackage subscriptionPackage)
