@@ -121,7 +121,7 @@ namespace Bonheur.DAOs
 
         public async Task<Supplier?> CreateSupplierAsync(Supplier supplier)
         {
-            await _context.Suppliers.AddAsync(supplier);
+            _context.Suppliers.Add(supplier);
             await _context.SaveChangesAsync();
             return supplier;
         }

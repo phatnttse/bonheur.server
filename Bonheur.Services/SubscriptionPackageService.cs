@@ -72,7 +72,7 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> CreateSubscriptionPackageAsync(SubscriptionPackageDTO subscriptionPackageDTO)
+        public async Task<ApplicationResponse> CreateSubscriptionPackageAsync(CreateSubscriptionPackageDTO subscriptionPackageDTO)
         {
             try
             {
@@ -84,7 +84,7 @@ namespace Bonheur.Services
                 {
                     Message = "Create supscription package successful",
                     StatusCode = System.Net.HttpStatusCode.OK,
-                    Data = _mapper.Map<SubscriptionPackageDTO>(subscriptionPackage),
+                    Data = _mapper.Map<CreateSubscriptionPackageDTO>(subscriptionPackage),
                     Success = true,
                 };
             }
