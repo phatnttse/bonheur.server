@@ -5,6 +5,8 @@ namespace Bonheur.Services.DTOs.SubscriptionPackage
 {
     public class SubscriptionPackageDTO
     {
+        public int id { get; set; }
+
         [Required]
         public string? Name { get; set; } 
 

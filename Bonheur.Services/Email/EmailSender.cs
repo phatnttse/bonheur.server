@@ -3,6 +3,8 @@ using MimeKit;
 using MailKit.Net.Smtp;
 using Bonheur.Services.Interfaces;
 using MailKit.Security;
+using Microsoft.Extensions.Logging;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace Bonheur.Services.Email
 {
@@ -63,23 +65,16 @@ namespace Bonheur.Services.Email
             {
                 using (var client = new SmtpClient())
                 {
-                    // Nếu không dùng SSL, bỏ qua kiểm tra chứng chỉ
                     if (!_config.UseSSL)
                     {
                         client.ServerCertificateValidationCallback =
-                            (sender2, certificate, chain, sslPolicyErrors) => true;
+                        (sender2, certificate, chain, sslPolicyErrors) => true;
                     }
-
-                    // Sử dụng STARTTLS cho cổng 587
-                    await client.ConnectAsync(_config.Host, 587, SecureSocketOptions.StartTls).ConfigureAwait(false);
-
+                    await client.ConnectAsync(_config.Host, _config.Port, _config.UseSSL).ConfigureAwait(false);
                     client.AuthenticationMechanisms.Remove("XOAUTH2");
-
-                    // Xác thực nếu có username và password
                     if (!string.IsNullOrWhiteSpace(_config.Username))
                         await client.AuthenticateAsync(_config.Username, _config.Password).ConfigureAwait(false);
 
-                    // Gửi email
                     await client.SendAsync(message).ConfigureAwait(false);
                     await client.DisconnectAsync(true).ConfigureAwait(false);
                 }
