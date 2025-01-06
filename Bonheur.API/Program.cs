@@ -134,6 +134,9 @@ namespace Bonheur.API
                     {
                         options.AddDevelopmentEncryptionCertificate()
                                .AddDevelopmentSigningCertificate();
+
+                        options.UseAspNetCore().DisableTransportSecurityRequirement();
+
                     }
                     else
                     {
@@ -146,6 +149,8 @@ namespace Bonheur.API
                             // See https://documentation.openiddict.com/configuration/encryption-and-signing-credentials.html
                             options.AddEphemeralEncryptionKey()
                                    .AddEphemeralSigningKey();
+
+                            options.UseAspNetCore().DisableTransportSecurityRequirement();
                         }
                         else
                         {

@@ -150,6 +150,14 @@ namespace Bonheur.DAOs
             return await _context.Suppliers.AnyAsync(s => s.UserId == userId);
         }
 
+        public async Task<Supplier?> GetSupplierBySlugAsync(string slug)
+        {
+           return await _context.Suppliers
+                .Include(s => s.Category)
+                .Include(s => s.Images)
+                .SingleOrDefaultAsync(s => s.Slug == slug && s.Status == SupplierStatus.APPROVED);
+        }
+
     }
 }
 

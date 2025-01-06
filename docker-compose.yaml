@@ -1,32 +1,6 @@
 version: "3.8"
 
 services:
-  postgres_container:
-    container_name: postgres_container
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_DB: BonheurDb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ^.^tipro
-    networks:
-      - bonheur-network
-    ports:
-      - "5432:5432"
-
-  pgadmin:
-    container_name: pgadmin4_container
-    image: dpage/pgadmin4
-    restart: always
-    networks:
-      - bonheur-network
-    environment:
-      PGADMIN_DEFAULT_EMAIL: phucpu03@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: ^.^tipro
-    ports:
-      - "5050:80"
-
-  # Bonheur Server Container
   bonheur-server-container:
     container_name: bonheur-server-container
     build:
@@ -34,8 +8,6 @@ services:
       dockerfile: DockerfileDotNet
     ports:
       - "8080:8080"
-    depends_on:
-      - postgres_container
     networks:
       - bonheur-network
     env_file:
@@ -46,11 +18,9 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
-
 networks:
   bonheur-network:
     name: bonheur-network
     driver: bridge
-#docker-compose -f ./docker-compose.yaml up -d postgres_container
-#docker-compose -f ./docker-compose.yaml up -d pgadmin
+
 #docker-compose -f ./docker-compose.yaml up -d bonheur-server-container

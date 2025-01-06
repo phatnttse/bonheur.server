@@ -35,5 +35,6 @@ namespace Bonheur.Repositories.Interfaces
         Task<string> GenereEmailConfirmationTokenAsync(ApplicationUser user);
         Task<IdentityResult> ConfirmEmailAsync(ApplicationUser user, string token);
         Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user);
+        Task AddToRolesAsync(ApplicationUser user, IEnumerable<string> roles);
     }
 }
