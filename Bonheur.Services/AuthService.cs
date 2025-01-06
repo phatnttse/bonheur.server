@@ -260,26 +260,27 @@ namespace Bonheur.Services
                     throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
                 }
 
-                // Send email asynchronously in background
-                _ = Task.Run(async () =>
-                {
-                    var recipientName = user.FullName!;
-                    var recipientEmail = user.Email!;
+                var recipientName = user.FullName!;
+                var recipientEmail = user.Email!;
 
-                    var token = await _userAccountRepository.GenereEmailConfirmationTokenAsync(user);
+                var token = await _userAccountRepository.GenereEmailConfirmationTokenAsync(user);
 
-                    var param = new Dictionary<string, string?>
+                var param = new Dictionary<string, string?>
                     {
                          {"token", token },
                          {"email", user.Email }
                     };
 
-                    var confirmationLink = Environment.GetEnvironmentVariable("EMAIL_CONFIRMATION_URL");
+                var confirmationLink = Environment.GetEnvironmentVariable("EMAIL_CONFIRMATION_URL");
 
-                    var callback = QueryHelpers.AddQueryString(confirmationLink!, param);
+                var callback = QueryHelpers.AddQueryString(confirmationLink!, param);
 
-                    var message = EmailTemplates.GetConfirmEmail(recipientName, callback);
+                var message = EmailTemplates.GetConfirmEmail(recipientName, callback);
 
+
+                // Send email asynchronously in background
+                _ = Task.Run(async () =>
+                {         
                     var (success, errorMsg) = await _emailSender.SendEmailAsync(recipientName, recipientEmail,
                         "Bonheur Confirm Email", message);
                     if (!success)
@@ -381,26 +382,26 @@ namespace Bonheur.Services
 
                 var resetToken = await _userAccountRepository.GeneratePasswordResetTokenAsync(existingUser);
 
-                _ = Task.Run(async () =>
-                {
+                var recipientName = existingUser.FullName!;
+                var recipientEmail = existingUser.Email!;
 
-                    var recipientName = existingUser.FullName!;
-                    var recipientEmail = existingUser.Email!;
-
-                    var param = new Dictionary<string, string?>
+                var param = new Dictionary<string, string?>
                 {
                     {"token", resetToken },
                     {"email", existingUser.Email }
                 };
 
-                    var resetPasswordLink = Environment.GetEnvironmentVariable("EMAIL_RESET_PASSWORD_URL");
+                var resetPasswordLink = Environment.GetEnvironmentVariable("EMAIL_RESET_PASSWORD_URL");
 
-                    var callback = QueryHelpers.AddQueryString(resetPasswordLink!, param);
+                var callback = QueryHelpers.AddQueryString(resetPasswordLink!, param);
 
-                    var decodedCallback = Uri.UnescapeDataString(callback);
+                var decodedCallback = Uri.UnescapeDataString(callback);
 
 
-                    var message = EmailTemplates.GetResetPasswordEmail(recipientName, decodedCallback);
+                var message = EmailTemplates.GetResetPasswordEmail(recipientName, decodedCallback);
+
+                _ = Task.Run(async () =>
+                {
 
                     (var success, var errorMsg) = await _emailSender.SendEmailAsync(recipientName, recipientEmail,
                         "Bonheur Reset Password", message);
