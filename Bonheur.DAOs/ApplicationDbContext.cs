@@ -176,7 +176,7 @@ namespace Bonheur.DAOs
             modelBuilder.Entity<Supplier>()
                 .HasIndex(s => s.Province);  // Adding index on SupplierProvince for faster lookup
 
-            // Configure QuotationMessage -> Sender (many-to-one relationship)
+            // Configure Message -> Sender (many-to-one relationship)
             modelBuilder.Entity<Message>()
                 .HasOne(qm => qm.Sender)
                 .WithMany()
@@ -189,11 +189,11 @@ namespace Bonheur.DAOs
                 .HasForeignKey(qm => qm.ReceiverId)
                 .OnDelete(DeleteBehavior.Restrict);  // Prevent cascading delete for Receiver
 
-            // Configure QuotationMessageAttachment -> QuotationMessage (many-to-one relationship)
+            // Configure MessageAttachment -> Message (many-to-one relationship)
             modelBuilder.Entity<MessageAttachment>()
                 .HasOne(qma => qma.Message)
                 .WithMany(qm => qm.Attachments)
-                .HasForeignKey(qma => qma.QuotationMessageId)
+                .HasForeignKey(qma => qma.MessageId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Configure Advertisement -> AdPackage (many-to-one relationship)

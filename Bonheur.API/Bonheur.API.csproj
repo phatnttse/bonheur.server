@@ -33,4 +33,11 @@
     <ProjectReference Include="..\Bonheur.Services\Bonheur.Services.csproj" />
   </ItemGroup>
 
+	<!-- Copy template files when publishing -->
+  <ItemGroup>
+	<Content Include="Templates\**\*">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+  </ItemGroup>
+
 </Project>

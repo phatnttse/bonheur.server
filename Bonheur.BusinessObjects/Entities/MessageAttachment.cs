@@ -8,7 +8,7 @@ namespace Bonheur.BusinessObjects.Entities
 {
     public class MessageAttachment : BaseEntity
     {
-        public int QuotationMessageId { get; set; }
+        public int MessageId { get; set; }
         public virtual Message? Message { get; set; } // Tin nhắn
 
         public string? FileName { get; set; } // Tên file đính kèm
