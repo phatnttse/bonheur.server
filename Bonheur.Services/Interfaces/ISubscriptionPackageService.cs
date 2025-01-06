@@ -13,7 +13,7 @@ namespace Bonheur.Services.Interfaces
     {
         Task<ApplicationResponse> GetSubscriptionPackageByIdAsync(int id);
         Task<ApplicationResponse> GetAllSubscriptionPackagesAsync();
-        Task<ApplicationResponse> CreateSubscriptionPackageAsync(CreateSubscriptionPackageDTO subscriptionPackageDTO);
+        Task<ApplicationResponse> CreateSubscriptionPackageAsync(SubscriptionPackageDTO subscriptionPackageDTO);
         Task<ApplicationResponse> UpdateSubscriptionPackageAsync(int id, SubscriptionPackageDTO subscriptionPackageDTO);
         Task<ApplicationResponse> DeleteSubscriptionPackageAsync(int id);
     }
