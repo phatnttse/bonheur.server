@@ -13,7 +13,7 @@ namespace Bonheur.API.Controllers
     [ApiController]
     [Route("api/v{version:apiVersion}/account")]
     [ApiVersion("1.0")]
-    [Authorize]
+    //[Authorize]
     public class UserRoleController : Controller
     {
         private readonly IUserRoleService _userRoleService;
@@ -51,7 +51,7 @@ namespace Bonheur.API.Controllers
 
         
         [HttpGet("roles")]
-        [Authorize(AuthPolicies.ViewAllRolesPolicy)]
+        //[Authorize(AuthPolicies.ViewAllRolesPolicy)]
         [ProducesResponseType(200)]
         public async Task<IActionResult> GetRoles()
         {
