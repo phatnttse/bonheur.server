@@ -1,52 +1,30 @@
 version: "3.8"
-services:
-  # SQL Server Container
-  mssql-container:
-    container_name: mssql-container
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    environment:
-      SA_PASSWORD: Phuc1510@
-      SA_PASSWORD: Phat1910@
-      ACCEPT_EULA: "Y"
-    ports:
-      - "1433:1433"
-    # volumes:
-    #   - ./BonheurDb.sql:/docker-entrypoint-initdb.d/BonheurDb.sql
-    networks:
-      - bonheur-network
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "1433"]
-      interval: 30s
-      retries: 5
-      start_period: 30s
-      timeout: 10s
 
-  # SQLPad Container
-  sqlpad:
-    container_name: sqlpad
-    image: sqlpad/sqlpad
+services:
+  postgres_container:
+    container_name: postgres_container
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: BonheurDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ^.^tipro
+    networks:
+      - bonheur-network
     ports:
-      - "3000:3000"
+      - "5432:5432"
+
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
     networks:
       - bonheur-network
     environment:
-      SQLPAD_ADMIN: "admin"
-      SQLPAD_ADMIN_PASSWORD: Phuc1510@
-      SQLPAD_ADMIN_PASSWORD: "Phat1910@"
-      SQLPAD_CONNECTIONS__mssql-container__name: "Bonheur SQL Server"
-      SQLPAD_CONNECTIONS__mssql-container__driver: "sqlserver"
-      SQLPAD_CONNECTIONS__mssql-container__host: "mssql-container"
-      SQLPAD_CONNECTIONS__mssql-container__port: 1433
-      SQLPAD_CONNECTIONS__mssql-container__username: "sa"
-      SQLPAD_CONNECTIONS__mssql-container__password: "Phuc1510@"
-      SQLPAD_CONNECTIONS__mssql-container__password: "Phat1910@"
-      SQLPAD_CONNECTIONS__mssql-container__database: "master"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 30s
-      retries: 5
-      start_period: 30s
-      timeout: 10s
+      PGADMIN_DEFAULT_EMAIL: phucpu03@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: ^.^tipro
+    ports:
+      - "5050:80"
 
   # Bonheur Server Container
   bonheur-server-container:
@@ -57,7 +35,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - mssql-container
+      - postgres_container
     networks:
       - bonheur-network
     env_file:
@@ -73,6 +51,6 @@ networks:
   bonheur-network:
     name: bonheur-network
     driver: bridge
-#docker-compose -f ./docker-compose.yaml up -d mssql-container
-#docker-compose -f ./docker-compose.yaml up -d sqlpad
+#docker-compose -f ./docker-compose.yaml up -d postgres_container
+#docker-compose -f ./docker-compose.yaml up -d pgadmin
 #docker-compose -f ./docker-compose.yaml up -d bonheur-server-container
