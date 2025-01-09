@@ -60,6 +60,7 @@ jobs:
               -e SMTP_PASSWORD="${{ secrets.SMTP_PASSWORD }}" \
               -e EMAIL_CONFIRMATION_URL="${{ secrets.EMAIL_CONFIRMATION_URL }}" \
               -e EMAIL_RESET_PASSWORD_URL="${{ secrets.EMAIL_RESET_PASSWORD_URL }}" \
+              -e EMAIL_CHANGE_EMAIL_URL="${{ secrets.EMAIL_CHANGE_EMAIL_URL }}" \
               -e AZURE_BLOB_CONNECTION_STRING="${{ secrets.AZURE_BLOB_CONNECTION_STRING }}" \
               -e AZURE_BLOB_CONTAINER_NAME="${{ secrets.AZURE_BLOB_CONTAINER_NAME }}" \
               -e AZURE_BLOB_URL="${{ secrets.AZURE_BLOB_URL }}" \
