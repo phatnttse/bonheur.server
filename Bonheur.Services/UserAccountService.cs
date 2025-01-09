@@ -5,9 +5,12 @@ using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Account;
 using Bonheur.Services.DTOs.Storage;
 using Bonheur.Services.DTOs.Supplier;
+using Bonheur.Services.Email;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 
 namespace Bonheur.Services
 {
@@ -16,12 +19,16 @@ namespace Bonheur.Services
         private readonly IUserAccountRepository _userAccountRepository;
         private readonly IMapper _mapper;
         private readonly IStorageService _storageService;
+        private readonly IEmailSender _emailSender;
+        private readonly ILogger<AuthService> _logger;
 
-        public UserAccountService(IUserAccountRepository userAccountRepository, IMapper mapper, IStorageService storageService)
+        public UserAccountService(IUserAccountRepository userAccountRepository, IMapper mapper, IStorageService storageService, IEmailSender emailSender, ILogger<AuthService> logger)
         {
             _userAccountRepository = userAccountRepository;
             _mapper = mapper;
             _storageService = storageService;
+            _emailSender = emailSender;
+            _logger = logger;
         }
 
         public async Task<ApplicationResponse> GetCurrentUserAsync()
@@ -446,7 +453,95 @@ namespace Bonheur.Services
                 throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
             }
 
+        }
 
+        public async Task<ApplicationResponse> SendChangeEmailAsync(string newEmail)
+        {
+            try
+            {
+               var currentUser = await GetCurrentUser();
+
+               if (newEmail == currentUser!.Email) throw new ApiException("New email cannot be the same as the current email", System.Net.HttpStatusCode.BadRequest);
+
+               var existingEmail = await _userAccountRepository.GetUserByEmailAsync(newEmail);
+
+               if (existingEmail != null) throw new ApiException("Email already exists", System.Net.HttpStatusCode.BadRequest);
+
+               string changeEmailToken = await _userAccountRepository.GenerateChangeEmailTokenAsync(currentUser!, newEmail);
+
+               var recipientName = currentUser!.FullName!;
+               var recipientEmail = newEmail;
+
+               var param = new Dictionary<string, string?>
+               {
+                    {"token", changeEmailToken },
+                    {"email", newEmail }
+               };
+
+               var changeEmailLink = Environment.GetEnvironmentVariable("EMAIL_CHANGE_EMAIL_URL") ?? throw new ApiException("Email change link not found", System.Net.HttpStatusCode.InternalServerError);
+
+               var callback = QueryHelpers.AddQueryString(changeEmailLink!, param);
+
+               var decodedCallback = Uri.UnescapeDataString(callback);
+
+               var message = EmailTemplates.GetChangeEmail(recipientName, decodedCallback);
+
+               _ = Task.Run(async () =>
+               {
+
+                    (var success, var errorMsg) = await _emailSender.SendEmailAsync(recipientName, recipientEmail,
+                        "Bonheur Change Email", message);
+
+                    if (!success) _logger.LogError($"Failed to send email with {recipientEmail}: {errorMsg}");
+
+               });
+
+                return new ApplicationResponse
+                {
+                    Success = true,
+                    Message = "Change email link sent successfully",
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<ApplicationResponse> ChangeEmailAsync(string newEmail, string token)
+        {
+            try
+            {
+                var currentUser = await GetCurrentUser();
+
+                if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(newEmail)) throw new ApiException("Invalid token or email", System.Net.HttpStatusCode.BadRequest);
+
+                var result = await _userAccountRepository.ChangeEmailAsync(currentUser!, newEmail, token);
+
+                if (!result.Succeeded) throw new ApiException(string.Join("; ", result.Errors.Select(error => error.Description)), System.Net.HttpStatusCode.BadRequest);
+
+                return new ApplicationResponse
+                {
+                    Success = true,
+                    Message = "Email changed successfully",
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
         }
     }
 }

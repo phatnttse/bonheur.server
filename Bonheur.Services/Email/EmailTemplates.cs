@@ -39,6 +39,17 @@ namespace Bonheur.Services.Email
             return emailMessage;
         }
 
+        public static string GetChangeEmail(string recipientName, string callback)
+        {
+            confirmEmailTemplate ??= ReadPhysicalFile("Templates/ChangeEmail.template");
+
+            var emailMessage = confirmEmailTemplate
+                .Replace("{{recipientName}}", recipientName)
+                .Replace("{{callback}}", callback);
+
+            return emailMessage;
+        }
+
         private static string ReadPhysicalFile(string path)
         {
             if (_hostingEnvironment == null)
