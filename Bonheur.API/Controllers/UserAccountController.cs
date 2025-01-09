@@ -110,5 +110,21 @@ namespace Bonheur.API.Controllers
             return Ok(await _userAccountService.UploadAvatar(file));
         }
 
+        [HttpPost("users/change-email")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> ChangeEmail([FromBody] string newEmail)
+        {
+            return Ok(await _userAccountService.SendChangeEmailAsync(newEmail));
+        }
+
+        [HttpPost("users/change-email/confirm")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> ConfirmChangeEmail([FromBody] EmailRequestDTO request)
+        {
+            return Ok(await _userAccountService.ChangeEmailAsync(request.Email, request.Token));
+        }
+
     }
 }

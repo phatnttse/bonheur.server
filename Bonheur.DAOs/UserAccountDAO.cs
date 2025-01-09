@@ -289,5 +289,15 @@ namespace Bonheur.DAOs
             await _userManager.AddToRolesAsync(user, roles);
         }
 
+        public async Task<string> GenerateChangeEmailTokenAsync(ApplicationUser user, string newEmail)
+        {
+            return await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
+        }
+
+        public async Task<IdentityResult> ChangeEmailAsync(ApplicationUser user, string newEmail, string token)
+        {
+            return await _userManager.ChangeEmailAsync(user, newEmail, token);
+        }
+
     }
 }

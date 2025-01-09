@@ -47,6 +47,8 @@ namespace Bonheur.Repositories
         public async Task<IdentityResult> ConfirmEmailAsync(ApplicationUser user, string token) => await _userAccountDAO.ConfirmEmailAsync(user, token);
         public async Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user) => await _userAccountDAO.GeneratePasswordResetTokenAsync(user);
         public async Task AddToRolesAsync(ApplicationUser user, IEnumerable<string> roles) => await _userAccountDAO.AddToRolesAsync(user, roles);
+        public async Task<string> GenerateChangeEmailTokenAsync(ApplicationUser user, string newEmail) => await _userAccountDAO.GenerateChangeEmailTokenAsync(user, newEmail);
+        public async Task<IdentityResult> ChangeEmailAsync(ApplicationUser user, string newEmail, string token) => await _userAccountDAO.ChangeEmailAsync(user, newEmail, token);
 
     }
 }
