@@ -4,7 +4,6 @@ using Bonheur.BusinessObjects.Enums;
 using Bonheur.BusinessObjects.Models;
 using Bonheur.DAOs;
 using Bonheur.Repositories.Interfaces;
-using Bonheur.Services.DTOs.PaginationParams;
 using Bonheur.Services.DTOs.RequestPricing;
 using Bonheur.Services.DTOs.Supplier;
 using Bonheur.Services.Interfaces;
@@ -39,6 +38,10 @@ namespace Bonheur.Services
                 if (requestPricing == null)
                 {
                     throw new ApiException("Request pricing is not exist!");
+                }
+                var supplier = _supplierRepository.GetSupplierByIdAsync(requestPricing.SupplierId, false);
+                if (supplier == null) {
+                    throw new ApiException("Supplier was not found!");
                 }
                 await _requestPricingsRepository.CreateRequestPricing(requestPricing);
                 return new ApplicationResponse
