@@ -22,9 +22,9 @@ namespace Bonheur.BusinessObjects.Entities
         public DateTimeOffset EndDate { get; set; } // Ngày kết thúc
 
         [EnumDataType(typeof(AdType))]
-        public AdType AdType { get; set; } // Loại quảng cáo (ví dụ: banner, popup)
+        public AdType AdType { get; set; } 
 
-        public bool IsActive { get; set; } = true; // Trạng thái gói quảng cáo
+        public bool IsActive { get; set; } = true; 
 
     }
 }

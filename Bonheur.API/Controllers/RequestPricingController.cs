@@ -1,5 +1,4 @@
 ﻿using Bonheur.BusinessObjects.Models;
-using Bonheur.Services.DTOs.PaginationParams;
 using Bonheur.Services.DTOs.RequestPricing;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
@@ -57,7 +56,7 @@ namespace Bonheur.API.Controllers
             return Ok(await _requestPricingsService.GetRequestPricingById(id));
         }
 
-        [HttpPut("status/{id}")]
+        [HttpPatch("status/{id}")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
         [Authorize(Roles = Constants.Roles.SUPPLIER)]

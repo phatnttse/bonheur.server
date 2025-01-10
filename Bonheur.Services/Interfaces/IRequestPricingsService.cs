@@ -1,7 +1,6 @@
 ﻿using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Enums;
 using Bonheur.BusinessObjects.Models;
-using Bonheur.Services.DTOs.PaginationParams;
 using Bonheur.Services.DTOs.RequestPricing;
 using Bonheur.Services.DTOs.Supplier;
 using System;
