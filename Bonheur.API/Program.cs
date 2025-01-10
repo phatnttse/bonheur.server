@@ -273,6 +273,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<SupplierImageDAO>();
             builder.Services.AddScoped<SubscriptionPackageDAO>();
             builder.Services.AddScoped<ReviewDAO>();
+            builder.Services.AddScoped<AdPackageDAO>();
 
         
             //Repositories
@@ -284,7 +285,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<ISupplierCategoryRepository, SupplierCategoryRepository>();
             builder.Services.AddScoped<ISubscriptionPackageRepository, SubscriptionPackageRepository>();
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
-
+            builder.Services.AddScoped<IAdPackageRepository, AdPackageRepository>();
 
             // Services
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();
@@ -297,6 +298,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<ISupplierCategoryService, SupplierCategoryService>();
             builder.Services.AddScoped<ISubscriptionPackageService, SubscriptionPackageService>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
+            builder.Services.AddScoped<IAdPackageService,AdPackageService>();   
             //builder.Services.AddScoped<IChatHubService, ChatHubService>();
 
 
