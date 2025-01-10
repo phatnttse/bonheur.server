@@ -6,7 +6,9 @@ using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Supplier;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
+using MiddlewareTool.OpenXML;
 
 
 namespace Bonheur.Services
@@ -54,7 +56,9 @@ namespace Bonheur.Services
                 var createdSupplier = await _supplierRepository.CreateSupplierAsync(supplier);
 
                 if (createdSupplier == null) throw new ApiException("Failed to create supplier", System.Net.HttpStatusCode.InternalServerError);
-            
+
+                await _userAccountRepository.AddToRolesAsync(currentUser, new string[] { Constants.Roles.SUPPLIER });
+
                 return new ApplicationResponse
                 {
                     Message = "Sign up to become a supplier successfully",
@@ -151,6 +155,28 @@ namespace Bonheur.Services
                 var suppliersPagedList = await _supplierRepository.GetSuppliersAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, sortAsc, pageNumber, pageSize);
 
                 var suppliersDTO = _mapper.Map<List<SupplierDTO>>(suppliersPagedList);
+
+                //var excelData = new Excel
+                //{
+                //    TemplateFileData = System.IO.File.ReadAllBytes("C:\\Users\\Admin\\Documents\\Zalo Received Files\\ProductExportTemplate.xlsx")
+                //};
+
+                //excelData.ParameterData.Add("Name", "Name");
+                //excelData.ParameterData.Add("Slug", "Slug");
+                //excelData.ParameterData.Add("PhoneNumber", "PhoneNumber");
+                //excelData.ParameterData.Add("Description", "Description");
+                //excelData.ParameterData.Add("Price", "Price");
+                //excelData.ParameterData.Add("Street", "Street");
+                //excelData.ParameterData.Add("Province", "Province");
+                //excelData.ParameterData.Add("Ward", "Ward");
+                //excelData.ParameterData.Add("District", "District");
+                //excelData.ParameterData.Add("WebsiteUrl", "WebsiteUrl");
+                //excelData.ParameterData.Add("ResponseTime", "ResponseTime");
+                //excelData.ParameterData.Add("Priority", "Priority");
+
+                //var data = excelData.Export<SupplierDTO>(suppliersDTO);
+
+                //System.IO.File.WriteAllBytes("D:\\Vit\\Export.xlsx", data);
 
                 var responseData = new PagedData<SupplierDTO>
                 {
@@ -459,16 +485,7 @@ namespace Bonheur.Services
                 var result = await _supplierRepository.UpdateSupplierAsync(existingSupplier);
 
                 if (result == null) throw new ApiException("Failed to update supplier status", System.Net.HttpStatusCode.InternalServerError);
-
-                if (existingSupplier.Status == SupplierStatus.APPROVED)
-                {
-                    var user = await _userAccountRepository.GetUserByIdAsync(existingSupplier.UserId!);
-
-                    if (user == null) throw new ApiException("User not found", System.Net.HttpStatusCode.NotFound);
-
-                    await _userAccountRepository.AddToRolesAsync(user, new string[] { Constants.Roles.SUPPLIER });
-                }
-
+             
                 return new ApplicationResponse
                 {
                     Message = "Supplier status updated successfully",

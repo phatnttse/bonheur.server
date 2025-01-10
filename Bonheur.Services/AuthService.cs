@@ -271,7 +271,7 @@ namespace Bonheur.Services
                          {"email", user.Email }
                     };
 
-                var confirmationLink = Environment.GetEnvironmentVariable("EMAIL_CONFIRMATION_URL");
+                var confirmationLink = Environment.GetEnvironmentVariable("EMAIL_CONFIRMATION_URL") ?? throw new ApiException("Email confirmation link not found", System.Net.HttpStatusCode.InternalServerError);
 
                 var callback = QueryHelpers.AddQueryString(confirmationLink!, param);
 
@@ -391,7 +391,7 @@ namespace Bonheur.Services
                     {"email", existingUser.Email }
                 };
 
-                var resetPasswordLink = Environment.GetEnvironmentVariable("EMAIL_RESET_PASSWORD_URL");
+                var resetPasswordLink = Environment.GetEnvironmentVariable("EMAIL_RESET_PASSWORD_URL") ?? throw new ApiException("Reset password link not found", System.Net.HttpStatusCode.InternalServerError);
 
                 var callback = QueryHelpers.AddQueryString(resetPasswordLink!, param);
 
