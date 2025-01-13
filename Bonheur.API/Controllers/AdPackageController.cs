@@ -1,4 +1,5 @@
-﻿using Bonheur.Services.DTOs.AdPackage;
+﻿using Bonheur.BusinessObjects.Models;
+using Bonheur.Services.DTOs.AdPackage;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
 using Microsoft.AspNetCore.Authorization;
@@ -19,12 +20,16 @@ namespace Bonheur.API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        [ProducesResponseType(400)]
         public async Task<IActionResult> GetAllAdPackagesAsync([FromQuery] string? adPackageTitle, [FromQuery] int pageNumber=1, [FromQuery] int pageSize = 10)
         {
             return Ok(await _adPackageService.GetAdPackagesAsync(adPackageTitle, pageNumber, pageSize));
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        [ProducesResponseType(400)]
         [Authorize(Roles = Constants.Roles.ADMIN)]
         public async Task<IActionResult> GetAdPackageById([FromRoute] int id)
         {
@@ -32,6 +37,8 @@ namespace Bonheur.API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        [ProducesResponseType(400)]
         [Authorize(Roles = Constants.Roles.ADMIN)]
         public async Task<IActionResult> CreateAdPackage([FromBody] AdPackageDTO adPackageDTO)
         {
@@ -39,6 +46,8 @@ namespace Bonheur.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        [ProducesResponseType(400)]
         [Authorize(Roles = Constants.Roles.ADMIN)]
         public async Task<IActionResult> UpdateAdPackage([FromRoute] int id,[FromBody] AdPackageDTO adPackageDTO)
         {
@@ -46,6 +55,8 @@ namespace Bonheur.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        [ProducesResponseType(400)]
         [Authorize(Roles = Constants.Roles.ADMIN)]
         public async Task<IActionResult> DeleteAdPackage([FromRoute] int id)
         {

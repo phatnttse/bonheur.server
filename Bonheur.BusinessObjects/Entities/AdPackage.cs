@@ -11,15 +11,15 @@ namespace Bonheur.BusinessObjects.Entities
     public class AdPackage : BaseEntity
     {
         [Required]
-        public string? Title { get; set; } // Tên gói quảng cáo
+        public string? Title { get; set; } 
 
-        public string? Description { get; set; } // Mô tả gói quảng cáo
+        public string? Description { get; set; } 
 
-        public decimal Price { get; set; } // Giá của gói quảng cáo
+        public decimal Price { get; set; } 
 
-        public DateTimeOffset StartDate { get; set; } // Ngày bắt đầu
+        public DateTimeOffset StartDate { get; set; } 
 
-        public DateTimeOffset EndDate { get; set; } // Ngày kết thúc
+        public DateTimeOffset EndDate { get; set; }
 
         [EnumDataType(typeof(AdType))]
         public AdType AdType { get; set; } 
