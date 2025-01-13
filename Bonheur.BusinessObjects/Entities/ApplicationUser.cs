@@ -32,5 +32,7 @@ namespace Bonheur.BusinessObjects.Entities
         /// Navigation property for the claims this user possesses.
         /// </summary>
         public ICollection<IdentityUserClaim<string>> Claims { get; } = new List<IdentityUserClaim<string>>();
+
+        public virtual ICollection<FavoriteSupplier> FavoriteSuppliers { get; set; }
     }
 }
