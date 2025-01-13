@@ -9,6 +9,8 @@ using Bonheur.Services.DTOs.RequestPricing;
 using Bonheur.Services.DTOs.SubscriptionPackage;
 using Bonheur.Services.DTOs.Review;
 using Bonheur.Services.DTOs.AdPackage;
+using Bonheur.Services.DTOs.Advertisement;
+using Bonheur.Services.DTOs.FavoriteSupplier;
 
 namespace Bonheur.Services.Mappers
 {
@@ -89,6 +91,14 @@ namespace Bonheur.Services.Mappers
             //AdPackage
             CreateMap<AdPackageDTO, AdPackage>();
             CreateMap<AdPackage, AdPackageDTO>().ReverseMap();
+
+            //Advertisement
+            CreateMap<AdvertisementDTO, Advertisement>();
+            CreateMap<Advertisement, AdvertisementDTO>().ReverseMap();
+
+            //FavoriteSupplier
+            CreateMap<FavoriteSupplierDTO, FavoriteSupplier>();
+            CreateMap<FavoriteSupplier, FavoriteSupplierDTO>().ReverseMap(); 
 
         }
     }

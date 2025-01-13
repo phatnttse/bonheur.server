@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using X.PagedList;
+using X.PagedList.Extensions;
 
 namespace Bonheur.DAOs
 {
@@ -22,11 +24,18 @@ namespace Bonheur.DAOs
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Advertisement>> GetAdvertisements()
+        public async Task<IPagedList<Advertisement>> GetAdvertisements(string searchTitle, string searchContent, int pageNumber = 1, int pageSize = 10)
         {
-            return await _context.Advertisements
-                .Include(a => a.Supplier)
-                .ToListAsync();
+            IQueryable<Advertisement> query = _context.Advertisements;
+            if (!string.IsNullOrEmpty(searchTitle)) {
+                query = query.Where(a => EF.Functions.Like(a.Title, $"%{a.Title}%"));
+            }
+            if (!string.IsNullOrEmpty(searchContent)) {
+                query = query.Where(a => EF.Functions.Like(a.Content, $"%{a.Content}%" )); 
+            }
+            var orderedQuery = query.OrderByDescending(a => a.CreatedAt);
+            var advertisementPaginated = orderedQuery.ToPagedList(pageNumber, pageSize);
+            return await Task.FromResult(advertisementPaginated);
         }
 
         public async Task<Advertisement?> GetAdvertisementById(int id)

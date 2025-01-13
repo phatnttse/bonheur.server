@@ -20,7 +20,8 @@ namespace Bonheur.DAOs
         public DbSet<Review> Reviews { get; set; }
         public DbSet<AdPackage> AdPackages { get; set; }
         public DbSet<Message> Messages { get; set; }
-        public DbSet<MessageAttachment> MessageAttachments { get; set; }
+        public DbSet<MessageAttachment> MessageAttachments { get; set; }  
+        public DbSet<FavoriteSupplier> FavoriteSuppliers { get; set; } 
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -210,6 +211,25 @@ namespace Bonheur.DAOs
             modelBuilder.Entity<AdPackage>()
                 .Property(u => u.AdType)
                 .HasConversion(new EnumToStringConverter<AdType>());
+
+            // Configure FavoriteSupplier Table
+            modelBuilder.Entity<FavoriteSupplier>(entity =>
+            {
+                entity.HasKey(fs => fs.Id); 
+
+                entity.HasOne(fs => fs.User)
+                      .WithMany(u => u.FavoriteSuppliers)
+                      .HasForeignKey(fs => fs.UserId)
+                      .OnDelete(DeleteBehavior.Cascade); 
+
+                entity.HasOne(fs => fs.Supplier)
+                      .WithMany(s => s.FavoriteSuppliers)
+                      .HasForeignKey(fs => fs.SupplierId)
+                      .OnDelete(DeleteBehavior.Cascade); 
+
+                entity.ToTable("FavoriteSuppliers");
+            });
+
         }
 
         public override int SaveChanges()
