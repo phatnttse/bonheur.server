@@ -41,19 +41,7 @@ namespace Bonheur.API.Controllers
             [FromQuery] bool? sortAsc,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10)
-        {
-            var response = await _supplierService.GetSuppliersAsync(
-                supplierName,
-                supplierCategoryId,
-                province,
-                isFeatured,
-                averageRating,
-                minPrice,
-                maxPrice,
-                sortAsc,
-                pageNumber,
-                pageSize);
-
+        {         
             return Ok(await _supplierService.GetSuppliersAsync(supplierName,
                 supplierCategoryId,
                 province,
@@ -168,8 +156,39 @@ namespace Bonheur.API.Controllers
         [ProducesResponseType(404)]
         [Authorize(Roles = Constants.Roles.ADMIN)]
         public async Task<IActionResult> ExportSupplierListToExcel()
-        {       
-            return Ok(await _supplierService.ExportSupplierListToExcel());
+        {
+            var fileBytes = await _supplierService.ExportSupplierListToExcel();
+            return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "SupplierList.xlsx");
+        }
+
+        [HttpGet("admin")]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        [ProducesResponseType(400)]
+        [Authorize(Roles = Constants.Roles.ADMIN)]
+        public async Task<IActionResult> GetSuppliersByAdmin(
+            [FromQuery] string? supplierName,
+            [FromQuery] int? supplierCategoryId,
+            [FromQuery] string? province,
+            [FromQuery] bool? isFeatured,
+            [FromQuery] decimal? averageRating,
+            [FromQuery] decimal? minPrice,
+            [FromQuery] decimal? maxPrice,
+            [FromQuery] SupplierStatus? status,
+            [FromQuery] bool? sortAsc,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            return Ok(await _supplierService.GetSuppliersByAdminAsync(supplierName,
+                supplierCategoryId,
+                province,
+                isFeatured,
+                averageRating,
+                minPrice,
+                maxPrice,
+                status,
+                sortAsc,
+                pageNumber,
+                pageSize));
         }
     }
 }
