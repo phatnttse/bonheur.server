@@ -2,6 +2,7 @@
 using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Enums;
 using Bonheur.BusinessObjects.Models;
+using Bonheur.DAOs;
 using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Supplier;
 using Bonheur.Services.Interfaces;
@@ -155,29 +156,7 @@ namespace Bonheur.Services
                 var suppliersPagedList = await _supplierRepository.GetSuppliersAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, sortAsc, pageNumber, pageSize);
 
                 var suppliersDTO = _mapper.Map<List<SupplierDTO>>(suppliersPagedList);
-
-                //var excelData = new Excel
-                //{
-                //    TemplateFileData = System.IO.File.ReadAllBytes("C:\\Users\\Admin\\Documents\\Zalo Received Files\\ProductExportTemplate.xlsx")
-                //};
-
-                //excelData.ParameterData.Add("Name", "Name");
-                //excelData.ParameterData.Add("Slug", "Slug");
-                //excelData.ParameterData.Add("PhoneNumber", "PhoneNumber");
-                //excelData.ParameterData.Add("Description", "Description");
-                //excelData.ParameterData.Add("Price", "Price");
-                //excelData.ParameterData.Add("Street", "Street");
-                //excelData.ParameterData.Add("Province", "Province");
-                //excelData.ParameterData.Add("Ward", "Ward");
-                //excelData.ParameterData.Add("District", "District");
-                //excelData.ParameterData.Add("WebsiteUrl", "WebsiteUrl");
-                //excelData.ParameterData.Add("ResponseTime", "ResponseTime");
-                //excelData.ParameterData.Add("Priority", "Priority");
-
-                //var data = excelData.Export<SupplierDTO>(suppliersDTO);
-
-                //System.IO.File.WriteAllBytes("D:\\Vit\\Export.xlsx", data);
-
+              
                 var responseData = new PagedData<SupplierDTO>
                 {
                     Items = suppliersDTO,
@@ -305,12 +284,13 @@ namespace Bonheur.Services
 
                 if ((primaryImageIndex < 0 || primaryImageIndex >= files.Count()) && primaryImageIndex != null)
                 {
-                    throw new ApiException("Invalid primary image index.", System.Net.HttpStatusCode.BadRequest);
+                    throw new ApiException("Please select a main photo", System.Net.HttpStatusCode.BadRequest);
                 }
 
                 var currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
 
                 var supplier = await _supplierRepository.GetSupplierByUserIdAsync(currentUserId);
+
                 if (supplier == null)
                 {
                     throw new ApiException("Supplier not found", System.Net.HttpStatusCode.NotFound);
@@ -520,6 +500,52 @@ namespace Bonheur.Services
                     Success = true,
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<byte[]> ExportSupplierListToExcel()
+        {          
+            try
+            {
+                var supplierList = await _supplierRepository.GetAllSuppliersAsync();
+                
+                var excelData = new Excel
+                {
+                    TemplateFileData = System.IO.File.ReadAllBytes("Templates/SupplierListTemplate.xlsx")
+                };
+
+                excelData.ParameterData.Add("Category", "Category.Name");
+                excelData.ParameterData.Add("Name", "Name");
+                excelData.ParameterData.Add("Slug", "Slug");
+                excelData.ParameterData.Add("PhoneNumber", "PhoneNumber");
+                excelData.ParameterData.Add("Description", "Description");
+                excelData.ParameterData.Add("Price", "Price");
+                excelData.ParameterData.Add("Street", "Street");
+                excelData.ParameterData.Add("Province", "Province");
+                excelData.ParameterData.Add("Ward", "Ward");
+                excelData.ParameterData.Add("District", "District");
+                excelData.ParameterData.Add("WebsiteUrl", "WebsiteUrl");
+                excelData.ParameterData.Add("ResponseTime", "ResponseTime");
+                excelData.ParameterData.Add("Priority", "Priority");
+                excelData.ParameterData.Add("IsFeatured", "IsFeatured");
+                excelData.ParameterData.Add("ProrityEnd", "ProrityEnd");
+                excelData.ParameterData.Add("Status", "Status");
+                excelData.ParameterData.Add("OnBoardStatus", "OnBoardStatus");
+                excelData.ParameterData.Add("Discount", "Discount");
+                excelData.ParameterData.Add("AverageRating", "AverageRating");
+
+                var exportedData = excelData.Export(supplierList);
+
+                return exportedData;
+
             }
             catch (ApiException)
             {

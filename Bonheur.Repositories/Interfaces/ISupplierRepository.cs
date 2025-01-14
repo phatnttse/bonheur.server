@@ -30,6 +30,7 @@ namespace Bonheur.Repositories.Interfaces
         Task<bool> DeleteSupplierAsync(int id);
         Task<bool> IsSupplierAsync(string userId);
         Task<Supplier?> GetSupplierBySlugAsync(string slug);
+        Task<List<Supplier>> GetAllSuppliersAsync();
 
     }
 }

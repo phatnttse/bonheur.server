@@ -19,7 +19,7 @@ namespace Bonheur.DAOs
         {
             IQueryable<Supplier> query = _context.Suppliers
                 .Include(s => s.Category)
-                .Include(s => s.Images);
+                .Include(s => s.Images != null ? s.Images.OrderByDescending(image => image.IsPrimary) : Enumerable.Empty<SupplierImage>());
 
             if (isIncludeUser)
             {
@@ -34,7 +34,7 @@ namespace Bonheur.DAOs
             return await _context.Suppliers
                 .Include(s => s.User)
                 .Include(s => s.Category)
-                .Include(s => s.Images)
+                .Include(s => s.Images != null ? s.Images.OrderByDescending(image => image.IsPrimary) : Enumerable.Empty<SupplierImage>())
                 .Include(s => s.SubscriptionPackage)
                 .SingleOrDefaultAsync(s => s.UserId == userId);
         }
@@ -54,7 +54,7 @@ namespace Bonheur.DAOs
         {
             IQueryable<Supplier> query = _context.Suppliers
                 .Include(s => s.Category)
-                .Include(s => s.Images)
+                .Include(s => s.Images != null ? s.Images.OrderByDescending(image => image.IsPrimary) : Enumerable.Empty<SupplierImage>())
                 .Where(s => s.Status == SupplierStatus.APPROVED);
 
             // Lọc theo tên nhà cung cấp
@@ -117,7 +117,12 @@ namespace Bonheur.DAOs
             return Task.FromResult(suppliers);
         }
 
-
+        public async Task<List<Supplier>> GetAllSuppliersAsync()
+        {
+            return await _context.Suppliers
+                .Include(s => s.Category)
+                .ToListAsync();
+        }
 
         public async Task<Supplier?> CreateSupplierAsync(Supplier supplier)
         {

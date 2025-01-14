@@ -162,5 +162,14 @@ namespace Bonheur.API.Controllers
         {
             return Ok(await _supplierService.GetSupplierBySlugAsync(slug));
         }
+
+        [HttpGet("export/excel")]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        [ProducesResponseType(404)]
+        [Authorize(Roles = Constants.Roles.ADMIN)]
+        public async Task<IActionResult> ExportSupplierListToExcel()
+        {       
+            return Ok(await _supplierService.ExportSupplierListToExcel());
+        }
     }
 }

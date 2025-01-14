@@ -40,6 +40,9 @@
 		</Content>
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Templates\SupplierListTemplate.xlsx" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Update="Templates\ChangeEmail.txt">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
