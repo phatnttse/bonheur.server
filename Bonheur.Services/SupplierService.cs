@@ -188,7 +188,48 @@ namespace Bonheur.Services
                 throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
             }
         }
-      
+
+        public async Task<ApplicationResponse> GetSuppliersByAdminAsync(string? supplierName, int? supplierCategoryId, string? province, bool? isFeatured, decimal? averageRating, decimal? minPrice, decimal? maxPrice, SupplierStatus? status, bool? sortAsc, int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                var suppliersPagedList = await _supplierRepository.GetSuppliersByAdminAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, status, sortAsc, pageNumber, pageSize);
+
+                var suppliersDTO = _mapper.Map<List<SupplierDTO>>(suppliersPagedList);
+
+                var responseData = new PagedData<SupplierDTO>
+                {
+                    Items = suppliersDTO,
+                    PageNumber = suppliersPagedList.PageNumber,
+                    PageSize = suppliersPagedList.PageSize,
+                    TotalItemCount = suppliersPagedList.TotalItemCount,
+                    PageCount = suppliersPagedList.PageCount,
+                    IsFirstPage = suppliersPagedList.IsFirstPage,
+                    IsLastPage = suppliersPagedList.IsLastPage,
+                    HasNextPage = suppliersPagedList.HasNextPage,
+                    HasPreviousPage = suppliersPagedList.HasPreviousPage
+                };
+
+
+                return new ApplicationResponse
+                {
+                    Message = "Suppliers retrieved successfully",
+                    Data = responseData,
+                    Success = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
+
         public async Task<ApplicationResponse> UpdateSupplierProfileAsync(UpdateSupplierProfileDTO supplierProfileDTO)
         {
             try
@@ -516,7 +557,9 @@ namespace Bonheur.Services
             try
             {
                 var supplierList = await _supplierRepository.GetAllSuppliersAsync();
-                
+
+                if (supplierList == null) throw new ApiException("Supplier list is empty", System.Net.HttpStatusCode.NotFound);
+
                 var excelData = new Excel
                 {
                     TemplateFileData = System.IO.File.ReadAllBytes("Templates/SupplierListTemplate.xlsx")

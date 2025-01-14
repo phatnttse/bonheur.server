@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bonheur.BusinessObjects\Bonheur.BusinessObjects.csproj" />
+    <ProjectReference Include="..\Bonheur.Utils\Bonheur.Utils.csproj" />
   </ItemGroup>
 
 </Project>

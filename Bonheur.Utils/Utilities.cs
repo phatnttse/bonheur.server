@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using System.Text;
 using System.Text.RegularExpressions;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
@@ -48,6 +49,17 @@ namespace Bonheur.Utils
             string ticks = DateTime.Now.Ticks.ToString();     
             return $"{text}_{ticks}";
         }
+
+        public static string NormalizeString(string input)
+        {
+            string normalized = input.Normalize(NormalizationForm.FormD);
+            var noDiacritics = new string(normalized
+                .Where(c => System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.NonSpacingMark)
+                .ToArray());
+
+            return noDiacritics.ToLower().Trim();
+        }
+
 
     }
 }

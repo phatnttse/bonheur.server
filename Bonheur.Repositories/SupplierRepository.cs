@@ -1,4 +1,5 @@
 ﻿using Bonheur.BusinessObjects.Entities;
+using Bonheur.BusinessObjects.Enums;
 using Bonheur.DAOs;
 using Bonheur.Repositories.Interfaces;
 using System;
@@ -42,8 +43,20 @@ namespace Bonheur.Repositories
 
         public async Task<Supplier?> UpdateSupplierAsync(Supplier supplier) => await _supplierDAO.UpdateSupplierAsync(supplier);
         public async Task<bool> IsSupplierAsync(string userId) => await _supplierDAO.IsSupplierAsync(userId);
-        public async Task<Supplier?> GetSupplierBySlugAsync(string slug) => await _supplierDAO.GetSupplierBySlugAsync(slug);
-
+        public async Task<Supplier?> GetSupplierBySlugAsync(string slug) => await _supplierDAO.GetSupplierBySlugAsync(slug);      
         public async Task<List<Supplier>> GetAllSuppliersAsync() => await _supplierDAO.GetAllSuppliersAsync();
+        public async Task<IPagedList<Supplier>> GetSuppliersByAdminAsync(
+               string? supplierName,
+               int? supplierCategoryId,
+               string? province,
+               bool? isFeatured,
+               decimal? averageRating,
+               decimal? minPrice,
+               decimal? maxPrice,
+               SupplierStatus? status,
+               bool? sortAsc,
+               int pageNumber = 1,
+               int pageSize = 10
+           ) => await _supplierDAO.GetSuppliersByAdminAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, status, sortAsc, pageNumber, pageSize);
     }
 }

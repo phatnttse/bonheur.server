@@ -1,4 +1,5 @@
 ﻿using Bonheur.BusinessObjects.Entities;
+using Bonheur.BusinessObjects.Enums;
 using Bonheur.DAOs;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,19 @@ namespace Bonheur.Repositories.Interfaces
         Task<bool> IsSupplierAsync(string userId);
         Task<Supplier?> GetSupplierBySlugAsync(string slug);
         Task<List<Supplier>> GetAllSuppliersAsync();
+        Task<IPagedList<Supplier>> GetSuppliersByAdminAsync(
+               string? supplierName,
+               int? supplierCategoryId,
+               string? province,
+               bool? isFeatured,
+               decimal? averageRating,
+               decimal? minPrice,
+               decimal? maxPrice,
+               SupplierStatus? status,
+               bool? sortAsc,
+               int pageNumber = 1,
+               int pageSize = 10
+           );
 
     }
 }
