@@ -19,7 +19,7 @@ namespace Bonheur.DAOs
         {
             IQueryable<Supplier> query = _context.Suppliers
                 .Include(s => s.Category)
-                .Include(s => s.Images != null ? s.Images.OrderByDescending(image => image.IsPrimary) : Enumerable.Empty<SupplierImage>())
+                .Include(s => s.Images != null ? s.Images.OrderByDescending(image => image.IsPrimary) : Enumerable.Empty<SupplierImage>());
 
             if (isIncludeUser)
             {
@@ -117,7 +117,12 @@ namespace Bonheur.DAOs
             return Task.FromResult(suppliers);
         }
 
-
+        public async Task<List<Supplier>> GetAllSuppliersAsync()
+        {
+            return await _context.Suppliers
+                .Include(s => s.Category)
+                .ToListAsync();
+        }
 
         public async Task<Supplier?> CreateSupplierAsync(Supplier supplier)
         {
