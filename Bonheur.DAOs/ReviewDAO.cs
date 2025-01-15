@@ -1,4 +1,5 @@
 ﻿using Bonheur.BusinessObjects.Entities;
+using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -19,9 +20,9 @@ namespace Bonheur.DAOs
             _context = context;
         }
 
-        public Task<IPagedList<Review>> GetReviews(int pageNumber, int pageSize)
+        public Task<IPagedList<Review>> GetReviewsBySupplierIdPaginated(int supplierId, int pageNumber, int pageSize)
         {
-            IQueryable<Review> query = _context.Reviews.Include(rv=> rv.User)
+            IQueryable<Review> query = _context.Reviews.Include(rv=> rv.User).Where(rv => rv.SupplierId == supplierId)
             .OrderByDescending(rv => rv.CreatedAt);
             var pageList = query.ToPagedList<Review>(pageNumber, pageSize);
             return Task.FromResult(pageList);
@@ -36,6 +37,18 @@ namespace Bonheur.DAOs
         {
             _context.Reviews.Add(newReview);
             await _context.SaveChangesAsync();
+
+            var supplierReviews = await _context.Reviews
+                .Where(rv => rv.SupplierId == newReview.SupplierId)
+                .ToListAsync();
+
+            var averageRating = supplierReviews.Average(rv => rv.Rate);
+            var supplier = _context.Suppliers.FirstOrDefault(s => s.Id == newReview.SupplierId);
+            if (supplier != null)
+            {
+                supplier.AverageRating = (decimal) averageRating;
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task UpdateReview(Review review)

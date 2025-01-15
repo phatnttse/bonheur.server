@@ -17,20 +17,29 @@ namespace Bonheur.Services
     public class FavoriteSupplierService : IFavoriteSupplierService
     {
         private readonly IFavoriteSupplierRepository _favoriteSupplierRepository;
+        private readonly ISupplierRepository _supplierRepository;
         private readonly IMapper _mapper;
 
         public FavoriteSupplierService(
             IFavoriteSupplierRepository favoriteSupplierRepository,
-            IMapper mapper)
+            IMapper mapper,
+            ISupplierRepository supplierRepository)
         {
             _favoriteSupplierRepository = favoriteSupplierRepository;
             _mapper = mapper;
+            _supplierRepository = supplierRepository;
         }
 
         public async Task<ApplicationResponse> AddFavoriteSupplier(FavoriteSupplierDTO favoriteSupplierDTO)
         {
             try
             {
+                var existedSupplier = _supplierRepository.GetSupplierByIdAsync(favoriteSupplierDTO.SupplierId, false) ?? throw new ApiException("Supplier was not found!");
+                string userId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
+                var checkSupplier = _supplierRepository.GetSupplierByUserIdAsync(userId);
+                if (checkSupplier.Id == favoriteSupplierDTO.SupplierId) {
+                    throw new ApiException("You are loving yourself!", System.Net.HttpStatusCode.BadRequest);
+                }
                 var favoriteSupplier = _mapper.Map<FavoriteSupplier>(favoriteSupplierDTO);
                 await _favoriteSupplierRepository.AddFavoriteSupplier(favoriteSupplier);
                 return new ApplicationResponse
