@@ -1,8 +1,10 @@
 ﻿using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Enums;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using X.PagedList;
 using X.PagedList.Extensions;
+using Bonheur.Utils;
 
 namespace Bonheur.DAOs
 {
@@ -26,17 +28,31 @@ namespace Bonheur.DAOs
                 query = query.Include(s => s.User);
             }
 
-            return await query.SingleOrDefaultAsync(s => s.Id == id);
+            var supplier = await query.SingleOrDefaultAsync(s => s.Id == id);
+
+            if (supplier != null && supplier.Images != null)
+            {
+                supplier.Images = supplier.Images.OrderByDescending(image => image.IsPrimary).ToList();
+            }
+
+            return supplier;
         }
 
         public async Task<Supplier?> GetSupplierByUserIdAsync(string userId)
         {
-            return await _context.Suppliers
+            var supplier = await _context.Suppliers
                 .Include(s => s.User)
                 .Include(s => s.Category)
                 .Include(s => s.Images)
                 .Include(s => s.SubscriptionPackage)
                 .SingleOrDefaultAsync(s => s.UserId == userId);
+
+            if (supplier != null && supplier.Images != null)
+            {
+                supplier.Images = supplier.Images.OrderByDescending(image => image.IsPrimary).ToList();
+            }
+
+            return supplier;
         }
 
         public Task<IPagedList<Supplier>> GetSuppliersAsync(
@@ -52,72 +68,80 @@ namespace Bonheur.DAOs
                 int pageSize = 10
         )
         {
-            IQueryable<Supplier> query = _context.Suppliers
+            var suppliers = _context.Suppliers
                 .Include(s => s.Category)
                 .Include(s => s.Images)
-                .Where(s => s.Status == SupplierStatus.APPROVED);
-
-            // Lọc theo tên nhà cung cấp
-            if (!string.IsNullOrEmpty(supplierName))
-            {
-                query = query.Where(s => EF.Functions.Like(s.Name, $"%{supplierName}%"));
-            }
-
-            // Lọc theo danh mục
-            if (supplierCategoryId.HasValue)
-            {
-                query = query.Where(s => s.CategoryId == supplierCategoryId);
-            }
-
-            // Lọc theo tỉnh thành
-            if (!string.IsNullOrEmpty(province))
-            {
-                query = query.Where(s => EF.Functions.Like(s.Province, $"%{province}%"));
-            }
-
-            // Lọc theo trạng thái nổi bật
-            if (isFeatured.HasValue)
-            {
-                query = query.Where(s => s.IsFeatured == isFeatured);
-            }
-
-            // Lọc theo đánh giá
-            if (averageRating.HasValue)
-            {
-                query = query.Where(s => s.AverageRating >= averageRating);
-            }
-
-            // Lọc theo giá
-            if (minPrice.HasValue)
-            {
-                query = query.Where(s => s.Price >= minPrice);
-            }
-
-            if (maxPrice.HasValue)
-            {
-                query = query.Where(s => s.Price <= maxPrice);
-            }
-
-            IOrderedQueryable<Supplier> orderedQuery = query
-            .OrderByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow)
-            .ThenByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow ? s.Priority : 0)
-            .ThenByDescending(s => s.Priority);
-
-            if (sortAsc.HasValue && sortAsc.Value)
-            {
-                orderedQuery = orderedQuery.ThenBy(s => s.Name);
-            }
-            else if (sortAsc.HasValue && !sortAsc.Value)
-            {
-                orderedQuery = orderedQuery.ThenByDescending(s => s.Name);
-            }
-
-            var suppliers = orderedQuery.ToPagedList(pageNumber, pageSize);
+                .Where(s => s.Status == SupplierStatus.APPROVED)
+                .Where(s => string.IsNullOrEmpty(supplierName) || s.Name!.ToLower().Contains(supplierName.ToLower()))
+                .Where(s => !supplierCategoryId.HasValue || s.CategoryId == supplierCategoryId)
+                .Where(s => string.IsNullOrEmpty(province) || s.Province!.ToLower().Contains(province.ToLower()))
+                .Where(s => !isFeatured.HasValue || s.IsFeatured == isFeatured)
+                .Where(s => !averageRating.HasValue || s.AverageRating >= averageRating)
+                .Where(s => !minPrice.HasValue || s.Price >= minPrice)
+                .Where(s => !maxPrice.HasValue || s.Price <= maxPrice)
+                .OrderByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow)
+                .ThenByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow ? s.Priority : 0)
+                .ThenByDescending(s => s.Priority)
+                .ThenBy(s => sortAsc.HasValue && sortAsc.Value ? s.Name : null)
+                .ThenByDescending(s => sortAsc.HasValue && !sortAsc.Value ? s.Name : null)
+                .AsEnumerable()
+                .Select(s =>
+                {
+                    s.Images = s.Images?.OrderByDescending(image => image.IsPrimary).ToList() ?? new List<SupplierImage>();
+                    return s;
+                })
+                .ToPagedList(pageNumber, pageSize);
 
             return Task.FromResult(suppliers);
         }
 
+        public Task<IPagedList<Supplier>> GetSuppliersByAdminAsync(
+                string? supplierName,
+                int? supplierCategoryId,
+                string? province,
+                bool? isFeatured,
+                decimal? averageRating,
+                decimal? minPrice,
+                decimal? maxPrice,
+                SupplierStatus? status,
+                bool? sortAsc,
+                int pageNumber = 1,
+                int pageSize = 10
+        )
+        {
+            var suppliers = _context.Suppliers
+                .Include(s => s.Category)
+                .Include(s => s.Images)
+                .Where(s => !status.HasValue || s.Status == status)
+                .Where(s => string.IsNullOrEmpty(supplierName) || s.Name!.ToLower().Contains(supplierName.ToLower()))
+                .Where(s => !supplierCategoryId.HasValue || s.CategoryId == supplierCategoryId)
+                .Where(s => string.IsNullOrEmpty(province) || s.Province!.ToLower().Contains(province.ToLower()))
+                .Where(s => !isFeatured.HasValue || s.IsFeatured == isFeatured)
+                .Where(s => !averageRating.HasValue || s.AverageRating >= averageRating)
+                .Where(s => !minPrice.HasValue || s.Price >= minPrice)
+                .Where(s => !maxPrice.HasValue || s.Price <= maxPrice)
+                .OrderByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow)
+                .ThenByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow ? s.Priority : 0)
+                .ThenByDescending(s => s.Priority)
+                .ThenBy(s => sortAsc.HasValue && sortAsc.Value ? s.Name : null)
+                .ThenByDescending(s => sortAsc.HasValue && !sortAsc.Value ? s.Name : null)
+                .AsEnumerable()
+                .Select(s =>
+                {
+                    s.Images = s.Images?.OrderByDescending(image => image.IsPrimary).ToList() ?? new List<SupplierImage>();
+                    return s;
+                })
+                .ToPagedList(pageNumber, pageSize);
 
+            return Task.FromResult(suppliers);
+        }
+
+        public async Task<List<Supplier>> GetAllSuppliersAsync()
+        {
+            return await _context.Suppliers
+                .Include(s => s.Category)
+                .ToListAsync();
+        }
 
         public async Task<Supplier?> CreateSupplierAsync(Supplier supplier)
         {

@@ -37,6 +37,20 @@ namespace Bonheur.Services.Interfaces
         Task<ApplicationResponse> UpdatePrimaryImageAsync(int imageId);
         Task<ApplicationResponse> UpdateSupplierStatus(int supplierId, SupplierStatus status);
         Task<ApplicationResponse> GetSupplierBySlugAsync(string slug);
+        Task<byte[]> ExportSupplierListToExcel();
+        Task<ApplicationResponse> GetSuppliersByAdminAsync(
+               string? supplierName,
+               int? supplierCategoryId,
+               string? province,
+               bool? isFeatured,
+               decimal? averageRating,
+               decimal? minPrice,
+               decimal? maxPrice,
+               SupplierStatus? status,
+               bool? sortAsc,
+               int pageNumber = 1,
+               int pageSize = 10
+           );
 
     }
 }
