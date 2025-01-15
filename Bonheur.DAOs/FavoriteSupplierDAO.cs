@@ -28,7 +28,7 @@ namespace Bonheur.DAOs
 
         public async Task<IPagedList<FavoriteSupplier>> GetAllFavoriteSuppliers(string userId, int pageNumber, int pageSize) 
         {
-            IQueryable<FavoriteSupplier> favoriteSuppliers =  _context.FavoriteSuppliers.Include(fs => fs.Supplier).Where(fs => fs.UserId.Equals(userId));
+            IQueryable<FavoriteSupplier> favoriteSuppliers =  _context.FavoriteSuppliers.Include(fs => fs.Supplier).ThenInclude(s => s.Images).Where(fs => fs.UserId == userId);
             var orderedFavoriteSuppliers = favoriteSuppliers.OrderByDescending(a => a.CreatedAt);
             var result =  orderedFavoriteSuppliers.ToPagedList(pageNumber, pageSize);
             return await Task.FromResult(result);
