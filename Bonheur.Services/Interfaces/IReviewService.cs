@@ -10,7 +10,7 @@ namespace Bonheur.Services.Interfaces
 {
     public interface IReviewService
     {
-        Task<ApplicationResponse> GetReviews(int pageNumber, int pageSize);
+        Task<ApplicationResponse> GetReviews(int supplierId, int pageNumber, int pageSize);
         Task<ApplicationResponse> GetReviewById(int id);
 
         Task<ApplicationResponse> AddNewReview(CreateUpdateReviewDTO reviewDTO);
