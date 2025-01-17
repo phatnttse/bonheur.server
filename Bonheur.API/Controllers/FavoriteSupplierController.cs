@@ -28,6 +28,15 @@ namespace Bonheur.API.Controllers
             return Ok(await _favoriteSupplierService.GetAllFavoriteSuppliers(pageNumber, pageSize));
         }
 
+        [HttpGet("category/{categoryId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        //[Authorize(Roles = Constants.Roles.USER)]
+        public async Task<IActionResult> GetFavoriteSupplierPaginated([FromRoute]int categoryId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return Ok(await _favoriteSupplierService.GetFavoriteSuppliersByCategoryId(categoryId, pageNumber, pageSize));
+        }
+
         [HttpPost]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
