@@ -21,6 +21,9 @@ namespace Bonheur.Services.Interfaces
 
         Task<ApplicationResponse> UpdateFavoriteSupplierAsync(int id, FavoriteSupplierDTO favoriteSupplierDTO);
 
+        Task<ApplicationResponse> GetFavoriteSuppliersByCategoryId(int categoryId, int pageNumber, int pageSize);
+
+
         Task<ApplicationResponse> DeleteSupplierAsync(int id);
     }
 }

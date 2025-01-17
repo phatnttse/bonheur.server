@@ -145,6 +145,43 @@ namespace Bonheur.Services
             }
         }
 
+        public async Task<ApplicationResponse> GetFavoriteSuppliersByCategoryId(int categoryId, int pageNumber, int pageSize)
+        {
+            try
+            {
+                string userId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
+                var favoriteSupplier = await _favoriteSupplierRepository.GetFavoriteSuppliersByCategoryId(userId, categoryId, pageNumber, pageSize);
+                var result = _mapper.Map<List<FavoriteSupplierDTO>>(favoriteSupplier);
+                var responseData = new PagedData<FavoriteSupplierDTO>
+                {
+                    Items = result,
+                    PageNumber = favoriteSupplier.PageNumber,
+                    PageSize = favoriteSupplier.PageSize,
+                    TotalItemCount = favoriteSupplier.TotalItemCount,
+                    PageCount = favoriteSupplier.PageCount,
+                    IsFirstPage = favoriteSupplier.IsFirstPage,
+                    IsLastPage = favoriteSupplier.IsLastPage,
+                    HasNextPage = favoriteSupplier.HasNextPage,
+                    HasPreviousPage = favoriteSupplier.HasPreviousPage
+                };
+                return new ApplicationResponse
+                {
+                    Success = true,
+                    Message = "Query all favorite supplier by categoryId successfully",
+                    Data = result,
+                    StatusCode = System.Net.HttpStatusCode.OK,
+                };
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
         public async Task<ApplicationResponse> UpdateFavoriteSupplierAsync(int id, FavoriteSupplierDTO favoriteSupplierDTO)
         {
             try
