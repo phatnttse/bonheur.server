@@ -23,7 +23,7 @@ namespace Bonheur.API.Controllers
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> GetAllAdvertisements([FromQuery] string searchTitle, [FromQuery] string searchContent, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetAllAdvertisements([FromQuery] string? searchTitle, [FromQuery] string? searchContent, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             return Ok(await _advertisementService.GetAdvertisementsAsync(searchTitle, searchContent, pageNumber, pageSize));
         }
