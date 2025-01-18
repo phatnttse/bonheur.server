@@ -37,10 +37,10 @@ namespace Bonheur.API.Controllers
             return Ok(await _favoriteSupplierService.GetFavoriteSuppliersByCategoryId(categoryId, pageNumber, pageSize));
         }
 
-        [HttpPost("{supplierId}")]
+        [HttpPost]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> AddFavoriteSupplier([FromRoute]  int supplierId)
+        public async Task<IActionResult> AddFavoriteSupplier([FromBody] int supplierId)
         {
             return Ok(await _favoriteSupplierService.AddFavoriteSupplier(supplierId));
         }
@@ -54,15 +54,6 @@ namespace Bonheur.API.Controllers
             return Ok(await _favoriteSupplierService.GetFavoriteSupplierAsync(id));
         }
 
-
-        [HttpPut("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [Authorize(Roles = Constants.Roles.USER)]
-        public async Task<IActionResult> UpdateFavoriteSupplier([FromRoute] int id, [FromBody] FavoriteSupplierDTO favoriteSupplierDTO)
-        {
-            return Ok(await _favoriteSupplierService.UpdateFavoriteSupplierAsync(id, favoriteSupplierDTO));
-        }
 
         [HttpDelete("{id}")]
         [ProducesResponseType(200)]

@@ -34,11 +34,14 @@ namespace Bonheur.Services
         {
             try
             {
-                FavoriteSupplierDTO favoriteSupplierDTO = new FavoriteSupplierDTO();
-                var existedSupplier = _supplierRepository.GetSupplierByIdAsync(favoriteSupplierDTO.SupplierId, false) ?? throw new ApiException("Supplier was existed!");
                 string userId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
-                var checkSupplier = _supplierRepository.GetSupplierByUserIdAsync(userId);
-                if (checkSupplier.Id == favoriteSupplierDTO.SupplierId) {
+                FavoriteSupplierDTO favoriteSupplierDTO = new FavoriteSupplierDTO();
+                var existedSupplier = await _supplierRepository.GetSupplierByIdAsync(supplierId, false);
+                if (existedSupplier == null) {
+                    throw new ApiException("Supplier was not existed!", System.Net.HttpStatusCode.BadRequest);
+                }
+                var checkSupplier = await _supplierRepository.GetSupplierByUserIdAsync(userId);
+                if (checkSupplier!.Id == favoriteSupplierDTO.SupplierId) {
                     throw new ApiException("You are loving yourself!", System.Net.HttpStatusCode.BadRequest);
                 }
                 favoriteSupplierDTO.UserId = userId;
@@ -73,7 +76,7 @@ namespace Bonheur.Services
                 {
                     Success = true,
                     Message = "Favorite Supplier was deleted successfully!",
-                    Data = null,
+                    Data = favoriteSupplier,
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
             }
@@ -185,30 +188,5 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> UpdateFavoriteSupplierAsync(int id, FavoriteSupplierDTO favoriteSupplierDTO)
-        {
-            try
-            {
-                var existedFavoriteSupplier = await _favoriteSupplierRepository.GetFavoriteSupplierAsync(id) ?? throw new ApiException("Favorite supplier was not found!");
-                _mapper.Map(existedFavoriteSupplier, favoriteSupplierDTO);
-                await _favoriteSupplierRepository.UpdateFavoriteSupplierAsync(existedFavoriteSupplier);
-                var result = _mapper.Map<FavoriteSupplierDTO>(existedFavoriteSupplier);
-                return new ApplicationResponse
-                {
-                    Success = true,
-                    Message = "Update favorite supplier successfully!",
-                    Data = result,
-                    StatusCode = System.Net.HttpStatusCode.OK
-                };
-            }
-            catch (ApiException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
-            }
-        }
     }
 }
