@@ -37,10 +37,10 @@ namespace Bonheur.API.Controllers
             return Ok(await _favoriteSupplierService.GetFavoriteSuppliersByCategoryId(categoryId, pageNumber, pageSize));
         }
 
-        [HttpPost]
+        [HttpPost("{supplierId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> AddFavoriteSupplier([FromQuery] int supplierId)
+        public async Task<IActionResult> AddFavoriteSupplier([FromRoute]  int supplierId)
         {
             return Ok(await _favoriteSupplierService.AddFavoriteSupplier(supplierId));
         }
