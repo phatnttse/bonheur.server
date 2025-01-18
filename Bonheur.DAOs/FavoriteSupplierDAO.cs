@@ -45,13 +45,6 @@ namespace Bonheur.DAOs
 
         public async Task<FavoriteSupplier?> GetFavoriteSupplierAsync(int id) => await _context.FavoriteSuppliers.Include(fs => fs.Supplier).FirstOrDefaultAsync(fs => fs.Id == id);
 
-        public async Task<FavoriteSupplier> UpdateFavoriteSupplierAsync(FavoriteSupplier favoriteSupplier)
-        {
-            _context.FavoriteSuppliers.Update(favoriteSupplier);
-            await _context.SaveChangesAsync();
-            return favoriteSupplier;
-        }
-
         public async Task<FavoriteSupplier> DeleteSupplierAsync(FavoriteSupplier favoriteSupplier)
         {
             _context.FavoriteSuppliers.Remove(favoriteSupplier);

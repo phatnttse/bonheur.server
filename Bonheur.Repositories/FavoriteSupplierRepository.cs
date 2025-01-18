@@ -29,6 +29,5 @@ namespace Bonheur.Repositories
 
         public Task<IPagedList<FavoriteSupplier>> GetFavoriteSuppliersByCategoryId(string userId, int categoryId, int pageNumber, int pageSize) => _favoriteSupplierDAO.GetFavoriteSuppliersByCategoryId(userId, categoryId, pageNumber, pageSize);
 
-        public Task<FavoriteSupplier> UpdateFavoriteSupplierAsync(FavoriteSupplier favoriteSupplier) => _favoriteSupplierDAO.UpdateFavoriteSupplierAsync(favoriteSupplier);
     }
 }
