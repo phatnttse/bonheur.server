@@ -103,7 +103,7 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> GetAdvertisementsAsync(string searchTitle, string searchContent, int pageNumber = 1, int pageSize = 10)
+        public async Task<ApplicationResponse> GetAdvertisementsAsync(string? searchTitle, string? searchContent, int pageNumber = 1, int pageSize = 10)
         {
             try
             {
