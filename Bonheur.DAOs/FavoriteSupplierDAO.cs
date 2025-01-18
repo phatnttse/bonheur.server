@@ -21,9 +21,9 @@ namespace Bonheur.DAOs
 
         public async Task<FavoriteSupplier> AddFavoriteSupplier(FavoriteSupplier favoriteSupplier)
         {
-            _context.FavoriteSuppliers.Add(favoriteSupplier);
+            await _context.FavoriteSuppliers.AddAsync(favoriteSupplier);
             await _context.SaveChangesAsync();
-            return favoriteSupplier;
+            return await Task.FromResult(favoriteSupplier);
         }
 
         public async Task<IPagedList<FavoriteSupplier>> GetAllFavoriteSuppliers(string userId, int pageNumber, int pageSize)
