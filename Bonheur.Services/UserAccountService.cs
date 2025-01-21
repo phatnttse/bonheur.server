@@ -440,7 +440,7 @@ namespace Bonheur.Services
                     Success = true,
                     Message = "Avatar uploaded successfully",
                     StatusCode = System.Net.HttpStatusCode.OK,
-                    Data = response.Blob
+                    Data = existingUser
                 };
 
             }
