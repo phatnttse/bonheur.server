@@ -11,7 +11,7 @@ namespace Bonheur.Services.Interfaces
 {
     public interface IAdvertisementService
     {
-        Task<ApplicationResponse> GetAdvertisementsAsync(string searchTitle, string searchContent, int pageNumber, int pageSize);
+        Task<ApplicationResponse> GetAdvertisementsAsync(string? searchTitle, string? searchContent, int pageNumber, int pageSize);
         Task<ApplicationResponse> GetAdvertisementByIdAsync(int id);
         Task<ApplicationResponse> AddAdvertisementAsync(AdvertisementDTO advertisementDTO);
         Task<ApplicationResponse> UpdateAdvertisementAsync(int id, AdvertisementDTO advertisementDTO);

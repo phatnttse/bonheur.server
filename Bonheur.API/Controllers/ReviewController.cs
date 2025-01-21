@@ -42,12 +42,12 @@ namespace Bonheur.API.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet("{supplierId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> GetReviews([FromQuery] int pageNumber, [FromQuery] int pageSize)
+        public async Task<IActionResult> GetReviews([FromRoute] int supplierId, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
-            return Ok(await _reviewService.GetReviews(pageNumber, pageSize));
+            return Ok(await _reviewService.GetReviews(supplierId, pageNumber, pageSize));
         }
 
         [HttpGet("{id}")]

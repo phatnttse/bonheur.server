@@ -13,13 +13,14 @@ namespace Bonheur.Services.Interfaces
 {
     public interface IFavoriteSupplierService
     {
-        Task<ApplicationResponse> AddFavoriteSupplier(FavoriteSupplierDTO favoriteSupplierDTO);
+        Task<ApplicationResponse> AddFavoriteSupplier(int supplierId);
 
         Task<ApplicationResponse> GetAllFavoriteSuppliers(int pageNumber, int pageSize);
 
         Task<ApplicationResponse> GetFavoriteSupplierAsync(int id);
 
-        Task<ApplicationResponse> UpdateFavoriteSupplierAsync(int id, FavoriteSupplierDTO favoriteSupplierDTO);
+        Task<ApplicationResponse> GetFavoriteSuppliersByCategoryId(int categoryId, int pageNumber, int pageSize);
+
 
         Task<ApplicationResponse> DeleteSupplierAsync(int id);
     }

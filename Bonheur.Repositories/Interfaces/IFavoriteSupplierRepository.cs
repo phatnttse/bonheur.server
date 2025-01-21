@@ -15,9 +15,10 @@ namespace Bonheur.Repositories.Interfaces
 
         Task<IPagedList<FavoriteSupplier>> GetAllFavoriteSuppliers(string userId, int pageNumber, int pageSize);
 
-        Task<FavoriteSupplier?> GetFavoriteSupplierAsync(int id);
+        Task<IPagedList<FavoriteSupplier>> GetFavoriteSuppliersByCategoryId(string userId, int categoryId, int pageNumber, int pageSize);
 
-        Task<FavoriteSupplier> UpdateFavoriteSupplierAsync(FavoriteSupplier favoriteSupplier);
+
+        Task<FavoriteSupplier?> GetFavoriteSupplierAsync(int id);
 
         Task<FavoriteSupplier> DeleteSupplierAsync(FavoriteSupplier favoriteSupplier);  
     }

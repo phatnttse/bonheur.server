@@ -28,12 +28,21 @@ namespace Bonheur.API.Controllers
             return Ok(await _favoriteSupplierService.GetAllFavoriteSuppliers(pageNumber, pageSize));
         }
 
+        [HttpGet("category/{categoryId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        //[Authorize(Roles = Constants.Roles.USER)]
+        public async Task<IActionResult> GetFavoriteSupplierPaginated([FromRoute] int categoryId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return Ok(await _favoriteSupplierService.GetFavoriteSuppliersByCategoryId(categoryId, pageNumber, pageSize));
+        }
+
         [HttpPost]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> AddFavoriteSupplier([FromBody] FavoriteSupplierDTO favoriteSupplierDTO)
+        public async Task<IActionResult> AddFavoriteSupplier([FromBody] int supplierId)
         {
-            return Ok(await _favoriteSupplierService.AddFavoriteSupplier(favoriteSupplierDTO));
+            return Ok(await _favoriteSupplierService.AddFavoriteSupplier(supplierId));
         }
 
         [HttpGet("{id}")]
@@ -45,15 +54,6 @@ namespace Bonheur.API.Controllers
             return Ok(await _favoriteSupplierService.GetFavoriteSupplierAsync(id));
         }
 
-
-        [HttpPut("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [Authorize(Roles = Constants.Roles.USER)]
-        public async Task<IActionResult> UpdateFavoriteSupplier([FromRoute] int id, [FromBody] FavoriteSupplierDTO favoriteSupplierDTO)
-        {
-            return Ok(await _favoriteSupplierService.UpdateFavoriteSupplierAsync(id, favoriteSupplierDTO));
-        }
 
         [HttpDelete("{id}")]
         [ProducesResponseType(200)]

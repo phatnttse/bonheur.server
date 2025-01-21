@@ -24,7 +24,7 @@ namespace Bonheur.DAOs
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IPagedList<Advertisement>> GetAdvertisements(string searchTitle, string searchContent, int pageNumber = 1, int pageSize = 10)
+        public async Task<IPagedList<Advertisement>> GetAdvertisements(string? searchTitle, string? searchContent, int pageNumber = 1, int pageSize = 10)
         {
             IQueryable<Advertisement> query = _context.Advertisements;
             if (!string.IsNullOrEmpty(searchTitle)) {

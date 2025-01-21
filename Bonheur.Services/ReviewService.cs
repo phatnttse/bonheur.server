@@ -58,11 +58,11 @@ namespace Bonheur.Services
 
         }
 
-        public async Task<ApplicationResponse> GetReviews(int pageNumber, int pageSize)
+        public async Task<ApplicationResponse> GetReviews(int supplierId, int pageNumber, int pageSize)
         {
             try
             {
-                var reviewPagedList = await _reviewRepository.GetReviews(pageNumber, pageSize);
+                var reviewPagedList = await _reviewRepository.GetReviews(supplierId, pageNumber, pageSize);
                 var reviewsDTO = _mapper.Map<List<ReviewDTO>>(reviewPagedList);
 
                 var responseData = new PagedData<ReviewDTO>

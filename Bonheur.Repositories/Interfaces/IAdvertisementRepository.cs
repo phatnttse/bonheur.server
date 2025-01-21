@@ -10,7 +10,7 @@ namespace Bonheur.Repositories.Interfaces
 {
     public interface IAdvertisementRepository
     {
-        Task<IPagedList<Advertisement>> GetAdvertisementsAsync(string searchTitle, string searchContent, int pageNumber = 1, int pageSize = 10);
+        Task<IPagedList<Advertisement>> GetAdvertisementsAsync(string? searchTitle, string? searchContent, int pageNumber = 1, int pageSize = 10);
         Task<Advertisement?> GetAdvertisementByIdAsync(int id);
         Task AddAdvertisementAsync(Advertisement advertisement);
         Task UpdateAdvertisementAsync(Advertisement advertisement);

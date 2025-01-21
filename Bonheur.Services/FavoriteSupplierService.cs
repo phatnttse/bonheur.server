@@ -17,20 +17,35 @@ namespace Bonheur.Services
     public class FavoriteSupplierService : IFavoriteSupplierService
     {
         private readonly IFavoriteSupplierRepository _favoriteSupplierRepository;
+        private readonly ISupplierRepository _supplierRepository;
         private readonly IMapper _mapper;
 
         public FavoriteSupplierService(
             IFavoriteSupplierRepository favoriteSupplierRepository,
-            IMapper mapper)
+            IMapper mapper,
+            ISupplierRepository supplierRepository)
         {
             _favoriteSupplierRepository = favoriteSupplierRepository;
             _mapper = mapper;
+            _supplierRepository = supplierRepository;
         }
 
-        public async Task<ApplicationResponse> AddFavoriteSupplier(FavoriteSupplierDTO favoriteSupplierDTO)
+        public async Task<ApplicationResponse> AddFavoriteSupplier(int supplierId)
         {
             try
             {
+                string userId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
+                FavoriteSupplierDTO favoriteSupplierDTO = new FavoriteSupplierDTO();
+                var existedSupplier = await _supplierRepository.GetSupplierByIdAsync(supplierId, false);
+                if (existedSupplier == null) {
+                    throw new ApiException("Supplier was not existed!", System.Net.HttpStatusCode.BadRequest);
+                }
+                var checkSupplier = await _supplierRepository.GetSupplierByUserIdAsync(userId);
+                if (checkSupplier!.Id == favoriteSupplierDTO.SupplierId) {
+                    throw new ApiException("You are loving yourself!", System.Net.HttpStatusCode.BadRequest);
+                }
+                favoriteSupplierDTO.UserId = userId;
+                favoriteSupplierDTO.SupplierId = supplierId;
                 var favoriteSupplier = _mapper.Map<FavoriteSupplier>(favoriteSupplierDTO);
                 await _favoriteSupplierRepository.AddFavoriteSupplier(favoriteSupplier);
                 return new ApplicationResponse
@@ -61,7 +76,7 @@ namespace Bonheur.Services
                 {
                     Success = true,
                     Message = "Favorite Supplier was deleted successfully!",
-                    Data = null,
+                    Data = favoriteSupplier,
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
             }
@@ -136,20 +151,31 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> UpdateFavoriteSupplierAsync(int id, FavoriteSupplierDTO favoriteSupplierDTO)
+        public async Task<ApplicationResponse> GetFavoriteSuppliersByCategoryId(int categoryId, int pageNumber, int pageSize)
         {
             try
             {
-                var existedFavoriteSupplier = await _favoriteSupplierRepository.GetFavoriteSupplierAsync(id) ?? throw new ApiException("Favorite supplier was not found!");
-                _mapper.Map(existedFavoriteSupplier, favoriteSupplierDTO);
-                await _favoriteSupplierRepository.UpdateFavoriteSupplierAsync(existedFavoriteSupplier);
-                var result = _mapper.Map<FavoriteSupplierDTO>(existedFavoriteSupplier);
+                string userId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
+                var favoriteSupplier = await _favoriteSupplierRepository.GetFavoriteSuppliersByCategoryId(userId, categoryId, pageNumber, pageSize);
+                var result = _mapper.Map<List<FavoriteSupplierDTO>>(favoriteSupplier);
+                var responseData = new PagedData<FavoriteSupplierDTO>
+                {
+                    Items = result,
+                    PageNumber = favoriteSupplier.PageNumber,
+                    PageSize = favoriteSupplier.PageSize,
+                    TotalItemCount = favoriteSupplier.TotalItemCount,
+                    PageCount = favoriteSupplier.PageCount,
+                    IsFirstPage = favoriteSupplier.IsFirstPage,
+                    IsLastPage = favoriteSupplier.IsLastPage,
+                    HasNextPage = favoriteSupplier.HasNextPage,
+                    HasPreviousPage = favoriteSupplier.HasPreviousPage
+                };
                 return new ApplicationResponse
                 {
                     Success = true,
-                    Message = "Update favorite supplier successfully!",
+                    Message = "Query all favorite supplier by categoryId successfully",
                     Data = result,
-                    StatusCode = System.Net.HttpStatusCode.OK
+                    StatusCode = System.Net.HttpStatusCode.OK,
                 };
             }
             catch (ApiException)
@@ -161,5 +187,6 @@ namespace Bonheur.Services
                 throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
             }
         }
+
     }
 }
