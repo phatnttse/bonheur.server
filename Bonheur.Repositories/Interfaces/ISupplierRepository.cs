@@ -23,6 +23,7 @@ namespace Bonheur.Repositories.Interfaces
                 decimal? minPrice,
                 decimal? maxPrice,
                 bool? sortAsc,
+                string? orderBy,
                 int pageNumber = 1,
                 int pageSize = 10
             );
@@ -42,6 +43,7 @@ namespace Bonheur.Repositories.Interfaces
                decimal? maxPrice,
                SupplierStatus? status,
                bool? sortAsc,
+               string? orderBy,
                int pageNumber = 1,
                int pageSize = 10
            );

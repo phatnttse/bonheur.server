@@ -9,13 +9,8 @@ namespace Bonheur.BusinessObjects.Enums
 {
     public enum Gender
     {
-        [EnumMember(Value = "OTHER")]
-        OTHER,
-
-        [EnumMember(Value = "MALE")]
-        MALE,
-
-        [EnumMember(Value = "FEMALE")]
-        FEMALE
+        Male,
+        Female,
+        Other
     }
 }

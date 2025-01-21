@@ -149,11 +149,11 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> GetSuppliersAsync(string? supplierName, int? supplierCategoryId, string? province, bool? isFeatured, decimal? averageRating, decimal? minPrice, decimal? maxPrice, bool? sortAsc, int pageNumber = 1, int pageSize = 10)
+        public async Task<ApplicationResponse> GetSuppliersAsync(string? supplierName, int? supplierCategoryId, string? province, bool? isFeatured, decimal? averageRating, decimal? minPrice, decimal? maxPrice, bool? sortAsc, string? orderBy, int pageNumber = 1, int pageSize = 10)
         {
             try
             {
-                var suppliersPagedList = await _supplierRepository.GetSuppliersAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, sortAsc, pageNumber, pageSize);
+                var suppliersPagedList = await _supplierRepository.GetSuppliersAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, sortAsc, orderBy, pageNumber, pageSize);
 
                 var suppliersDTO = _mapper.Map<List<SupplierDTO>>(suppliersPagedList);
               
@@ -189,11 +189,11 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> GetSuppliersByAdminAsync(string? supplierName, int? supplierCategoryId, string? province, bool? isFeatured, decimal? averageRating, decimal? minPrice, decimal? maxPrice, SupplierStatus? status, bool? sortAsc, int pageNumber = 1, int pageSize = 10)
+        public async Task<ApplicationResponse> GetSuppliersByAdminAsync(string? supplierName, int? supplierCategoryId, string? province, bool? isFeatured, decimal? averageRating, decimal? minPrice, decimal? maxPrice, SupplierStatus? status, bool? sortAsc, string? orderBy, int pageNumber = 1, int pageSize = 10)
         {
             try
             {
-                var suppliersPagedList = await _supplierRepository.GetSuppliersByAdminAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, status, sortAsc, pageNumber, pageSize);
+                var suppliersPagedList = await _supplierRepository.GetSuppliersByAdminAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, status, sortAsc, orderBy, pageNumber, pageSize);
 
                 var suppliersDTO = _mapper.Map<List<SupplierDTO>>(suppliersPagedList);
 
@@ -209,7 +209,6 @@ namespace Bonheur.Services
                     HasNextPage = suppliersPagedList.HasNextPage,
                     HasPreviousPage = suppliersPagedList.HasPreviousPage
                 };
-
 
                 return new ApplicationResponse
                 {
@@ -248,9 +247,9 @@ namespace Bonheur.Services
 
                 var updatedSupplier = _mapper.Map(supplierProfileDTO, supplier);
 
-                if (supplier.OnBoardStatus != OnBoardStatus.COMPLETED)
+                if (supplier.OnBoardStatus != OnBoardStatus.Completed)
                 {
-                    updatedSupplier.OnBoardStatus = OnBoardStatus.SUPPLIER_LOCATION; // Chuyển trạng thái của supplier sang bước cập nhật địa chỉ
+                    updatedSupplier.OnBoardStatus = OnBoardStatus.Location; // Chuyển trạng thái của supplier sang bước cập nhật địa chỉ
                 }
 
                 var result = await _supplierRepository.UpdateSupplierAsync(updatedSupplier);
@@ -287,9 +286,9 @@ namespace Bonheur.Services
 
                 var updatedSupplier = _mapper.Map(supplierAddressDTO, supplier);
 
-                if (supplier.OnBoardStatus != OnBoardStatus.COMPLETED)
+                if (supplier.OnBoardStatus != OnBoardStatus.Completed)
                 {
-                    updatedSupplier.OnBoardStatus = OnBoardStatus.SUPPLIER_IMAGES; // Chuyển trạng thái của supplier sang bước tải lên hình ảnh
+                    updatedSupplier.OnBoardStatus = OnBoardStatus.Photos; // Chuyển trạng thái của supplier sang bước tải lên hình ảnh
                 }
 
                 var result = await _supplierRepository.UpdateSupplierAsync(updatedSupplier);
@@ -361,9 +360,9 @@ namespace Bonheur.Services
 
                  await _supplierImageRepository.AddSupplierImagesAsync(uploadedImages);
 
-                if (supplier.OnBoardStatus != OnBoardStatus.COMPLETED)
+                if (supplier.OnBoardStatus != OnBoardStatus.Completed)
                 {
-                    supplier.OnBoardStatus = OnBoardStatus.COMPLETED;
+                    supplier.OnBoardStatus = OnBoardStatus.Completed;
                     var supplierUpdated = await _supplierRepository.UpdateSupplierAsync(supplier);
                     
                 }
@@ -498,7 +497,7 @@ namespace Bonheur.Services
 
                 if (existingSupplier.Status == status) throw new ApiException("Supplier is already in this status", System.Net.HttpStatusCode.BadRequest);
 
-                if (status == SupplierStatus.APPROVED && existingSupplier.OnBoardStatus != OnBoardStatus.COMPLETED)
+                if (status == SupplierStatus.Approved && existingSupplier.OnBoardStatus != OnBoardStatus.Completed)
                     throw new ApiException("Supplier onboarding is not completed", System.Net.HttpStatusCode.BadRequest);
 
                 existingSupplier.Status = status;

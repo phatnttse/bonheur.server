@@ -6,14 +6,15 @@ using System.Threading.Tasks;
 
 namespace Bonheur.BusinessObjects.Enums
 {
-    public enum AdType
+    public enum PaymentMethod 
     {
-        Banner,
-        Popup,
-        Text,
-        Video,
-        Audio,
-        Image,
-        Sidebar
+        PayOs,
+        MoMo,
+        VNPAY,
+        Stripe,
+        PayPal,
+        CreditCard,
+        BankTransfer,
+        CashOnDelivery
     }
 }

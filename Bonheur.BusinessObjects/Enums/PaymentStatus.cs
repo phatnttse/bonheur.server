@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 
 namespace Bonheur.BusinessObjects.Enums
 {
-    public enum AdType
+    public enum PaymentStatus
     {
-        Banner,
-        Popup,
-        Text,
-        Video,
-        Audio,
-        Image,
-        Sidebar
+        Pending,
+        Paid,
+        Failed,
+        Refunded
     }
 }

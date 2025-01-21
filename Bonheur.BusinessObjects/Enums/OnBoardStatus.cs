@@ -8,9 +8,9 @@ namespace Bonheur.BusinessObjects.Enums
 {
     public enum OnBoardStatus
     {
-        SUPPLIER_INFO,
-        SUPPLIER_LOCATION,
-        SUPPLIER_IMAGES,
-        COMPLETED
+        BusinessInfo,
+        Location,
+        Photos,
+        Completed
     }
 }

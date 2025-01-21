@@ -242,10 +242,10 @@ namespace Bonheur.Services
 
                 switch (createAccountDTO.Gender)
                 {
-                    case Gender.MALE:
+                    case Gender.Male:
                         user.PictureUrl = Constants.AVATAR_DEFAULT.MALE;
                         break;
-                    case Gender.FEMALE:
+                    case Gender.Female:
                         user.PictureUrl = Constants.AVATAR_DEFAULT.FEMAILE;
                         break;
                     default:

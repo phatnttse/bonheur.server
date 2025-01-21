@@ -30,6 +30,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication;
 using Bonheur.Services.Email;
 using Microsoft.Extensions.Azure;
+using Net.payOS;
 
 namespace Bonheur.API
 {
@@ -37,6 +38,7 @@ namespace Bonheur.API
     {
         public static async Task Main(string[] args)
         {
+           
             var builder = WebApplication.CreateBuilder(args);
 
             // Load environment variables from .env file
@@ -264,6 +266,20 @@ namespace Bonheur.API
             builder.Services.AddExceptionHandler<ExceptionHandler>();
             builder.Services.AddProblemDetails();
 
+            //PayOs
+            var payOsClientId = Environment.GetEnvironmentVariable("PAYOS_CLIENT_ID") ??
+                 throw new InvalidOperationException("Environement string 'PAYOS_CLIENT_ID' not found.");
+
+            var payOsApiKey = Environment.GetEnvironmentVariable("PAYOS_API_KEY") ??
+                throw new InvalidOperationException("Environement string 'PAYOS_API_KEY' not found.");
+
+            var payOsCheckSumKey = Environment.GetEnvironmentVariable("PAYOS_CHECKSUM_KEY") ??
+                throw new InvalidOperationException("Environement string 'PAYOS_CHECKSUM_KEY' not found.");
+
+            PayOS payOS = new PayOS(payOsClientId, payOsApiKey, payOsCheckSumKey);
+
+            builder.Services.AddSingleton(payOS);
+
             // DAOs
             builder.Services.AddScoped<UserAccountDAO>();
             builder.Services.AddScoped<UserRoleDAO>();
@@ -305,6 +321,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<IAdvertisementService, AdvertisementService>();
             //builder.Services.AddScoped<IChatHubService, ChatHubService>();
             builder.Services.AddScoped<IFavoriteSupplierService, FavoriteSupplierService>();
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
 
             // Auth Handlers
             builder.Services.AddSingleton<IAuthorizationHandler, ViewUserAuthorizationHandler>();
