@@ -11,5 +11,6 @@ namespace Bonheur.Services.Interfaces
     public interface IPaymentService
     {
         Task<ApplicationResponse> subscriptionPackagePayment(int subscriptionPackageId);
+        Task<ApplicationResponse> subscriptionPackagePaymentCallback(string status, int orderCode);
     }
 }

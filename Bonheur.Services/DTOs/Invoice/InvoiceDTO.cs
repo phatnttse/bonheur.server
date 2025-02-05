@@ -1,4 +1,7 @@
-﻿using Bonheur.BusinessObjects.Enums;
+﻿using Bonheur.BusinessObjects.Entities;
+using Bonheur.Services.DTOs.Account;
+using Bonheur.Services.DTOs.Order;
+using Bonheur.Services.DTOs.Supplier;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -6,26 +9,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bonheur.BusinessObjects.Entities
+namespace Bonheur.Services.DTOs.Invoice
 {
-    public class Invoice : BaseEntity
+    public class InvoiceDTO
     {
-        [Required]
+        public int Id { get; set; }
+
         public int InvoiceNumber { get; set; }
 
         public string? Description { get; set; }
 
-        public string? UserId { get; set; }
-        public virtual ApplicationUser? User { get; set; }
-
-        public int? SupplierId { get; set; }
-        public virtual Supplier? Supplier { get; set; }
-
-        public int OrderId { get; set; } 
-        public virtual Order? Order { get; set; }
-
-        [Required]
-        public decimal TotalAmount { get; set; } 
+        public decimal TotalAmount { get; set; }
 
         public decimal Discount { get; set; }
 
@@ -50,6 +44,5 @@ namespace Bonheur.BusinessObjects.Entities
         public string? Website { get; set; }
 
         public string? UEN { get; set; }
-
     }
 }

@@ -60,6 +60,12 @@ namespace Bonheur.Utils
             return noDiacritics.ToLower().Trim();
         }
 
+        public static string FormatCurrency(decimal amount)
+        {
+            // Format number with thousands separators and append "đ"
+            return $"{amount:N0}đ";
+        }
+
 
     }
 }

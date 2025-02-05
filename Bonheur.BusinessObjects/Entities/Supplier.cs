@@ -42,6 +42,14 @@ namespace Bonheur.BusinessObjects.Entities
         [StringLength(100)]
         public string? District { get; set; }
 
+        public string? Address 
+        { 
+            get
+            {
+                return $"{Street}, {Ward}, {District}, {Province}";
+            }
+        }
+
         [Url]
         [StringLength(255)]
         public string? WebsiteUrl { get; set; }

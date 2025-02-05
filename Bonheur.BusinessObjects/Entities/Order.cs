@@ -11,16 +11,25 @@ namespace Bonheur.BusinessObjects.Entities
     public class Order : BaseEntity
     {
         [Required]
-        public string? OrderNumber { get; set; } 
+        public int OrderCode { get; set; } 
 
         public string? UserId { get; set; } 
         public virtual ApplicationUser? User { get; set; } 
+
+        public int? SupplierId {  get; set; }
+        public virtual Supplier? Supplier { get; set; }
 
         [Required]
         public decimal TotalAmount { get; set; } 
 
         [EnumDataType(typeof(OrderStatus))]
-        public OrderStatus Status { get; set; } 
+        public OrderStatus Status { get; set; }
+
+        [EnumDataType(typeof(PaymentStatus))]
+        public PaymentStatus PaymentStatus { get; set; }
+
+        [EnumDataType(typeof(PaymentMethod))]
+        public PaymentMethod PaymentMethod { get; set; }
 
         public int? InvoiceId { get; set; } 
         public virtual Invoice? Invoice { get; set; }

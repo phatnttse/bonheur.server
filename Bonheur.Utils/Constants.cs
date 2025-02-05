@@ -38,6 +38,13 @@ namespace Bonheur.Utils
             public const long MAX_PRICE = 10000000000;
         }
 
-
+        public static class InvoiceInfo
+        {
+            public const string COMPANY_NAME = "Bonheur Pte Ltd";
+            public const string COMPANY_ADDRESS = "32 Thuy Loi, Phuoc Long A, Quan 9, Thanh pho Ho Chi Minh";
+            public const string PHONE_NUMBER = "0392341142";
+            public const string EMAIL = "bonheur.wedding.1910@gmail.com";
+            public const string WEBSITE = "https://bonheur.pro";
+        } 
     }
 }

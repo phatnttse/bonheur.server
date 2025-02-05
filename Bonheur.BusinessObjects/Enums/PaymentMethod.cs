@@ -8,7 +8,7 @@ namespace Bonheur.BusinessObjects.Enums
 {
     public enum PaymentMethod 
     {
-        PayOs,
+        PayOS,
         MoMo,
         VNPAY,
         Stripe,

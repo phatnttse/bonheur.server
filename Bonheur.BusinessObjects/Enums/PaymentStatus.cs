@@ -11,6 +11,8 @@ namespace Bonheur.BusinessObjects.Enums
         Pending,
         Paid,
         Failed,
-        Refunded
+        Refunded,
+        Cancelled,
+        Success
     }
 }

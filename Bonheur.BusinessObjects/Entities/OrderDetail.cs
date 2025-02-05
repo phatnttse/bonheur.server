@@ -19,6 +19,9 @@ namespace Bonheur.BusinessObjects.Entities
         public virtual AdPackage? AdPackage { get; set; }
 
         [Required]
+        public string? Name { get; set; }
+
+        [Required]
         public decimal Price { get; set; } 
 
         public int Quantity { get; set; } 

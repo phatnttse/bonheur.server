@@ -203,10 +203,10 @@ namespace Bonheur.API
             {
                 options.AddPolicy("AllowSpecificOrigin",
                     builder => builder
-                        .WithOrigins("http://localhost:4200")  // Chỉ cho phép origin này
-                        .AllowCredentials()                    // Cho phép gửi cookies hoặc thông tin xác thực khác
-                        .AllowAnyHeader()                      // Cho phép tất cả headers
-                        .AllowAnyMethod());                    // Cho phép tất cả phương thức HTTP
+                        .WithOrigins("http://localhost:4200")  
+                        .AllowCredentials()                  
+                        .AllowAnyHeader()                      
+                        .AllowAnyMethod());                  
             });
 
             // Add controllers
@@ -291,8 +291,11 @@ namespace Bonheur.API
             builder.Services.AddScoped<ReviewDAO>();
             builder.Services.AddScoped<AdPackageDAO>();
             builder.Services.AddScoped<AdvertisementDAO>();
-            builder.Services.AddScoped<FavoriteSupplierDAO>();  
-        
+            builder.Services.AddScoped<FavoriteSupplierDAO>();
+            builder.Services.AddScoped<OrderDAO>();
+            builder.Services.AddScoped<InvoiceDAO>();
+            builder.Services.AddScoped<OrderDetailDAO>();
+
             //Repositories
             builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
             builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
@@ -305,6 +308,9 @@ namespace Bonheur.API
             builder.Services.AddScoped<IAdPackageRepository, AdPackageRepository>();
             builder.Services.AddScoped<IAdvertisementRepository, AdvertisementRepository>();
             builder.Services.AddScoped<IFavoriteSupplierRepository, FavoriteSupplierRepository>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+            builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
 
             // Services
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();
@@ -322,6 +328,7 @@ namespace Bonheur.API
             //builder.Services.AddScoped<IChatHubService, ChatHubService>();
             builder.Services.AddScoped<IFavoriteSupplierService, FavoriteSupplierService>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
+            builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 
             // Auth Handlers
             builder.Services.AddSingleton<IAuthorizationHandler, ViewUserAuthorizationHandler>();

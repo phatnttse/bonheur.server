@@ -17,6 +17,11 @@ namespace Bonheur.API.Controllers
             _paymentService = paymentService;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="subscriptionPackageId"></param>
+        /// <returns></returns>
         [HttpGet("payos/subscription-package")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(404)]
@@ -25,6 +30,21 @@ namespace Bonheur.API.Controllers
             return Ok(await _paymentService.subscriptionPackagePayment(subscriptionPackageId));
         }
 
-       
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="status"></param>
+        /// <param name="orderId"></param>
+        /// <param name="spId"></param>
+        /// <returns></returns>
+        [HttpPost("payos/subscription-package/callback")]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> SubscriptionPackagePaymentCallback([FromQuery] string status, [FromQuery] int orderCode)
+        {
+            return Ok(await _paymentService.subscriptionPackagePaymentCallback(status, orderCode));
+        }
+
     }
 }

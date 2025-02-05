@@ -241,9 +241,23 @@ namespace Bonheur.DAOs
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Order>()
+               .HasOne(o => o.Supplier)
+               .WithMany()
+               .HasForeignKey(o => o.SupplierId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Order>()
                 .Property(o => o.Status)
                 .HasConversion(new EnumToStringConverter<OrderStatus>());
-   
+
+            modelBuilder.Entity<Order>()
+               .Property(o => o.PaymentMethod)
+               .HasConversion(new EnumToStringConverter<PaymentMethod>());
+
+            modelBuilder.Entity<Order>()
+               .Property(o => o.PaymentStatus)
+               .HasConversion(new EnumToStringConverter<PaymentStatus>());
+
             // Configure OrderDetail -> Order (many-to-one relationship)
             modelBuilder.Entity<OrderDetail>()
                 .HasOne(od => od.Order)
@@ -273,14 +287,16 @@ namespace Bonheur.DAOs
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Invoice>()
-               .Property(o => o.PaymentMethod)
-               .HasConversion(new EnumToStringConverter<PaymentMethod>());
+               .HasOne(od => od.User)
+               .WithMany()
+               .HasForeignKey(od => od.UserId)
+               .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Invoice>()
-               .Property(o => o.PaymentStatus)
-               .HasConversion(new EnumToStringConverter<PaymentStatus>());
-
-
+               .HasOne(od => od.Supplier)
+               .WithMany()
+               .HasForeignKey(od => od.SupplierId)
+               .OnDelete(DeleteBehavior.SetNull);
 
         }
 
