@@ -461,27 +461,27 @@ namespace Bonheur.Services
 
         }
 
-        public async Task<ApplicationResponse> SendChangeEmailAsync(string newEmail)
+        public async Task<ApplicationResponse> SendChangeEmailAsync(ChangeEmailDTO changeEmailDTO)
         {
             try
             {
                var currentUser = await GetCurrentUser();
 
-               if (newEmail == currentUser!.Email) throw new ApiException("New email cannot be the same as the current email", System.Net.HttpStatusCode.BadRequest);
+               if (changeEmailDTO.Email == currentUser!.Email) throw new ApiException("New email cannot be the same as the current email", System.Net.HttpStatusCode.BadRequest);
 
-               var existingEmail = await _userAccountRepository.GetUserByEmailAsync(newEmail);
+               var existingEmail = await _userAccountRepository.GetUserByEmailAsync(changeEmailDTO.Email);
 
                if (existingEmail != null) throw new ApiException("Email already exists", System.Net.HttpStatusCode.BadRequest);
 
-               string changeEmailToken = await _userAccountRepository.GenerateChangeEmailTokenAsync(currentUser!, newEmail);
+               string changeEmailToken = await _userAccountRepository.GenerateChangeEmailTokenAsync(currentUser!, changeEmailDTO.Email);
 
                var recipientName = currentUser!.FullName!;
-               var recipientEmail = newEmail;
+               var recipientEmail = changeEmailDTO.Email;
 
                var param = new Dictionary<string, string?>
                {
                     {"token", changeEmailToken },
-                    {"email", newEmail }
+                    {"email", changeEmailDTO.Email }
                };
 
                var changeEmailLink = Environment.GetEnvironmentVariable("EMAIL_CHANGE_EMAIL_URL") ?? throw new ApiException("Email change link not found", System.Net.HttpStatusCode.InternalServerError);

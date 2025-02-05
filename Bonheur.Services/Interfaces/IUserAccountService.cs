@@ -27,7 +27,7 @@ namespace Bonheur.Services.Interfaces
         Task<ApplicationResponse> UpdatePasswordAsync(string currentPassword, string newPassword);
         Task<ApplicationResponse> DeleteUserAsync(string userId);
         Task<ApplicationResponse> UploadAvatar(IFormFile file);
-        Task<ApplicationResponse> SendChangeEmailAsync(string newEmail);
+        Task<ApplicationResponse> SendChangeEmailAsync(ChangeEmailDTO changeEmailDTO);
         Task<ApplicationResponse> ChangeEmailAsync(string newEmail, string token);
     }
 }
