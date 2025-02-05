@@ -11,6 +11,8 @@ using Bonheur.Services.DTOs.Review;
 using Bonheur.Services.DTOs.AdPackage;
 using Bonheur.Services.DTOs.Advertisement;
 using Bonheur.Services.DTOs.FavoriteSupplier;
+using Bonheur.Services.DTOs.Invoice;
+using Bonheur.Services.DTOs.Order;
 
 namespace Bonheur.Services.Mappers
 {
@@ -98,7 +100,18 @@ namespace Bonheur.Services.Mappers
 
             //FavoriteSupplier
             CreateMap<FavoriteSupplierDTO, FavoriteSupplier>();
-            CreateMap<FavoriteSupplier, FavoriteSupplierDTO>().ReverseMap(); 
+            CreateMap<FavoriteSupplier, FavoriteSupplierDTO>().ReverseMap();
+
+            //Invoice
+            CreateMap<Invoice, InvoiceDTO>().ReverseMap();
+            CreateMap<Invoice, InvoiceDetailDTO>().ReverseMap();
+
+            //Order
+            CreateMap<Order, OrderDTO>().ReverseMap();
+
+            //OrderDetail
+            CreateMap<OrderDetail, OrderDetailDTO>().ReverseMap();
+
 
         }
     }

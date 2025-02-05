@@ -5,6 +5,8 @@ using System.Linq;
 using X.PagedList;
 using X.PagedList.Extensions;
 using Bonheur.Utils;
+using System.Linq.Expressions;
+using DocumentFormat.OpenXml.Drawing.Charts;
 
 namespace Bonheur.DAOs
 {
@@ -64,14 +66,15 @@ namespace Bonheur.DAOs
                 decimal? minPrice,
                 decimal? maxPrice,
                 bool? sortAsc,
+                string? orderBy,
                 int pageNumber = 1,
                 int pageSize = 10
         )
         {
             var suppliers = _context.Suppliers
                 .Include(s => s.Category)
-                .Include(s => s.Images)
-                .Where(s => s.Status == SupplierStatus.APPROVED)
+                .Include(s => s.Images!.OrderByDescending(img => img.IsPrimary))
+                .Where(s => s.Status == SupplierStatus.Approved)
                 .Where(s => string.IsNullOrEmpty(supplierName) || s.Name!.ToLower().Contains(supplierName.ToLower()))
                 .Where(s => !supplierCategoryId.HasValue || s.CategoryId == supplierCategoryId)
                 .Where(s => string.IsNullOrEmpty(province) || s.Province!.ToLower().Contains(province.ToLower()))
@@ -80,19 +83,26 @@ namespace Bonheur.DAOs
                 .Where(s => !minPrice.HasValue || s.Price >= minPrice)
                 .Where(s => !maxPrice.HasValue || s.Price <= maxPrice)
                 .OrderByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow)
-                .ThenByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow ? s.Priority : 0)
-                .ThenByDescending(s => s.Priority)
-                .ThenBy(s => sortAsc.HasValue && sortAsc.Value ? s.Name : null)
-                .ThenByDescending(s => sortAsc.HasValue && !sortAsc.Value ? s.Name : null)
-                .AsEnumerable()
-                .Select(s =>
-                {
-                    s.Images = s.Images?.OrderByDescending(image => image.IsPrimary).ToList() ?? new List<SupplierImage>();
-                    return s;
-                })
+                .ThenByDescending(s => (s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow) ? s.Priority : 0)
+                .ThenBy(s => (s.ProrityEnd == null || s.ProrityEnd <= DateTimeOffset.UtcNow) ? s.Id : 0);
+
+            if (!string.IsNullOrEmpty(orderBy))
+            {
+                // Tạo biểu thức cho orderBy
+                var parameter = Expression.Parameter(typeof(Supplier), "s");
+                var property = Expression.Property(parameter, orderBy);
+                var lambda = Expression.Lambda<Func<Supplier, object>>(Expression.Convert(property, typeof(object)), parameter);
+
+                // Áp dụng sắp xếp
+                suppliers = sortAsc == true
+                    ? suppliers.OrderBy(lambda)
+                    : suppliers.OrderByDescending(lambda);
+            }
+
+            var result = suppliers
                 .ToPagedList(pageNumber, pageSize);
 
-            return Task.FromResult(suppliers);
+             return Task.FromResult(result);
         }
 
         public Task<IPagedList<Supplier>> GetSuppliersByAdminAsync(
@@ -105,13 +115,14 @@ namespace Bonheur.DAOs
                 decimal? maxPrice,
                 SupplierStatus? status,
                 bool? sortAsc,
+                string? orderBy,
                 int pageNumber = 1,
                 int pageSize = 10
         )
         {
             var suppliers = _context.Suppliers
                 .Include(s => s.Category)
-                .Include(s => s.Images)
+                .Include(s => s.Images != null ? s.Images.OrderByDescending(img => img.IsPrimary) : Enumerable.Empty<SupplierImage>())
                 .Where(s => !status.HasValue || s.Status == status)
                 .Where(s => string.IsNullOrEmpty(supplierName) || s.Name!.ToLower().Contains(supplierName.ToLower()))
                 .Where(s => !supplierCategoryId.HasValue || s.CategoryId == supplierCategoryId)
@@ -121,19 +132,26 @@ namespace Bonheur.DAOs
                 .Where(s => !minPrice.HasValue || s.Price >= minPrice)
                 .Where(s => !maxPrice.HasValue || s.Price <= maxPrice)
                 .OrderByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow)
-                .ThenByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow ? s.Priority : 0)
-                .ThenByDescending(s => s.Priority)
-                .ThenBy(s => sortAsc.HasValue && sortAsc.Value ? s.Name : null)
-                .ThenByDescending(s => sortAsc.HasValue && !sortAsc.Value ? s.Name : null)
-                .AsEnumerable()
-                .Select(s =>
-                {
-                    s.Images = s.Images?.OrderByDescending(image => image.IsPrimary).ToList() ?? new List<SupplierImage>();
-                    return s;
-                })
+                .ThenByDescending(s => (s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow) ? s.Priority : 0)
+                .ThenBy(s => (s.ProrityEnd == null || s.ProrityEnd <= DateTimeOffset.UtcNow) ? s.Id : 0);
+
+            if (!string.IsNullOrEmpty(orderBy))
+            {
+                // Tạo biểu thức cho orderBy
+                var parameter = Expression.Parameter(typeof(Supplier), "s");
+                var property = Expression.Property(parameter, orderBy);
+                var lambda = Expression.Lambda<Func<Supplier, object>>(Expression.Convert(property, typeof(object)), parameter);
+
+                // Áp dụng sắp xếp
+                suppliers = sortAsc == true
+                    ? suppliers.OrderBy(lambda)
+                    : suppliers.OrderByDescending(lambda);
+            }
+
+            var result = suppliers
                 .ToPagedList(pageNumber, pageSize);
 
-            return Task.FromResult(suppliers);
+            return Task.FromResult(result);
         }
 
         public async Task<List<Supplier>> GetAllSuppliersAsync()
@@ -179,7 +197,7 @@ namespace Bonheur.DAOs
            return await _context.Suppliers
                 .Include(s => s.Category)
                 .Include(s => s.Images)
-                .SingleOrDefaultAsync(s => s.Slug == slug && s.Status == SupplierStatus.APPROVED);
+                .SingleOrDefaultAsync(s => s.Slug == slug && s.Status == SupplierStatus.Approved);
         }
 
     }

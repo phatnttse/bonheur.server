@@ -8,12 +8,12 @@ namespace Bonheur.BusinessObjects.Enums
 {
     public enum AdType
     {
-        BANNER,
-        POPUP,
-        TEXT,
-        VIDEO,
-        AUDIO,
-        IMAGE,
-        SIDE_BAR
+        Banner,
+        Popup,
+        Text,
+        Video,
+        Audio,
+        Image,
+        Sidebar
     }
 }

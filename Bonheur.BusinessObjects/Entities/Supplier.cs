@@ -42,6 +42,14 @@ namespace Bonheur.BusinessObjects.Entities
         [StringLength(100)]
         public string? District { get; set; }
 
+        public string? Address 
+        { 
+            get
+            {
+                return $"{Street}, {Ward}, {District}, {Province}";
+            }
+        }
+
         [Url]
         [StringLength(255)]
         public string? WebsiteUrl { get; set; }
@@ -55,24 +63,24 @@ namespace Bonheur.BusinessObjects.Entities
         public DateTimeOffset? ProrityEnd { get; set; }
 
         [EnumDataType(typeof(SupplierStatus))]
-        public SupplierStatus? Status { get; set; } = SupplierStatus.PENDING;
+        public SupplierStatus? Status { get; set; } = SupplierStatus.Pending;
 
         [StringLength(50)]
         [EnumDataType(typeof(OnBoardStatus))]
-        public OnBoardStatus? OnBoardStatus { get; set; } = Enums.OnBoardStatus.SUPPLIER_INFO;
+        public OnBoardStatus? OnBoardStatus { get; set; } = Enums.OnBoardStatus.BusinessInfo;
         public int OnBoardPercent
         {
             get
             {
                 switch (OnBoardStatus)
                 {
-                    case Enums.OnBoardStatus.SUPPLIER_INFO:
+                    case Enums.OnBoardStatus.BusinessInfo:
                         return 25;
-                    case Enums.OnBoardStatus.SUPPLIER_LOCATION:
+                    case Enums.OnBoardStatus.Location:
                         return 50;
-                    case Enums.OnBoardStatus.SUPPLIER_IMAGES:
+                    case Enums.OnBoardStatus.Photos:
                         return 75;
-                    case Enums.OnBoardStatus.COMPLETED:
+                    case Enums.OnBoardStatus.Completed:
                         return 100;
                     default:
                         return 0;
@@ -95,7 +103,7 @@ namespace Bonheur.BusinessObjects.Entities
         public virtual ICollection<SupplierImage>? Images { get; set; }
 
         // Nhà cung cấp yêu thích 
-        public virtual ICollection<FavoriteSupplier> FavoriteSuppliers { get; set; }
+        public virtual ICollection<FavoriteSupplier>? FavoriteSuppliers { get; set; }
 
     }
 }

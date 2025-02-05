@@ -21,7 +21,10 @@ namespace Bonheur.DAOs
         public DbSet<AdPackage> AdPackages { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<MessageAttachment> MessageAttachments { get; set; }  
-        public DbSet<FavoriteSupplier> FavoriteSuppliers { get; set; } 
+        public DbSet<FavoriteSupplier> FavoriteSuppliers { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<Invoice> Invoices { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -229,6 +232,71 @@ namespace Bonheur.DAOs
 
                 entity.ToTable("FavoriteSuppliers");
             });
+
+            // Configure Order -> User (many-to-one relationship)
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.User)
+                .WithMany()
+                .HasForeignKey(o => o.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Order>()
+               .HasOne(o => o.Supplier)
+               .WithMany()
+               .HasForeignKey(o => o.SupplierId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Order>()
+                .Property(o => o.Status)
+                .HasConversion(new EnumToStringConverter<OrderStatus>());
+
+            modelBuilder.Entity<Order>()
+               .Property(o => o.PaymentMethod)
+               .HasConversion(new EnumToStringConverter<PaymentMethod>());
+
+            modelBuilder.Entity<Order>()
+               .Property(o => o.PaymentStatus)
+               .HasConversion(new EnumToStringConverter<PaymentStatus>());
+
+            // Configure OrderDetail -> Order (many-to-one relationship)
+            modelBuilder.Entity<OrderDetail>()
+                .HasOne(od => od.Order)
+                .WithMany(o => o.OrderDetails)
+                .HasForeignKey(od => od.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure OrderDetail -> SubscriptionPackage (optional one-to-one or many-to-one relationship)
+            modelBuilder.Entity<OrderDetail>()
+                .HasOne(od => od.SubscriptionPackage)
+                .WithMany()
+                .HasForeignKey(od => od.SubscriptionPackageId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Configure OrderDetail -> AdPackage (optional one-to-one or many-to-one relationship)
+            modelBuilder.Entity<OrderDetail>()
+                .HasOne(od => od.AdPackage)
+                .WithMany()
+                .HasForeignKey(od => od.AdPackageId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Configure Invoice -> Order (many-to-one relationship)
+            modelBuilder.Entity<Invoice>()
+                .HasOne(i => i.Order)
+                .WithOne(o => o.Invoice)
+                .HasForeignKey<Invoice>(i => i.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Invoice>()
+               .HasOne(od => od.User)
+               .WithMany()
+               .HasForeignKey(od => od.UserId)
+               .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Invoice>()
+               .HasOne(od => od.Supplier)
+               .WithMany()
+               .HasForeignKey(od => od.SupplierId)
+               .OnDelete(DeleteBehavior.SetNull);
 
         }
 

@@ -202,6 +202,9 @@ namespace Bonheur.API.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("PictureFileName")
+                        .HasColumnType("text");
+
                     b.Property<string>("PictureUrl")
                         .HasColumnType("text");
 
@@ -257,6 +260,86 @@ namespace Bonheur.API.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("FavoriteSuppliers", (string)null);
+                });
+
+            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Invoice", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CompanyAddress")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CompanyName")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Discount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileUrl")
+                        .HasColumnType("text");
+
+                    b.Property<int>("InvoiceNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("SupplierId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("TaxNumber")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("TransactionId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UEN")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Website")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.HasIndex("SupplierId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Invoices");
                 });
 
             modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Message", b =>
@@ -337,6 +420,103 @@ namespace Bonheur.API.Migrations
                     b.HasIndex("MessageId");
 
                     b.ToTable("MessageAttachments");
+                });
+
+            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Order", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("InvoiceId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OrderCode")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("SupplierId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SupplierId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.OrderDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AdPackageId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("SubscriptionPackageId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdPackageId");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("SubscriptionPackageId");
+
+                    b.ToTable("OrderDetails");
                 });
 
             modelBuilder.Entity("Bonheur.BusinessObjects.Entities.RequestPricing", b =>
@@ -1009,6 +1189,31 @@ namespace Bonheur.API.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Invoice", b =>
+                {
+                    b.HasOne("Bonheur.BusinessObjects.Entities.Order", "Order")
+                        .WithOne("Invoice")
+                        .HasForeignKey("Bonheur.BusinessObjects.Entities.Invoice", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bonheur.BusinessObjects.Entities.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Bonheur.BusinessObjects.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Supplier");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Message", b =>
                 {
                     b.HasOne("Bonheur.BusinessObjects.Entities.ApplicationUser", "Receiver")
@@ -1035,6 +1240,48 @@ namespace Bonheur.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Message");
+                });
+
+            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Order", b =>
+                {
+                    b.HasOne("Bonheur.BusinessObjects.Entities.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Bonheur.BusinessObjects.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Supplier");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.OrderDetail", b =>
+                {
+                    b.HasOne("Bonheur.BusinessObjects.Entities.AdPackage", "AdPackage")
+                        .WithMany()
+                        .HasForeignKey("AdPackageId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Bonheur.BusinessObjects.Entities.Order", "Order")
+                        .WithMany("OrderDetails")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bonheur.BusinessObjects.Entities.SubscriptionPackage", "SubscriptionPackage")
+                        .WithMany()
+                        .HasForeignKey("SubscriptionPackageId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("AdPackage");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("SubscriptionPackage");
                 });
 
             modelBuilder.Entity("Bonheur.BusinessObjects.Entities.RequestPricing", b =>
@@ -1197,6 +1444,13 @@ namespace Bonheur.API.Migrations
             modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Message", b =>
                 {
                     b.Navigation("Attachments");
+                });
+
+            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Order", b =>
+                {
+                    b.Navigation("Invoice");
+
+                    b.Navigation("OrderDetails");
                 });
 
             modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Supplier", b =>

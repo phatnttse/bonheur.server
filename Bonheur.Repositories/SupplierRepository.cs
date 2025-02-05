@@ -37,9 +37,10 @@ namespace Bonheur.Repositories
                 decimal? minPrice,
                 decimal? maxPrice,
                 bool? sortAsc,
+                string? orderBy,
                 int pageNumber = 1,
                 int pageSize = 10
-            ) => await _supplierDAO.GetSuppliersAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, sortAsc, pageNumber, pageSize);
+            ) => await _supplierDAO.GetSuppliersAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, sortAsc, orderBy, pageNumber, pageSize);
 
         public async Task<Supplier?> UpdateSupplierAsync(Supplier supplier) => await _supplierDAO.UpdateSupplierAsync(supplier);
         public async Task<bool> IsSupplierAsync(string userId) => await _supplierDAO.IsSupplierAsync(userId);
@@ -55,8 +56,9 @@ namespace Bonheur.Repositories
                decimal? maxPrice,
                SupplierStatus? status,
                bool? sortAsc,
+               string? orderBy,
                int pageNumber = 1,
                int pageSize = 10
-           ) => await _supplierDAO.GetSuppliersByAdminAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, status, sortAsc, pageNumber, pageSize);
+           ) => await _supplierDAO.GetSuppliersByAdminAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, status, sortAsc, orderBy, pageNumber, pageSize);
     }
 }

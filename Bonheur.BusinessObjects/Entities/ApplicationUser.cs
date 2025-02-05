@@ -15,6 +15,7 @@ namespace Bonheur.BusinessObjects.Entities
         public string? FullName { get; set; }
         public string? PartnerName { get; set; }
         public string? PictureUrl { get; set; }
+        public string? PictureFileName { get; set; }
 
         [EnumDataType(typeof(Gender))]
         public Gender? Gender { get; set; }

@@ -9,8 +9,8 @@ namespace Bonheur.BusinessObjects.Enums
 {
     public enum RequestPricingStatus
     {
-        PENDING,
-        RESPONDED,
-        REJECTED
+        Pending,
+        Responsed,
+        Rejected
     }
 }

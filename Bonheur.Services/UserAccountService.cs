@@ -430,10 +430,16 @@ namespace Bonheur.Services
                 if (response.Error) throw new ApiException(response.Status!, System.Net.HttpStatusCode.BadRequest);
 
                 existingUser!.PictureUrl = response.Blob.Uri;
+                existingUser.PictureFileName = response.Blob.Name;
 
                 var result = await _userAccountRepository.UpdateUserAsync(existingUser!);
 
                 if (!result.Succeeded) throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
+
+                if (!string.IsNullOrEmpty(existingUser.PictureFileName))
+                {
+                    await _storageService.DeleteAsync(existingUser.PictureFileName);
+                }
 
                 return new ApplicationResponse
                 {

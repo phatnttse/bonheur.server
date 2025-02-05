@@ -30,6 +30,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication;
 using Bonheur.Services.Email;
 using Microsoft.Extensions.Azure;
+using Net.payOS;
 
 namespace Bonheur.API
 {
@@ -37,6 +38,7 @@ namespace Bonheur.API
     {
         public static async Task Main(string[] args)
         {
+           
             var builder = WebApplication.CreateBuilder(args);
 
             // Load environment variables from .env file
@@ -201,10 +203,10 @@ namespace Bonheur.API
             {
                 options.AddPolicy("AllowSpecificOrigin",
                     builder => builder
-                        .WithOrigins("http://localhost:4200")  // Chỉ cho phép origin này
-                        .AllowCredentials()                    // Cho phép gửi cookies hoặc thông tin xác thực khác
-                        .AllowAnyHeader()                      // Cho phép tất cả headers
-                        .AllowAnyMethod());                    // Cho phép tất cả phương thức HTTP
+                        .WithOrigins("http://localhost:4200")  
+                        .AllowCredentials()                  
+                        .AllowAnyHeader()                      
+                        .AllowAnyMethod());                  
             });
 
             // Add controllers
@@ -264,6 +266,20 @@ namespace Bonheur.API
             builder.Services.AddExceptionHandler<ExceptionHandler>();
             builder.Services.AddProblemDetails();
 
+            //PayOs
+            var payOsClientId = Environment.GetEnvironmentVariable("PAYOS_CLIENT_ID") ??
+                 throw new InvalidOperationException("Environement string 'PAYOS_CLIENT_ID' not found.");
+
+            var payOsApiKey = Environment.GetEnvironmentVariable("PAYOS_API_KEY") ??
+                throw new InvalidOperationException("Environement string 'PAYOS_API_KEY' not found.");
+
+            var payOsCheckSumKey = Environment.GetEnvironmentVariable("PAYOS_CHECKSUM_KEY") ??
+                throw new InvalidOperationException("Environement string 'PAYOS_CHECKSUM_KEY' not found.");
+
+            PayOS payOS = new PayOS(payOsClientId, payOsApiKey, payOsCheckSumKey);
+
+            builder.Services.AddSingleton(payOS);
+
             // DAOs
             builder.Services.AddScoped<UserAccountDAO>();
             builder.Services.AddScoped<UserRoleDAO>();
@@ -275,8 +291,11 @@ namespace Bonheur.API
             builder.Services.AddScoped<ReviewDAO>();
             builder.Services.AddScoped<AdPackageDAO>();
             builder.Services.AddScoped<AdvertisementDAO>();
-            builder.Services.AddScoped<FavoriteSupplierDAO>();  
-        
+            builder.Services.AddScoped<FavoriteSupplierDAO>();
+            builder.Services.AddScoped<OrderDAO>();
+            builder.Services.AddScoped<InvoiceDAO>();
+            builder.Services.AddScoped<OrderDetailDAO>();
+
             //Repositories
             builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
             builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
@@ -289,6 +308,9 @@ namespace Bonheur.API
             builder.Services.AddScoped<IAdPackageRepository, AdPackageRepository>();
             builder.Services.AddScoped<IAdvertisementRepository, AdvertisementRepository>();
             builder.Services.AddScoped<IFavoriteSupplierRepository, FavoriteSupplierRepository>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+            builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
 
             // Services
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();
@@ -305,6 +327,8 @@ namespace Bonheur.API
             builder.Services.AddScoped<IAdvertisementService, AdvertisementService>();
             //builder.Services.AddScoped<IChatHubService, ChatHubService>();
             builder.Services.AddScoped<IFavoriteSupplierService, FavoriteSupplierService>();
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
+            builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 
             // Auth Handlers
             builder.Services.AddSingleton<IAuthorizationHandler, ViewUserAuthorizationHandler>();
