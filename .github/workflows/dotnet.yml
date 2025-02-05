@@ -66,5 +66,11 @@ jobs:
               -e AZURE_BLOB_URL="${{ secrets.AZURE_BLOB_URL }}" \
               -e AZURE_BLOB_KEY="${{ secrets.AZURE_BLOB_KEY }}" \
               -e DB_CONNECTION_STRING="${{ secrets.DB_CONNECTION_STRING }}" \
+              -e DB_CONNECTION_STRING="${{ secrets.PAYOS_CLIENT_ID }}" \
+              -e DB_CONNECTION_STRING="${{ secrets.PAYOS_API_KEY }}" \
+              -e DB_CONNECTION_STRING="${{ secrets.PAYOS_CHECKSUM_KEY }}" \
+              -e DB_CONNECTION_STRING="${{ secrets.PAYOS_WEBHOOK_URL }}" \
+              -e DB_CONNECTION_STRING="${{ secrets.PAYOS_PAYMENT_SUCCESS_URL }}" \
+              -e DB_CONNECTION_STRING="${{ secrets.PAYOS_PAYMENT_CANCEL_URL }}" \
               ${{ secrets.DOCKER_USERNAME }}/bonheur-app:latest
           EOF
