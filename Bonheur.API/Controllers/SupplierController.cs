@@ -1,10 +1,13 @@
 ﻿using Bonheur.BusinessObjects.Enums;
 using Bonheur.BusinessObjects.Models;
+using Bonheur.Services.DTOs.SocialNetwork;
+using Bonheur.Services;
 using Bonheur.Services.DTOs.Supplier;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Bonheur.Services.DTOs.SupplierFAQ;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -17,11 +20,16 @@ namespace Bonheur.API.Controllers
     {
         private readonly ISupplierService _supplierService;
         private readonly IRequestPricingsService _requestPricingsService;
+        private readonly ISupplierSocialNetworkService _supplierSocialNetworkService;
+        private readonly ISupplierFAQService _supplierFAQService;
 
-        public SupplierController(ISupplierService supplierService, IRequestPricingsService requestPricingsService)
+
+        public SupplierController(ISupplierService supplierService, IRequestPricingsService requestPricingsService, ISupplierSocialNetworkService supplierSocialNetworkService, ISupplierFAQService supplierFAQService)
         {
             _supplierService = supplierService;
             _requestPricingsService = requestPricingsService;
+            _supplierSocialNetworkService = supplierSocialNetworkService;
+            _supplierFAQService = supplierFAQService;
         }
 
         /// <summary>
@@ -283,5 +291,96 @@ namespace Bonheur.API.Controllers
                 pageNumber,
                 pageSize));
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("social-networks")]
+        [Authorize(Roles = Constants.Roles.SUPPLIER)]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        public async Task<IActionResult> GetSocialNetworksBySupplier()
+        {
+            return Ok(await _supplierSocialNetworkService.GetSocialNetworksBySupplier());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="createSupplierSocialNetworkDTO"></param>
+        /// <returns></returns>
+        [HttpPost("social-networks")]
+        [Authorize(Roles = Constants.Roles.SUPPLIER)]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        public async Task<IActionResult> CreateSupplierSocialNetwork([FromBody] List<SupplierSocialNetworkDTO> createSupplierSocialNetworkDTO)
+        {
+            return Ok(await _supplierSocialNetworkService.CreateSupplierSocialNetwork(createSupplierSocialNetworkDTO));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="updateSupplierSocialNetworkDTO"></param>
+        /// <returns></returns>
+        [HttpPut("social-networks")]
+        [Authorize(Roles = Constants.Roles.SUPPLIER)]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        public async Task<IActionResult> UpdateSupplierSocialNetwork([FromBody] List<SupplierSocialNetworkDTO> updateSupplierSocialNetworkDTO)
+        {
+            return Ok(await _supplierSocialNetworkService.UpdateSupplierSocialNetworks(updateSupplierSocialNetworkDTO));
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("faqs")]
+        [Authorize(Roles = Constants.Roles.SUPPLIER)]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        public async Task<IActionResult> GetSupplierFAQsBySupplier()
+        {
+            return Ok(await _supplierFAQService.GetSupplierFAQsBySupplier());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="supplierFAQDTOs"></param>
+        /// <returns></returns>
+        [HttpPost("faqs")]
+        [Authorize(Roles = Constants.Roles.SUPPLIER)]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        public async Task<IActionResult> CreateSupplierFAQ([FromBody] List<SupplierFAQDTO> supplierFAQDTOs)
+        {
+            return Ok(await _supplierFAQService.CreateSupplierFAQs(supplierFAQDTOs));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="supplierFAQDTOs"></param>
+        /// <returns></returns>
+        [HttpPut("faqs")]
+        [Authorize(Roles = Constants.Roles.SUPPLIER)]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        public async Task<IActionResult> UpdateSupplierFAQ([FromBody] List<SupplierFAQDTO> supplierFAQDTOs)
+        {
+            return Ok(await _supplierFAQService.UpdateSupplierFAQs(supplierFAQDTOs));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("faqs/{id}")]
+        [Authorize(Roles = Constants.Roles.SUPPLIER)]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        [ProducesResponseType(404, Type = typeof(ApplicationResponse))]
+        public async Task<IActionResult> DeleteSupplierFAQ(int id)
+        {
+            return Ok(await _supplierFAQService.DeleteSupplierFAQs(id));
+        }
+
     }
 }

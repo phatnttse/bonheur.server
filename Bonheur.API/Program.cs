@@ -1,4 +1,4 @@
-﻿
+﻿        
 using Bonheur.API.Configurations;
 using Bonheur.BusinessObjects.Entities;
 using Bonheur.DAOs;
@@ -295,6 +295,9 @@ namespace Bonheur.API
             builder.Services.AddScoped<OrderDAO>();
             builder.Services.AddScoped<InvoiceDAO>();
             builder.Services.AddScoped<OrderDetailDAO>();
+            builder.Services.AddScoped<SupplierSocialNetworkDAO>();
+            builder.Services.AddScoped<SocialNetworkDAO>();
+            builder.Services.AddScoped<SupplierFAQDAO>();
 
             //Repositories
             builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
@@ -311,6 +314,9 @@ namespace Bonheur.API
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
             builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
+            builder.Services.AddScoped<ISupplierSocialNetworkRepository, SupplierSocialNetworkRepository>();
+            builder.Services.AddScoped<ISocialNetworkRepository, SocialNetworkRepository>();
+            builder.Services.AddScoped<ISupplierFAQRepository, SupplierFAQRepository>();
 
             // Services
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();
@@ -329,6 +335,9 @@ namespace Bonheur.API
             builder.Services.AddScoped<IFavoriteSupplierService, FavoriteSupplierService>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+            builder.Services.AddScoped<ISupplierSocialNetworkService, SupplierSocialNetworkService>();
+            builder.Services.AddScoped<ISocialNetworkService, SocialNetworkService>();
+            builder.Services.AddScoped<ISupplierFAQService, SupplierFAQService>();
 
             // Auth Handlers
             builder.Services.AddSingleton<IAuthorizationHandler, ViewUserAuthorizationHandler>();

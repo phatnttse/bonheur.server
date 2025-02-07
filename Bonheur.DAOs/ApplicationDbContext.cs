@@ -25,6 +25,10 @@ namespace Bonheur.DAOs
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<SocialNetwork> SocialNetworks { get; set; }
+        public DbSet<SupplierSocialNetwork> SupplierSocialNetworks { get; set; }
+        public DbSet<SupplierFAQ> SupplierFAQs { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -226,7 +230,7 @@ namespace Bonheur.DAOs
                       .OnDelete(DeleteBehavior.Cascade); 
 
                 entity.HasOne(fs => fs.Supplier)
-                      .WithMany(s => s.FavoriteSuppliers)
+                      .WithMany()
                       .HasForeignKey(fs => fs.SupplierId)
                       .OnDelete(DeleteBehavior.Cascade); 
 
@@ -297,6 +301,27 @@ namespace Bonheur.DAOs
                .WithMany()
                .HasForeignKey(od => od.SupplierId)
                .OnDelete(DeleteBehavior.SetNull);
+
+            // Thiết lập quan hệ giữa Supplier và SupplierFAQ (1 - N)
+            modelBuilder.Entity<SupplierFAQ>()
+                .HasOne(f => f.Supplier)
+                .WithMany(s => s.SupplierFAQs)
+                .HasForeignKey(f => f.SupplierId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Thiết lập quan hệ giữa Supplier và SupplierSocialNetwork (1 - N)
+            modelBuilder.Entity<SupplierSocialNetwork>()
+                .HasOne(ssn => ssn.Supplier)
+                .WithMany(s => s.SupplierSocialNetworks)
+                .HasForeignKey(ssn => ssn.SupplierId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Thiết lập quan hệ giữa SocialNetwork và SupplierSocialNetwork (1 - N)
+            modelBuilder.Entity<SupplierSocialNetwork>()
+                .HasOne(ssn => ssn.SocialNetwork)
+                .WithMany()
+                .HasForeignKey(ssn => ssn.SocialNetworkId)
+                .OnDelete(DeleteBehavior.Cascade);
 
         }
 
