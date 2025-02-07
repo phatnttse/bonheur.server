@@ -102,8 +102,11 @@ namespace Bonheur.BusinessObjects.Entities
         // Hình ảnh
         public virtual ICollection<SupplierImage>? Images { get; set; }
 
-        // Nhà cung cấp yêu thích 
-        public virtual ICollection<FavoriteSupplier>? FavoriteSuppliers { get; set; }
+        // Danh sách mạng xã hội của Supplier
+        public virtual ICollection<SupplierSocialNetwork>? SupplierSocialNetworks { get; set; }
+
+        // Danh sách FAQ của Supplier
+        public virtual ICollection<SupplierFAQ>? SupplierFAQs { get; set; }
 
     }
 }

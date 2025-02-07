@@ -13,6 +13,8 @@ using Bonheur.Services.DTOs.Advertisement;
 using Bonheur.Services.DTOs.FavoriteSupplier;
 using Bonheur.Services.DTOs.Invoice;
 using Bonheur.Services.DTOs.Order;
+using Bonheur.Services.DTOs.SocialNetwork;
+using Bonheur.Services.DTOs.SupplierFAQ;
 
 namespace Bonheur.Services.Mappers
 {
@@ -112,6 +114,11 @@ namespace Bonheur.Services.Mappers
             //OrderDetail
             CreateMap<OrderDetail, OrderDetailDTO>().ReverseMap();
 
+            //SupplierSocialNetwork
+            CreateMap<SupplierSocialNetwork, SupplierSocialNetworkDTO>().ReverseMap();
+
+            //SupplierFAQ
+            CreateMap<SupplierFAQ, SupplierFAQDTO>().ReverseMap();
 
         }
     }

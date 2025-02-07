@@ -429,16 +429,17 @@ namespace Bonheur.Services
 
                 if (response.Error) throw new ApiException(response.Status!, System.Net.HttpStatusCode.BadRequest);
 
+                string currentPictureFileName = existingUser?.PictureFileName ?? "";
                 existingUser!.PictureUrl = response.Blob.Uri;
                 existingUser.PictureFileName = response.Blob.Name;
 
                 var result = await _userAccountRepository.UpdateUserAsync(existingUser!);
 
                 if (!result.Succeeded) throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
-
-                if (!string.IsNullOrEmpty(existingUser.PictureFileName))
+                
+                if (!string.IsNullOrEmpty(currentPictureFileName))
                 {
-                    await _storageService.DeleteAsync(existingUser.PictureFileName);
+                    await _storageService.DeleteAsync(currentPictureFileName);
                 }
 
                 return new ApplicationResponse
@@ -446,7 +447,7 @@ namespace Bonheur.Services
                     Success = true,
                     Message = "Avatar uploaded successfully",
                     StatusCode = System.Net.HttpStatusCode.OK,
-                    Data = existingUser
+                    Data = _mapper.Map<UserAccountDTO>(existingUser)
                 };
 
             }
