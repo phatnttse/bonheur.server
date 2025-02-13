@@ -22,6 +22,12 @@ namespace Bonheur.Services.DTOs.SubscriptionPackage
         [Required]
         public bool IsFeatured { get; set; }
 
+        public string? BadgeText { get; set; }
+
+        public string? BadgeColor { get; set; }
+
+        public string? BadgeTextColor { get; set; }
+
         [Required]
         public int Priority { get; set; }
     }

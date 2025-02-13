@@ -131,6 +131,16 @@ namespace Bonheur.Services
 
                 if (supplier == null) throw new ApiException("Supplier not found", System.Net.HttpStatusCode.NotFound);
 
+                if (supplier.PriorityEnd != null && supplier.PriorityEnd < DateTimeOffset.UtcNow)
+                {
+                    supplier.SubscriptionPackage = null;
+                    supplier.SubscriptionPackageId = null;
+                    supplier.Priority = 0;
+                    supplier.PriorityEnd = null;
+                    supplier.IsFeatured = false;
+                    await _supplierRepository.UpdateSupplierAsync(supplier);
+                }
+
                 return new ApplicationResponse
                 {
                     Message = $"Supplier {supplier.Name} found",
