@@ -45,15 +45,10 @@ namespace Bonheur.DAOs
             var supplier = await _context.Suppliers
                 .Include(s => s.User)
                 .Include(s => s.Category)
-                .Include(s => s.Images)
+                .Include(s => s.Images!.OrderByDescending(img => img.IsPrimary))
                 .Include(s => s.SubscriptionPackage)
                 .SingleOrDefaultAsync(s => s.UserId == userId);
-
-            if (supplier != null && supplier.Images != null)
-            {
-                supplier.Images = supplier.Images.OrderByDescending(image => image.IsPrimary).ToList();
-            }
-
+        
             return supplier;
         }
 
@@ -74,6 +69,7 @@ namespace Bonheur.DAOs
             var suppliers = _context.Suppliers
                 .Include(s => s.Category)
                 .Include(s => s.Images!.OrderByDescending(img => img.IsPrimary))
+                .Include(s => s.SubscriptionPackage)
                 .Where(s => s.Status == SupplierStatus.Approved)
                 .Where(s => string.IsNullOrEmpty(supplierName) || s.Name!.ToLower().Contains(supplierName.ToLower()))
                 .Where(s => !supplierCategoryId.HasValue || s.CategoryId == supplierCategoryId)
@@ -82,9 +78,10 @@ namespace Bonheur.DAOs
                 .Where(s => !averageRating.HasValue || s.AverageRating >= averageRating)
                 .Where(s => !minPrice.HasValue || s.Price >= minPrice)
                 .Where(s => !maxPrice.HasValue || s.Price <= maxPrice)
-                .OrderByDescending(s => s.PriorityEnd.HasValue && s.PriorityEnd > DateTimeOffset.UtcNow)
-                .ThenByDescending(s => (s.PriorityEnd.HasValue && s.PriorityEnd > DateTimeOffset.UtcNow) ? s.Priority : 0)
-                .ThenBy(s => (s.PriorityEnd == null || s.PriorityEnd <= DateTimeOffset.UtcNow) ? s.Id : 0);
+                .OrderByDescending(s => s.PriorityEnd ?? DateTimeOffset.MinValue)
+                .ThenByDescending(s => s.Priority)
+                .ThenByDescending(s => s.AverageRating)
+                .ThenBy(s => s.Id);
 
             if (!string.IsNullOrEmpty(orderBy))
             {
@@ -131,9 +128,10 @@ namespace Bonheur.DAOs
                 .Where(s => !averageRating.HasValue || s.AverageRating >= averageRating)
                 .Where(s => !minPrice.HasValue || s.Price >= minPrice)
                 .Where(s => !maxPrice.HasValue || s.Price <= maxPrice)
-                .OrderByDescending(s => s.PriorityEnd.HasValue && s.PriorityEnd > DateTimeOffset.UtcNow)
-                .ThenByDescending(s => (s.PriorityEnd.HasValue && s.PriorityEnd > DateTimeOffset.UtcNow) ? s.Priority : 0)
-                .ThenBy(s => (s.PriorityEnd == null || s.PriorityEnd <= DateTimeOffset.UtcNow) ? s.Id : 0);
+                .OrderByDescending(s => s.PriorityEnd ?? DateTimeOffset.MinValue)
+                .ThenByDescending(s => s.Priority)
+                .ThenByDescending(s => s.AverageRating)
+                .ThenBy(s => s.Id);
 
             if (!string.IsNullOrEmpty(orderBy))
             {

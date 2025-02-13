@@ -2,6 +2,8 @@
 using Bonheur.BusinessObjects.Enums;
 using Bonheur.BusinessObjects.Models;
 using Bonheur.Repositories.Interfaces;
+using Bonheur.Services.DTOs.Payment;
+using Bonheur.Services.DTOs.Payment.PayOs;
 using Bonheur.Services.DTOs.Storage;
 using Bonheur.Services.Email;
 using Bonheur.Services.Interfaces;
@@ -59,32 +61,34 @@ namespace Bonheur.Services
             _emailSender = emailSender;
         }
 
-        public async void payOsTransferHandler(WebhookType body)
+        public async Task<PaymentResponse> payOsTransferHandler(WebhookType body)
         {
             try
             {
                 WebhookData data = _payOS.verifyPaymentWebhookData(body);
 
+                if (data.description == "VQRIO123") return new PaymentResponse(0, "Ok", null); // confirm webhook
+
                 if (data.code == "00")
                 {
-                    #region validate nullable values
-                    string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
-
-                    ApplicationUser? account = await _userAccountRepository.GetUserByIdAsync(currentUserId);
-
-                    if (account == null) throw new ApiException("User not found", System.Net.HttpStatusCode.NotFound);
-
-                    Supplier? supplier = await _supplierRepository.GetSupplierByUserIdAsync(currentUserId);
-
-                    if (supplier == null) throw new ApiException("You are not a supplier", System.Net.HttpStatusCode.NotFound);
+                    #region validate nullable values                  
 
                     Order? order = await _orderRepository.GetOrderByCodeAsync((int)data.orderCode);
 
                     if (order == null) throw new ApiException("Order not found", System.Net.HttpStatusCode.NotFound);
+
+                    ApplicationUser? account = await _userAccountRepository.GetUserByIdAsync(order.UserId!);
+
+                    if (account == null) throw new ApiException("User not found", System.Net.HttpStatusCode.NotFound);
+
+                    Supplier? supplier = await _supplierRepository.GetSupplierByIdAsync((int)order.SupplierId!, false);
+
+                    if (supplier == null) throw new ApiException("Supplier not found", System.Net.HttpStatusCode.NotFound);
+
                     #endregion
 
-                        #region Update order status                   
-                        if (order.Status == OrderStatus.Active) throw new ApiException("Order already active", System.Net.HttpStatusCode.BadRequest);
+                    #region Update order status                   
+                    if (order.Status == OrderStatus.Active) throw new ApiException("Order already active", System.Net.HttpStatusCode.BadRequest);
 
                         if (order.PaymentStatus == PaymentStatus.Success) throw new ApiException("Payment already successful", System.Net.HttpStatusCode.BadRequest);
 
@@ -166,34 +170,38 @@ namespace Bonheur.Services
                         #endregion
 
                         #region Send email to supplier
-                        string emailBody = EmailTemplates.GetThankForPurchase(supplier.Name!, subscriptionPackage.Name!, Constants.InvoiceInfo.WEBSITE, Constants.InvoiceInfo.WEBSITE);
+                        string emailBody = EmailTemplates.GetThankForPurchase(supplier.Name!, subscriptionPackage.Name!, Constants.InvoiceInfo.WEBSITE, Constants.Common.DOMAIN);
 
                         string recipientName = supplier.Name!;
                         string recipientEmail = account.Email!;
                         string subject = "Thank you for your purchase";
 
                         _ = Task.Run(async () => await _emailSender.SendEmailWithAttachmentAsync(recipientEmail, subject, emailBody, invoice.FileUrl!, invoice.FileName!));
-                        #endregion                   
+                        #endregion
+                    
+                    return new PaymentResponse(0, "Ok", null);
                 }
-                               
+
+                return new PaymentResponse(-1, "Fail", null);
+
             }
-            catch (ApiException)
+            catch (ApiException ex)
             {
-                throw;
+                return new PaymentResponse(-1, ex.Message, null);
             }
             catch (Exception ex)
             {
-                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+                return new PaymentResponse(-1, ex.Message, null);
             }
 
 
         }
 
-        public async Task<ApplicationResponse> subscriptionPackagePayment(int subscriptionPackageId)
+        public async Task<ApplicationResponse> subscriptionPackagePayment(SpPaymentRequestDTO spPaymentRequest)
         {
             try
             {
-                if (!int.IsPositive(subscriptionPackageId)) throw new ApiException("Invalid subscription package id", System.Net.HttpStatusCode.BadRequest);
+                if (!int.IsPositive(spPaymentRequest.spId)) throw new ApiException("Invalid subscription package id", System.Net.HttpStatusCode.BadRequest);
 
                 string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
 
@@ -201,7 +209,7 @@ namespace Bonheur.Services
 
                 if (supplier == null) throw new ApiException("You are not a supplier", System.Net.HttpStatusCode.NotFound);
 
-                var subscriptionPackage = await _subscriptionPackageRepository.GetSubscriptionPackageByIdAsync(subscriptionPackageId);
+                var subscriptionPackage = await _subscriptionPackageRepository.GetSubscriptionPackageByIdAsync(spPaymentRequest.spId);
 
                 if (subscriptionPackage == null) throw new ApiException("Subscription package not found", System.Net.HttpStatusCode.NotFound);
 
@@ -223,7 +231,7 @@ namespace Bonheur.Services
                     {
                         new OrderDetail
                         {
-                            SubscriptionPackageId = subscriptionPackageId,
+                            SubscriptionPackageId = spPaymentRequest.spId,
                             Name = subscriptionPackage.Name,
                             Quantity = 1,
                             Price = subscriptionPackage.Price,

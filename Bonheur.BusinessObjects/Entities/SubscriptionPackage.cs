@@ -27,6 +27,12 @@ namespace Bonheur.BusinessObjects.Entities
 
         public int Priority { get; set; } // Mức ưu tiên khi tìm kiếm (số càng cao, càng ưu tiên) (ex: 0, 1, 2, 3)
 
+        public string? BadgeText { get; set; } // Ví dụ: "Ưu tiên", "Hot", "Mới"
+
+        public string? BadgeColor { get; set; } // Màu của badge (ví dụ: "red", "green", "blue")
+
+        public string? BadgeTextColor { get; set; } // Màu chữ của badge (ví dụ: "white", "black")
+
         public bool IsDeleted { get; set; } = false; 
     }
 }
