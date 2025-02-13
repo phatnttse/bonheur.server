@@ -14,7 +14,7 @@ namespace Bonheur.Services.Interfaces
         Task<ApplicationResponse> GetSocialNetworks();
         Task<ApplicationResponse> GetSocialNetworkById(int id);
         Task<ApplicationResponse> CreateSocialNetwork(IFormFile file, string name);
-        Task<ApplicationResponse> UpdateSocialNetwork(IFormFile file, string name, int id);
+        Task<ApplicationResponse> UpdateSocialNetwork(IFormFile? file, string name, int id);
         Task<ApplicationResponse> DeleteSocialNetwork(int id);
     }
 }

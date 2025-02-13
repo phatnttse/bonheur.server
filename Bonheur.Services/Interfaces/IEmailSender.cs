@@ -23,5 +23,8 @@ namespace Bonheur.Services.Interfaces
             string subject,
             string body,
             bool isHtml = true);
+
+        Task<(bool success, string? errorMsg)> SendEmailWithAttachmentAsync(
+            string toEmail, string subject, string body, string attachmentUrl, string attachmentName);
     }
 }

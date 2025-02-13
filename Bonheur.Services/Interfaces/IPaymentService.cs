@@ -1,5 +1,7 @@
 ﻿using Bonheur.BusinessObjects.Models;
 using Bonheur.Services.DTOs.Payment.PayOs;
+using Microsoft.AspNetCore.Mvc;
+using Net.payOS.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +13,6 @@ namespace Bonheur.Services.Interfaces
     public interface IPaymentService
     {
         Task<ApplicationResponse> subscriptionPackagePayment(int subscriptionPackageId);
-        Task<ApplicationResponse> subscriptionPackagePaymentCallback(string status, int orderCode);
+        void payOsTransferHandler(WebhookType body);
     }
 }

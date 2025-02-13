@@ -82,9 +82,9 @@ namespace Bonheur.DAOs
                 .Where(s => !averageRating.HasValue || s.AverageRating >= averageRating)
                 .Where(s => !minPrice.HasValue || s.Price >= minPrice)
                 .Where(s => !maxPrice.HasValue || s.Price <= maxPrice)
-                .OrderByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow)
-                .ThenByDescending(s => (s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow) ? s.Priority : 0)
-                .ThenBy(s => (s.ProrityEnd == null || s.ProrityEnd <= DateTimeOffset.UtcNow) ? s.Id : 0);
+                .OrderByDescending(s => s.PriorityEnd.HasValue && s.PriorityEnd > DateTimeOffset.UtcNow)
+                .ThenByDescending(s => (s.PriorityEnd.HasValue && s.PriorityEnd > DateTimeOffset.UtcNow) ? s.Priority : 0)
+                .ThenBy(s => (s.PriorityEnd == null || s.PriorityEnd <= DateTimeOffset.UtcNow) ? s.Id : 0);
 
             if (!string.IsNullOrEmpty(orderBy))
             {
@@ -122,7 +122,7 @@ namespace Bonheur.DAOs
         {
             var suppliers = _context.Suppliers
                 .Include(s => s.Category)
-                .Include(s => s.Images != null ? s.Images.OrderByDescending(img => img.IsPrimary) : Enumerable.Empty<SupplierImage>())
+                .Include(s => s.Images!.OrderByDescending(img => img.IsPrimary))
                 .Where(s => !status.HasValue || s.Status == status)
                 .Where(s => string.IsNullOrEmpty(supplierName) || s.Name!.ToLower().Contains(supplierName.ToLower()))
                 .Where(s => !supplierCategoryId.HasValue || s.CategoryId == supplierCategoryId)
@@ -131,9 +131,9 @@ namespace Bonheur.DAOs
                 .Where(s => !averageRating.HasValue || s.AverageRating >= averageRating)
                 .Where(s => !minPrice.HasValue || s.Price >= minPrice)
                 .Where(s => !maxPrice.HasValue || s.Price <= maxPrice)
-                .OrderByDescending(s => s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow)
-                .ThenByDescending(s => (s.ProrityEnd.HasValue && s.ProrityEnd > DateTimeOffset.UtcNow) ? s.Priority : 0)
-                .ThenBy(s => (s.ProrityEnd == null || s.ProrityEnd <= DateTimeOffset.UtcNow) ? s.Id : 0);
+                .OrderByDescending(s => s.PriorityEnd.HasValue && s.PriorityEnd > DateTimeOffset.UtcNow)
+                .ThenByDescending(s => (s.PriorityEnd.HasValue && s.PriorityEnd > DateTimeOffset.UtcNow) ? s.Priority : 0)
+                .ThenBy(s => (s.PriorityEnd == null || s.PriorityEnd <= DateTimeOffset.UtcNow) ? s.Id : 0);
 
             if (!string.IsNullOrEmpty(orderBy))
             {
@@ -194,9 +194,13 @@ namespace Bonheur.DAOs
 
         public async Task<Supplier?> GetSupplierBySlugAsync(string slug)
         {
-           return await _context.Suppliers
+            return await _context.Suppliers
                 .Include(s => s.Category)
-                .Include(s => s.Images)
+                .Include(s => s.Images!.OrderByDescending(img => img.IsPrimary))
+                .Include(s => s.SubscriptionPackage)            
+                .Include(s => s.Faqs)
+                .Include(s => s.SocialNetworks)
+                    .ThenInclude(ssn => ssn.SocialNetwork)
                 .SingleOrDefaultAsync(s => s.Slug == slug && s.Status == SupplierStatus.Approved);
         }
 

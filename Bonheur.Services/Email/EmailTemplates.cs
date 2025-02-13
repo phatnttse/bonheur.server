@@ -50,6 +50,19 @@ namespace Bonheur.Services.Email
             return emailMessage;
         }
 
+        public static string GetThankForPurchase(string recipientName, string spName, string website, string host)
+        {
+            confirmEmailTemplate ??= ReadPhysicalFile("Templates/ThankForPurchase.template");
+
+            var emailMessage = confirmEmailTemplate
+                .Replace("{{recipientName}}", recipientName)
+                .Replace("{{spName}}", spName)
+                .Replace("{{website}}", website)
+                .Replace("{{host}}", host);
+
+            return emailMessage;
+        }
+
         private static string ReadPhysicalFile(string path)
         {
             if (_hostingEnvironment == null)

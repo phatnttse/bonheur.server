@@ -167,7 +167,7 @@ namespace Bonheur.DAOs
                 .HasIndex(s => s.UpdatedAt);  // Adding index on SupplierUpdatedAt for faster lookup
 
             modelBuilder.Entity<Supplier>()
-                .HasIndex(s => s.ProrityEnd);  // Adding index on SupplierProrityEnd for faster lookup
+                .HasIndex(s => s.PriorityEnd);  // Adding index on SupplierProrityEnd for faster lookup
 
             modelBuilder.Entity<Supplier>()
                 .HasIndex(s => s.Discount);  // Adding index on SupplierDiscount for faster lookup
@@ -305,14 +305,14 @@ namespace Bonheur.DAOs
             // Thiết lập quan hệ giữa Supplier và SupplierFAQ (1 - N)
             modelBuilder.Entity<SupplierFAQ>()
                 .HasOne(f => f.Supplier)
-                .WithMany(s => s.SupplierFAQs)
+                .WithMany(s => s.Faqs)
                 .HasForeignKey(f => f.SupplierId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Thiết lập quan hệ giữa Supplier và SupplierSocialNetwork (1 - N)
             modelBuilder.Entity<SupplierSocialNetwork>()
                 .HasOne(ssn => ssn.Supplier)
-                .WithMany(s => s.SupplierSocialNetworks)
+                .WithMany(s => s.SocialNetworks)
                 .HasForeignKey(ssn => ssn.SupplierId)
                 .OnDelete(DeleteBehavior.Cascade);
 
