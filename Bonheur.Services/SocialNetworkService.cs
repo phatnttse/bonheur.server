@@ -134,7 +134,7 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> UpdateSocialNetwork(IFormFile file, string name, int id)
+        public async Task<ApplicationResponse> UpdateSocialNetwork(IFormFile? file, string name, int id)
         {
             try
             {

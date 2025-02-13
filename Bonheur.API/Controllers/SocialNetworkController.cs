@@ -69,7 +69,7 @@ namespace Bonheur.API.Controllers
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.Roles.ADMIN)]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
-        public async Task<IActionResult> UpdateSocialNetwork([FromForm] IFormFile file, [FromForm] string name, int id)
+        public async Task<IActionResult> UpdateSocialNetwork([FromForm] IFormFile? file, [FromForm] string name, int id)
         {
             return Ok(await _socialNetworkService.UpdateSocialNetwork(file, name, id));
         }

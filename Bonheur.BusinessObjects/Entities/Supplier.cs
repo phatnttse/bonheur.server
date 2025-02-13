@@ -60,7 +60,7 @@ namespace Bonheur.BusinessObjects.Entities
 
         public bool IsFeatured { get; set; } = false; 
 
-        public DateTimeOffset? ProrityEnd { get; set; }
+        public DateTimeOffset? PriorityEnd { get; set; }
 
         [EnumDataType(typeof(SupplierStatus))]
         public SupplierStatus? Status { get; set; } = SupplierStatus.Pending;
@@ -103,10 +103,10 @@ namespace Bonheur.BusinessObjects.Entities
         public virtual ICollection<SupplierImage>? Images { get; set; }
 
         // Danh sách mạng xã hội của Supplier
-        public virtual ICollection<SupplierSocialNetwork>? SupplierSocialNetworks { get; set; }
+        public virtual ICollection<SupplierSocialNetwork>? SocialNetworks { get; set; }
 
         // Danh sách FAQ của Supplier
-        public virtual ICollection<SupplierFAQ>? SupplierFAQs { get; set; }
+        public virtual ICollection<SupplierFAQ>? Faqs { get; set; }
 
     }
 }

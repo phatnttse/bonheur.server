@@ -1,5 +1,8 @@
 ﻿using Bonheur.BusinessObjects.Enums;
+using Bonheur.Services.DTOs.SocialNetwork;
+using Bonheur.Services.DTOs.SubscriptionPackage;
 using Bonheur.Services.DTOs.SupplierCategory;
+using Bonheur.Services.DTOs.SupplierFAQ;
 
 namespace Bonheur.Services.DTOs.Supplier
 {
@@ -19,13 +22,17 @@ namespace Bonheur.Services.DTOs.Supplier
         public string? WebsiteUrl { get; set; }
         public string? ResponseTime { get; set; }
         public int Priority { get; set; }
+        public DateTimeOffset? PriorityEnd { get; set; }
         public SupplierStatus? Status { get; set; } 
         public OnBoardStatus? OnBoardStatus { get; set; }
         public int OnBoardPercent { get; set; }
         public bool IsFeatured { get; set; }
-        public DateTime? PriorityEnd { get; set; }
         public decimal AverageRating { get; set; }
         public decimal Discount { get; set; }
         public List<SupplierImageDTO>? Images { get; set; }
+        public List<SupplierSocialNetworkDTO>? SocialNetworks { get; set; }
+        public List<SupplierFAQDTO>? Faqs { get; set; }
+        public SubscriptionPackageDTO? SubscriptionPackage { get; set; }
+
     }
 }

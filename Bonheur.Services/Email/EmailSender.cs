@@ -87,5 +87,45 @@ namespace Bonheur.Services.Email
             }
         }
 
+        public async Task<(bool success, string? errorMsg)> SendEmailWithAttachmentAsync(
+            string toEmail, string subject, string body, string attachmentUrl, string attachmentName)
+        {
+            try
+            {
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress("Bonheur", _config.Username));
+                message.To.Add(new MailboxAddress("", toEmail));
+                message.Subject = subject;
+
+                var builder = new BodyBuilder
+                {
+                    HtmlBody = body
+                };
+
+                // Tải file PDF từ URL và đính kèm vào email
+                using (var client = new HttpClient())
+                {
+                    var fileBytes = await client.GetByteArrayAsync(attachmentUrl);
+                    builder.Attachments.Add(attachmentName, fileBytes, new ContentType("application", "pdf"));
+                }
+
+                message.Body = builder.ToMessageBody();
+
+                using (var smtp = new SmtpClient())
+                {
+                    await smtp.ConnectAsync(_config.Host, _config.Port, SecureSocketOptions.StartTls);
+                    await smtp.AuthenticateAsync(_config.Username, _config.Password);
+                    await smtp.SendAsync(message);
+                    await smtp.DisconnectAsync(true);
+                }
+
+                return (true, null);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
+        }
+
     }
 }

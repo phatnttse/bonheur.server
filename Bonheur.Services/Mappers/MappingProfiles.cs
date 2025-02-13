@@ -120,6 +120,9 @@ namespace Bonheur.Services.Mappers
             //SupplierFAQ
             CreateMap<SupplierFAQ, SupplierFAQDTO>().ReverseMap();
 
+            //SocialNetwork
+            CreateMap<SocialNetwork, SocialNetworkDTO>().ReverseMap();
+
         }
     }
 }
