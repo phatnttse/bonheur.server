@@ -3,6 +3,7 @@ using System;
 using Bonheur.DAOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Bonheur.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250213113717_Add_BadgeText_For_SP")]
+    partial class Add_BadgeText_For_SP
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -583,21 +586,8 @@ namespace Bonheur.API.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Flexibility")
+                    b.Property<int>("Rate")
                         .HasColumnType("integer");
-
-                    b.Property<int>("Professionalism")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("QualityOfService")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ResponseTime")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("SummaryExperience")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<int>("SupplierId")
                         .HasColumnType("integer");
@@ -608,9 +598,6 @@ namespace Bonheur.API.Migrations
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("ValueForMoney")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

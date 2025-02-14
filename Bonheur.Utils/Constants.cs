@@ -36,6 +36,7 @@ namespace Bonheur.Utils
         public static class Common
         {
             public const long MAX_PRICE = 10000000000;
+            public const string DOMAIN = "https://server.bonheur.io.vn";
         }
 
         public static class InvoiceInfo

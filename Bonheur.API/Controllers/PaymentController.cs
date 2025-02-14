@@ -1,9 +1,12 @@
 ﻿using Azure;
 using Bonheur.BusinessObjects.Models;
+using Bonheur.Services.DTOs.Payment;
 using Bonheur.Services.DTOs.Payment.PayOs;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Net.payOS;
 using Net.payOS.Types;
 
 namespace Bonheur.API.Controllers
@@ -15,41 +18,69 @@ namespace Bonheur.API.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
+        private readonly PayOS _payOS;
 
-        public PaymentController(IPaymentService paymentService)
+        public PaymentController(IPaymentService paymentService, PayOS payOS)
         {
             _paymentService = paymentService;
+            _payOS = payOS;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="subscriptionPackageId"></param>
+        /// <param name="spPaymentRequest"></param>
         /// <returns></returns>
-        [HttpGet("subscription-package")]
+        [HttpPost("subscription-package")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> SubscriptionPackagePayment([FromQuery]int spId)
+        public async Task<IActionResult> SubscriptionPackagePayment([FromBody] SpPaymentRequestDTO spPaymentRequest)
         {
-            return Ok(await _paymentService.subscriptionPackagePayment(spId));
+            return Ok(await _paymentService.CreateSubscriptionPackagePaymentLink(spPaymentRequest));
         }
     
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="body"></param>
+        /// <returns></returns>
         [HttpPost("payos_transfer_handler")]
-        public IActionResult ConfirmWebhook(WebhookType body)
+        public async Task<IActionResult> PayOsTransferHandler(WebhookType body)
+        {           
+            return Ok(await _paymentService.PayOsTransferHandler(body));              
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="body"></param>
+        /// <returns></returns>
+        [HttpPost("confirm-webhook")]
+        public async Task<IActionResult> ConfirmWebhook(ConfirmWebhook body)
         {
             try
             {
-                _paymentService.payOsTransferHandler(body);
+                await _payOS.confirmWebhook(body.webhook_url);
                 return Ok(new PaymentResponse(0, "Ok", null));
             }
-            catch (ApiException ex)
+            catch (Exception exception)
             {
-                return Ok(new PaymentResponse(-1, ex.Message, null));
+                Console.WriteLine(exception);
+                return Ok(new PaymentResponse(-1, "fail", null));
             }
-            catch (Exception ex)
-            {
-                return Ok(new PaymentResponse(-1, ex.Message, null));
-            }
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="orderCode"></param>
+        /// <returns></returns>
+        [HttpGet("request-info/{orderCode}")]
+        [Authorize(Roles = Constants.Roles.SUPPLIER + "," + Constants.Roles.ADMIN)]
+        public async Task<IActionResult> GetPaymentRequestInfo(int orderCode)
+        {
+            return Ok(await _paymentService.GetPaymentRequestInfo(orderCode));
         }
     }
 }
