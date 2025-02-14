@@ -4,6 +4,7 @@ using Bonheur.Services.DTOs.Payment;
 using Bonheur.Services.DTOs.Payment.PayOs;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Net.payOS;
 using Net.payOS.Types;
@@ -35,7 +36,7 @@ namespace Bonheur.API.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> SubscriptionPackagePayment([FromBody] SpPaymentRequestDTO spPaymentRequest)
         {
-            return Ok(await _paymentService.subscriptionPackagePayment(spPaymentRequest));
+            return Ok(await _paymentService.CreateSubscriptionPackagePaymentLink(spPaymentRequest));
         }
     
         /// <summary>
@@ -46,7 +47,7 @@ namespace Bonheur.API.Controllers
         [HttpPost("payos_transfer_handler")]
         public async Task<IActionResult> PayOsTransferHandler(WebhookType body)
         {           
-            return Ok(await _paymentService.payOsTransferHandler(body));              
+            return Ok(await _paymentService.PayOsTransferHandler(body));              
         }
 
         /// <summary>
@@ -68,6 +69,18 @@ namespace Bonheur.API.Controllers
                 return Ok(new PaymentResponse(-1, "fail", null));
             }
 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="orderCode"></param>
+        /// <returns></returns>
+        [HttpGet("request-info/{orderCode}")]
+        [Authorize(Roles = Constants.Roles.SUPPLIER + "," + Constants.Roles.ADMIN)]
+        public async Task<IActionResult> GetPaymentRequestInfo(int orderCode)
+        {
+            return Ok(await _paymentService.GetPaymentRequestInfo(orderCode));
         }
     }
 }

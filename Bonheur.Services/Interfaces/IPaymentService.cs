@@ -13,7 +13,8 @@ namespace Bonheur.Services.Interfaces
 {
     public interface IPaymentService
     {
-        Task<ApplicationResponse> subscriptionPackagePayment(SpPaymentRequestDTO spPaymentRequest);
-        Task<PaymentResponse> payOsTransferHandler(WebhookType body);
+        Task<ApplicationResponse> CreateSubscriptionPackagePaymentLink(SpPaymentRequestDTO spPaymentRequest);
+        Task<PaymentResponse> PayOsTransferHandler(WebhookType body);
+        Task<ApplicationResponse> GetPaymentRequestInfo(int orderCode);
     }
 }
