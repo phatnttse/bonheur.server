@@ -37,18 +37,6 @@ namespace Bonheur.DAOs
         {
             _context.Reviews.Add(newReview);
             await _context.SaveChangesAsync();
-
-            var supplierReviews = await _context.Reviews
-                .Where(rv => rv.SupplierId == newReview.SupplierId)
-                .ToListAsync();
-
-            var averageRating = supplierReviews.Average(rv => rv.Rate);
-            var supplier = _context.Suppliers.FirstOrDefault(s => s.Id == newReview.SupplierId);
-            if (supplier != null)
-            {
-                supplier.AverageRating = (decimal) averageRating;
-                await _context.SaveChangesAsync();
-            }
         }
 
         public async Task UpdateReview(Review review)
