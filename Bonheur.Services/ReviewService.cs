@@ -21,11 +21,13 @@ namespace Bonheur.Services
     public class ReviewService : IReviewService
     {
         private readonly IReviewRepository _reviewRepository;
+        private readonly ISupplierRepository _supplierRepository;
         private readonly IMapper _mapper;
-        public ReviewService(IReviewRepository reviewRepository, IMapper mapper)
+        public ReviewService(IReviewRepository reviewRepository, IMapper mapper, ISupplierRepository supplierRepository)
         {
             _reviewRepository = reviewRepository;
             _mapper = mapper;
+            _supplierRepository = supplierRepository;
         }
 
         public async Task<ApplicationResponse> AddNewReview(CreateUpdateReviewDTO reviewDTO)
@@ -33,9 +35,15 @@ namespace Bonheur.Services
             try
             {
                 var review = _mapper.Map<Review>(reviewDTO);
+                string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
+                var supplier = await _supplierRepository.GetSupplierByUserIdAsync(currentUserId);
                 if (reviewDTO == null)
                 {
                     throw new ApiException("Review does not exist!");
+                }
+                if(review.SupplierId == supplier?.Id)
+                {
+                    throw new ApiException("Fobidden: You are reviewing yourself");
                 }
                 await _reviewRepository.AddNewReview(review);
                 return new ApplicationResponse
@@ -52,7 +60,6 @@ namespace Bonheur.Services
             }
             catch (Exception ex)
             {
-
                 throw new ApiException(ex.Message, HttpStatusCode.InternalServerError);
             }
 
