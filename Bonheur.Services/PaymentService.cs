@@ -61,7 +61,7 @@ namespace Bonheur.Services
             _emailSender = emailSender;
         }
 
-        public async Task<PaymentResponse> payOsTransferHandler(WebhookType body)
+        public async Task<PaymentResponse> PayOsTransferHandler(WebhookType body)
         {
             try
             {
@@ -197,7 +197,7 @@ namespace Bonheur.Services
 
         }
 
-        public async Task<ApplicationResponse> subscriptionPackagePayment(SpPaymentRequestDTO spPaymentRequest)
+        public async Task<ApplicationResponse> CreateSubscriptionPackagePaymentLink(SpPaymentRequestDTO spPaymentRequest)
         {
             try
             {
@@ -273,6 +273,35 @@ namespace Bonheur.Services
                 throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
             }
         }
+
+
+        public async Task<ApplicationResponse> GetPaymentRequestInfo(int orderCode)
+        {
+            try
+            {
+                PaymentLinkInformation paymentLinkInformation = await _payOS.getPaymentLinkInformation(orderCode);
+
+                if (paymentLinkInformation == null) throw new ApiException("Payment information not found", System.Net.HttpStatusCode.NotFound);
+
+                return new ApplicationResponse
+                {
+                    Data = paymentLinkInformation,
+                    Message = "Payment information retrieved successfully",
+                    Success = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
 
     }
 }
