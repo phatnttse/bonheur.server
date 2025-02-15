@@ -10,7 +10,7 @@ namespace Bonheur.Repositories.Interfaces
 {
     public interface IReviewRepository
     {
-        Task<IPagedList<Review>> GetReviews(int supplierId, int pageNumber, int pageSize);
+        Task<object> GetReviews(int supplierId, int pageNumber, int pageSize);
 
         Task<Review> GetReview(int id);
 
