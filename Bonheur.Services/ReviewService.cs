@@ -15,6 +15,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using X.PagedList;
 
 namespace Bonheur.Services
 {
@@ -37,6 +38,7 @@ namespace Bonheur.Services
                 var review = _mapper.Map<Review>(reviewDTO);
                 string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
                 var supplier = await _supplierRepository.GetSupplierByUserIdAsync(currentUserId);
+                review.UserId = currentUserId;
                 if (reviewDTO == null)
                 {
                     throw new ApiException("Review does not exist!");
@@ -69,21 +71,36 @@ namespace Bonheur.Services
         {
             try
             {
-                var reviewPagedList = await _reviewRepository.GetReviews(supplierId, pageNumber, pageSize);
+                var reviewData = await _reviewRepository.GetReviews(supplierId, pageNumber, pageSize);
+
+                var reviewPagedList = reviewData.GetType().GetProperty("Reviews")?.GetValue(reviewData) as IPagedList<Review>;
+
                 var reviewsDTO = _mapper.Map<List<ReviewDTO>>(reviewPagedList);
 
-                var responseData = new PagedData<ReviewDTO>
+                var averageScores = new
                 {
-                    Items = reviewsDTO,
-                    PageNumber = reviewPagedList.PageNumber,
-                    PageSize = reviewPagedList.PageSize,
-                    TotalItemCount = reviewPagedList.TotalItemCount,
-                    PageCount = reviewPagedList.PageCount,
-                    IsFirstPage = reviewPagedList.IsFirstPage,
-                    IsLastPage = reviewPagedList.IsLastPage,
-                    HasNextPage = reviewPagedList.HasNextPage,
-                    HasPreviousPage = reviewPagedList.HasPreviousPage
+                    AverageValueOfMoney = reviewData.GetType().GetProperty("AvgValueOfMoney")?.GetValue(reviewData) ?? 0,
+                    AverageFlexibility = reviewData.GetType().GetProperty("AvgFlexibility")?.GetValue(reviewData) ?? 0,
+                    AverageProfessionalism = reviewData.GetType().GetProperty("AvgProfessionalism")?.GetValue(reviewData) ?? 0,
+                    AverageQualityOfService = reviewData.GetType().GetProperty("AvgQualityOfService")?.GetValue(reviewData) ?? 0,
+                    AverageResponseTime = reviewData.GetType().GetProperty("AvgResponseTime")?.GetValue(reviewData) ?? 0
+                };
 
+                var responseData = new
+                {
+                    Reviews = new PagedData<ReviewDTO>
+                    {
+                        Items = reviewsDTO,
+                        PageNumber = reviewPagedList?.PageNumber ?? 1,
+                        PageSize = reviewPagedList?.PageSize ?? 10,
+                        TotalItemCount = reviewPagedList?.TotalItemCount ?? 0,
+                        PageCount = reviewPagedList?.PageCount ?? 0,
+                        IsFirstPage = reviewPagedList?.IsFirstPage ?? false,
+                        IsLastPage = reviewPagedList?.IsLastPage ?? false,
+                        HasNextPage = reviewPagedList?.HasNextPage ?? false,
+                        HasPreviousPage = reviewPagedList?.HasPreviousPage ?? false
+                    },
+                    AverageScores = averageScores
                 };
 
                 return new ApplicationResponse
@@ -93,7 +110,6 @@ namespace Bonheur.Services
                     Data = responseData,
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
-
             }
             catch (ApiException)
             {
@@ -101,11 +117,10 @@ namespace Bonheur.Services
             }
             catch (Exception ex)
             {
-
                 throw new ApiException(ex.Message, HttpStatusCode.InternalServerError);
             }
-
         }
+
 
         public async Task<ApplicationResponse> GetReviewById(int id)
         {
