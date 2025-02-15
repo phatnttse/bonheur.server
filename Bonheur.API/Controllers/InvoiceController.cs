@@ -24,9 +24,9 @@ namespace Bonheur.API.Controllers
         /// <returns></returns>
         [HttpGet("supplier")]
         [Authorize(Roles = Constants.Roles.SUPPLIER)]
-        public async Task<IActionResult> GetInvoicesBySupplierIdAsync()
+        public async Task<IActionResult> GetInvoicesBySupplierIdAsync([FromQuery] bool? sortAsc, [FromQuery] string? orderBy, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            return Ok(await _invoiceService.GetInvoicesBySupplierAsync());
+            return Ok(await _invoiceService.GetInvoicesBySupplierAsync(sortAsc, orderBy, pageNumber, pageSize));
         }
 
         /// <summary>

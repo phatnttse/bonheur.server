@@ -10,6 +10,7 @@ using MigraDoc.DocumentObjectModel.Fields;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
 using PdfSharp.Pdf;
+using X.PagedList;
 
 namespace Bonheur.Services
 {
@@ -211,12 +212,27 @@ namespace Bonheur.Services
 
                 if (supplier == null) throw new ApiException("Supplier not found", System.Net.HttpStatusCode.NotFound);
 
-                IEnumerable<Invoice> invoices = await _invoiceRepository.GetInvoicesBySupplierIdAsync(supplier!.Id, sortAsc, orderBy, pageNumber, pageSize);
+                IPagedList<Invoice> invoices = await _invoiceRepository.GetInvoicesBySupplierIdAsync(supplier!.Id, sortAsc, orderBy, pageNumber, pageSize);
+
+                var invoicesDTO = _mapper.Map<List<InvoiceDTO>>(invoices);
+
+                var responseData = new PagedData<InvoiceDTO>
+                {
+                    Items = invoicesDTO,
+                    PageNumber = invoices.PageNumber,
+                    PageSize = invoices.PageSize,
+                    TotalItemCount = invoices.TotalItemCount,
+                    PageCount = invoices.PageCount,
+                    IsFirstPage = invoices.IsFirstPage,
+                    IsLastPage = invoices.IsLastPage,
+                    HasNextPage = invoices.HasNextPage,
+                    HasPreviousPage = invoices.HasPreviousPage
+                };
 
                 return new ApplicationResponse
                 {
                     Message = $"Invoices for supplier {supplier!.Name} found",
-                    Data = _mapper.Map<IEnumerable<InvoiceDTO>>(invoices),
+                    Data = responseData,
                     Success = true,
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
