@@ -181,7 +181,6 @@ namespace Bonheur.Services
                     HasPreviousPage = suppliersPagedList.HasPreviousPage
                 };
 
-
                 return new ApplicationResponse
                 {
                     Message = "Suppliers retrieved successfully",
