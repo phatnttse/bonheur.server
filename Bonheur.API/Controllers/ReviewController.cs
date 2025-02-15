@@ -42,7 +42,7 @@ namespace Bonheur.API.Controllers
         }
 
 
-        [HttpGet("{supplierId}")]
+        [HttpGet("supplier/{supplierId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetReviews([FromRoute] int supplierId, [FromQuery] int pageNumber, [FromQuery] int pageSize)
