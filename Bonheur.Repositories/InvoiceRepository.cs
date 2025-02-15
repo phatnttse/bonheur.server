@@ -21,7 +21,10 @@ namespace Bonheur.Repositories
         public async Task DeleteInvoiceAsync(Invoice invoice) => await _invoiceDAO.DeleteInvoiceAsync(invoice);
         public async Task<Invoice?> GetInvoiceByIdAsync(int id) => await _invoiceDAO.GetInvoiceByIdAsync(id);
         public async Task<IEnumerable<Invoice>> GetInvoicesByUserIdAsync(string userId) => await _invoiceDAO.GetInvoicesByUserIdAsync(userId);
-        public async Task<IEnumerable<Invoice>> GetInvoicesBySupplierIdAsync(int supplierId) => await _invoiceDAO.GetInvoicesBySupplierIdAsync(supplierId);
+        public async Task<IEnumerable<Invoice>> GetInvoicesBySupplierIdAsync(int supplierId, bool? sortAsc,
+                string? orderBy, int pageNumber = 1,
+                int pageSize = 10) => await _invoiceDAO.GetInvoicesBySupplierIdAsync(supplierId, sortAsc, orderBy, pageNumber, pageSize);
         public async Task UpdateInvoiceAsync(Invoice invoice) => await _invoiceDAO.UpdateInvoiceAsync(invoice);
+
     }
 }

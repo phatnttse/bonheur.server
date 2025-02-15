@@ -1,5 +1,8 @@
 ﻿using Bonheur.BusinessObjects.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+using X.PagedList;
+using X.PagedList.Extensions;
 
 
 namespace Bonheur.DAOs
@@ -23,9 +26,32 @@ namespace Bonheur.DAOs
             return await _context.Invoices.Where(i => i.UserId == userId).ToListAsync();
         }
 
-        public async Task<IEnumerable<Invoice>> GetInvoicesBySupplierIdAsync(int supplierId)
+        public Task<IPagedList<Invoice>> GetInvoicesBySupplierIdAsync(int supplierId, bool? sortAsc,
+                string? orderBy, int pageNumber = 1,
+                int pageSize = 10)
         {
-            return await _context.Invoices.Include(i => i.Order).ThenInclude(o => o!.OrderDetails).Include(i => i.Supplier).Include(i => i.User).Where(i => i.SupplierId == supplierId).ToListAsync();
+            var invoices = _context.Invoices
+                .Include(i => i.Order)
+                .ThenInclude(o => o!.OrderDetails)
+                .Include(i => i.Supplier)
+                .Include(i => i.User)
+                .Where(i => i.SupplierId == supplierId)
+                .OrderByDescending(o => o.CreatedAt);
+
+            if (!string.IsNullOrEmpty(orderBy))
+            {
+                // Tạo biểu thức cho orderBy
+                var parameter = Expression.Parameter(typeof(Invoice), "s");
+                var property = Expression.Property(parameter, orderBy);
+                var lambda = Expression.Lambda<Func<Invoice, object>>(Expression.Convert(property, typeof(object)), parameter);
+
+                // Áp dụng sắp xếp
+                invoices = sortAsc == true
+                    ? invoices.OrderBy(lambda)
+                    : invoices.OrderByDescending(lambda);
+            }
+
+            return Task.FromResult(invoices.ToPagedList(pageNumber, pageSize));
         }
 
         public async Task<Invoice?> GetInvoiceByIdAsync(int id)
