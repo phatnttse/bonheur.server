@@ -199,7 +199,9 @@ namespace Bonheur.Services
 
         }
 
-        public async Task<ApplicationResponse> GetInvoicesBySupplierAsync()
+        public async Task<ApplicationResponse> GetInvoicesBySupplierAsync(bool? sortAsc,
+                string? orderBy, int pageNumber = 1,
+                int pageSize = 10)
         {
             try
             {
@@ -209,7 +211,7 @@ namespace Bonheur.Services
 
                 if (supplier == null) throw new ApiException("Supplier not found", System.Net.HttpStatusCode.NotFound);
 
-                IEnumerable<Invoice> invoices = await _invoiceRepository.GetInvoicesBySupplierIdAsync(supplier!.Id);
+                IEnumerable<Invoice> invoices = await _invoiceRepository.GetInvoicesBySupplierIdAsync(supplier!.Id, sortAsc, orderBy, pageNumber, pageSize);
 
                 return new ApplicationResponse
                 {

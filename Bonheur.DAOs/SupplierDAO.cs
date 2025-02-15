@@ -198,7 +198,7 @@ namespace Bonheur.DAOs
                 .Include(s => s.SubscriptionPackage)            
                 .Include(s => s.Faqs)
                 .Include(s => s.SocialNetworks)
-                    .ThenInclude(ssn => ssn.SocialNetwork)
+                .ThenInclude(ssn => ssn.SocialNetwork)
                 .SingleOrDefaultAsync(s => s.Slug == slug && s.Status == SupplierStatus.Approved);
         }
 

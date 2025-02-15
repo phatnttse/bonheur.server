@@ -338,6 +338,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<ISupplierSocialNetworkService, SupplierSocialNetworkService>();
             builder.Services.AddScoped<ISocialNetworkService, SocialNetworkService>();
             builder.Services.AddScoped<ISupplierFAQService, SupplierFAQService>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
 
             // Auth Handlers
             builder.Services.AddSingleton<IAuthorizationHandler, ViewUserAuthorizationHandler>();
