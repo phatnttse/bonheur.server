@@ -13,7 +13,7 @@ namespace Bonheur.Repositories.Interfaces
         Task<Invoice> AddInvoiceAsync(Invoice invoice);
         Task<Invoice?> GetInvoiceByIdAsync(int id);
         Task<IEnumerable<Invoice>> GetInvoicesByUserIdAsync(string userId);
-        Task<IEnumerable<Invoice>> GetInvoicesBySupplierIdAsync(int supplierId, bool? sortAsc,
+        Task<IPagedList<Invoice>> GetInvoicesBySupplierIdAsync(int supplierId, bool? sortAsc,
                 string? orderBy, int pageNumber = 1,
                 int pageSize = 10);
         Task UpdateInvoiceAsync(Invoice invoice);

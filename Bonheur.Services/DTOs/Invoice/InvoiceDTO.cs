@@ -44,5 +44,9 @@ namespace Bonheur.Services.DTOs.Invoice
         public string? Website { get; set; }
 
         public string? UEN { get; set; }
+
+        public OrderDTO? Order { get; set; }
+
+        public SupplierDTO? Supplier { get; set; }
     }
 }
