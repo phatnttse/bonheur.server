@@ -1,6 +1,8 @@
 ﻿using Bonheur.BusinessObjects.Enums;
 using Bonheur.BusinessObjects.Models;
 using Bonheur.Services.Interfaces;
+using Bonheur.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bonheur.API.Controllers
@@ -17,10 +19,11 @@ namespace Bonheur.API.Controllers
             _orderService = orderService;
         }
 
-        [HttpGet("/code/{orderCode}")]
+        [HttpGet("code/{orderCode}")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = Constants.Roles.SUPPLIER + "," + Constants.Roles.ADMIN)]
         public async Task<IActionResult> GetOrderByCode(int orderCode)
         {
             return Ok(await _orderService.GetOrderByCode(orderCode));
@@ -29,6 +32,7 @@ namespace Bonheur.API.Controllers
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
+        [Authorize(Roles = Constants.Roles.ADMIN)]
         public async Task<IActionResult> GetOrders(
             [FromQuery] string? orderCode, 
             [FromQuery] OrderStatus? status, 
