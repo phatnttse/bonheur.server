@@ -31,6 +31,11 @@ using Microsoft.AspNetCore.Authentication;
 using Bonheur.Services.Email;
 using Microsoft.Extensions.Azure;
 using Net.payOS;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text.Json;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Bonheur.API
 {
@@ -179,6 +184,84 @@ namespace Bonheur.API
                 o.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
                 o.DefaultAuthenticateScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
                 o.DefaultChallengeScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+            })
+            //.AddJwtBearer(options =>
+            //{
+            //    // Configure the Authority to the expected value for
+            //    // the authentication provider. This ensures the token
+            //    // is appropriately validated.
+            //    options.Authority = "Authority URL"; // TODO: Update URL
+            //    options.RequireHttpsMetadata = false;
+
+            //    // We have to hook the OnMessageReceived event in order to
+            //    // allow the JWT authentication handler to read the access
+            //    // token from the query string when a WebSocket or 
+            //    // Server-Sent Events request comes in.
+
+            //    // Sending the access token in the query string is required when using WebSockets or ServerSentEvents
+            //    // due to a limitation in Browser APIs. We restrict it to only calls to the
+            //    // SignalR hub in this code.
+            //    // See https://docs.microsoft.com/aspnet/core/signalr/security#access-token-logging
+            //    // for more information about security considerations when using
+            //    // the query string to transmit the access token.
+            //    options.Events = new JwtBearerEvents
+            //    {
+            //        OnMessageReceived = context =>
+            //        {
+            //            var accessToken = context.Request.Query["access_token"];
+
+            //            // If the request is for our hub...
+            //            var path = context.HttpContext.Request.Path;
+            //            if (!string.IsNullOrEmpty(accessToken) &&
+            //                (path.StartsWithSegments("/hubs/chat")))
+            //            {
+            //                // Read the token out of the query string
+            //                context.Token = accessToken;
+            //            }
+            //            return Task.CompletedTask;
+            //        }
+            //    };
+            //});
+            .AddCookie()
+            .AddOpenIdConnect(options =>
+            {
+                options.Authority = "https://localhost:7175";
+                options.ClientId = OidcServerConfig.BonheurAppClientID;
+                options.SaveTokens = true;
+                options.ResponseType = "code";
+                options.Scope.Add("openid");
+                options.Scope.Add("profile");
+                options.Scope.Add("email");
+
+                // Lấy access_token từ query string khi cần
+                options.Events.OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Query["access_token"].ToString();
+                    if (!string.IsNullOrEmpty(accessToken))
+                    {
+                        // Thêm token vào header Authorization
+                        Console.WriteLine("Access Token: " + accessToken);
+                        context.HttpContext.Request.Headers["Authorization"] = "Bearer " + accessToken;
+                        context.Token = accessToken;
+                    }
+                    return Task.CompletedTask;
+                };
+
+                options.Events.OnTokenValidated = context =>
+                {
+                    var token = context.SecurityToken as JwtSecurityToken;
+                    var userId = token?.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+                    Console.WriteLine("Token validated: " + userId);
+
+                    if (userId != null)
+                    {
+                        var claimsIdentity = (ClaimsIdentity)context.Principal.Identity;
+                        claimsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, userId));
+                    }
+
+                    return Task.CompletedTask;
+                };
             });
 
             // Add Authorization
@@ -339,12 +422,16 @@ namespace Bonheur.API
             builder.Services.AddScoped<ISocialNetworkService, SocialNetworkService>();
             builder.Services.AddScoped<ISupplierFAQService, SupplierFAQService>();
             builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<IPlaceService, PlaceService>();
 
             // Auth Handlers
             builder.Services.AddSingleton<IAuthorizationHandler, ViewUserAuthorizationHandler>();
             builder.Services.AddSingleton<IAuthorizationHandler, ManageUserAuthorizationHandler>();
             builder.Services.AddSingleton<IAuthorizationHandler, ViewRoleAuthorizationHandler>();
             builder.Services.AddSingleton<IAuthorizationHandler, AssignRolesAuthorizationHandler>();
+
+            // HttpClient
+            builder.Services.AddHttpClient();
 
             //File Logger
             builder.Logging.AddFile(builder.Configuration.GetSection("Logging"));
@@ -354,6 +441,33 @@ namespace Bonheur.API
 
             //SignalR
             builder.Services.AddSignalR();
+
+
+            //Rate Limiter
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+                //global
+                options.AddPolicy("global", httpContext =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                        PermitLimit = 100,
+                        Window = TimeSpan.FromMinutes(10),
+                        QueueLimit = 10
+                        }));
+                // /connect/token
+                options.AddPolicy("5_5", httpContext =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 5,
+                            Window = TimeSpan.FromMinutes(5)
+                        }));
+            });
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -396,6 +510,8 @@ namespace Bonheur.API
                .AllowAnyOrigin()
                .AllowAnyHeader()
                .AllowAnyMethod());
+
+            app.UseRateLimiter();
 
             app.UseAuthentication();
             app.UseAuthorization();

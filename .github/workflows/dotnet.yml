@@ -72,5 +72,6 @@ jobs:
               -e PAYOS_WEBHOOK_URL="${{ secrets.PAYOS_WEBHOOK_URL }}" \
               -e PAYOS_PAYMENT_SUCCESS_URL="${{ secrets.PAYOS_PAYMENT_SUCCESS_URL }}" \
               -e PAYOS_PAYMENT_CANCEL_URL="${{ secrets.PAYOS_PAYMENT_CANCEL_URL }}" \
+              -e GOONG_API_KEY="${{ secrets.GOONG_API_KEY }}" \
               ${{ secrets.DOCKER_USERNAME }}/bonheur-app:latest
           EOF

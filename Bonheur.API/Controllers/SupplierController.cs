@@ -8,6 +8,7 @@ using Bonheur.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Bonheur.Services.DTOs.SupplierFAQ;
+using Microsoft.AspNetCore.RateLimiting;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -50,6 +51,7 @@ namespace Bonheur.API.Controllers
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
+        [EnableRateLimiting("global")]
         public async Task<IActionResult> GetSuppliers(
             [FromQuery] string? supplierName,
             [FromQuery] int? supplierCategoryId,

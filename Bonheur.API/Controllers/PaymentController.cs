@@ -6,6 +6,7 @@ using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Net.payOS;
 using Net.payOS.Types;
 
@@ -34,6 +35,7 @@ namespace Bonheur.API.Controllers
         [HttpPost("subscription-package")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(404)]
+        [EnableRateLimiting("5_5")]
         public async Task<IActionResult> SubscriptionPackagePayment([FromBody] SpPaymentRequestDTO spPaymentRequest)
         {
             return Ok(await _paymentService.CreateSubscriptionPackagePaymentLink(spPaymentRequest));
@@ -77,6 +79,7 @@ namespace Bonheur.API.Controllers
         /// <param name="orderCode"></param>
         /// <returns></returns>
         [HttpGet("request-info/{orderCode}")]
+        [EnableRateLimiting("global")]
         [Authorize(Roles = Constants.Roles.SUPPLIER + "," + Constants.Roles.ADMIN)]
         public async Task<IActionResult> GetPaymentRequestInfo(int orderCode)
         {

@@ -4,6 +4,7 @@ using Bonheur.Utils;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using static OpenIddict.Abstractions.OpenIddictConstants;
@@ -32,6 +33,7 @@ namespace Bonheur.API.Controllers
         [HttpPost("~/connect/token")]
         [Produces("application/json")]
         [ApiExplorerSettings(IgnoreApi = true)]
+        [EnableRateLimiting("5_5")]
         public async Task<IActionResult> Exchange()
         {
             var request = HttpContext.GetOpenIddictServerRequest()
@@ -97,6 +99,7 @@ namespace Bonheur.API.Controllers
         [Route("signup")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
+        [EnableRateLimiting("5_5")]
         public async Task<IActionResult> SignUpUserAccount([FromBody] CreateAccountDTO createAccountDTO)
         {
             return Ok(await _authService.SignUpUserAccount(createAccountDTO));
@@ -106,6 +109,7 @@ namespace Bonheur.API.Controllers
         [Route("confirm-email")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
+        [EnableRateLimiting("5_5")]
         public async Task<IActionResult> ConfirmEmail([FromBody] EmailRequestDTO request)
         {
             return Ok(await _authService.ConfirmEmail(request.Email, request.Token));
@@ -115,6 +119,7 @@ namespace Bonheur.API.Controllers
         [Route("reset-password")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
+        [EnableRateLimiting("5_5")]
         public async Task<IActionResult> ResetPassword([FromBody] EmailRequestDTO request)
         {
             return Ok(await _authService.ResetPasswordAsync(request.Email, request.Token, request.Password!));
@@ -124,6 +129,7 @@ namespace Bonheur.API.Controllers
         [Route("forgot-password")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
+        [EnableRateLimiting("5_5")]
         public async Task<IActionResult> ForgotPassword([FromBody] string email)
         {
             return Ok(await _authService.ForgotPasswordAsync(email));
