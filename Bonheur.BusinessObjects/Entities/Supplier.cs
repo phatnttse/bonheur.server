@@ -30,6 +30,9 @@ namespace Bonheur.BusinessObjects.Entities
 
         public decimal? Price { get; set; }
 
+        [StringLength(255)]
+        public string? Address { get; set; }
+
         [StringLength(100)]
         public string? Street { get; set; }
 
@@ -41,15 +44,7 @@ namespace Bonheur.BusinessObjects.Entities
 
         [StringLength(100)]
         public string? District { get; set; }
-
-        public string? Address 
-        { 
-            get
-            {
-                return $"{Street}, {Ward}, {District}, {Province}";
-            }
-        }
-
+        
         [Url]
         [StringLength(255)]
         public string? WebsiteUrl { get; set; }
