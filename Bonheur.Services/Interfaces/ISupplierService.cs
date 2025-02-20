@@ -18,7 +18,7 @@ namespace Bonheur.Services.Interfaces
         Task<ApplicationResponse> GetSupplierByUserIdAsync(string userId);
         Task<ApplicationResponse> GetSuppliersAsync(
                 string? supplierName,
-                int? supplierCategoryId,
+                List<int>? supplierCategoryIds,
                 string? province,
                 bool? isFeatured,
                 decimal? averageRating,

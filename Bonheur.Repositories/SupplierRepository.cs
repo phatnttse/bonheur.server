@@ -30,7 +30,7 @@ namespace Bonheur.Repositories
 
         public async Task<IPagedList<Supplier>> GetSuppliersAsync(
                 string? supplierName,
-                int? supplierCategoryId,
+                List<int>? supplierCategoryIds,
                 string? province,
                 bool? isFeatured,
                 decimal? averageRating,
@@ -40,7 +40,7 @@ namespace Bonheur.Repositories
                 string? orderBy,
                 int pageNumber = 1,
                 int pageSize = 10
-            ) => await _supplierDAO.GetSuppliersAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, sortAsc, orderBy, pageNumber, pageSize);
+            ) => await _supplierDAO.GetSuppliersAsync(supplierName, supplierCategoryIds, province, isFeatured, averageRating, minPrice, maxPrice, sortAsc, orderBy, pageNumber, pageSize);
 
         public async Task<Supplier?> UpdateSupplierAsync(Supplier supplier) => await _supplierDAO.UpdateSupplierAsync(supplier);
         public async Task<bool> IsSupplierAsync(string userId) => await _supplierDAO.IsSupplierAsync(userId);
