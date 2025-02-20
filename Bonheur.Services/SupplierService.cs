@@ -160,11 +160,11 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> GetSuppliersAsync(string? supplierName, int? supplierCategoryId, string? province, bool? isFeatured, decimal? averageRating, decimal? minPrice, decimal? maxPrice, bool? sortAsc, string? orderBy, int pageNumber = 1, int pageSize = 10)
+        public async Task<ApplicationResponse> GetSuppliersAsync(string? supplierName, List<int>? supplierCategoryIds, string? province, bool? isFeatured, decimal? averageRating, decimal? minPrice, decimal? maxPrice, bool? sortAsc, string? orderBy, int pageNumber = 1, int pageSize = 10)
         {
             try
             {
-                var suppliersPagedList = await _supplierRepository.GetSuppliersAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, sortAsc, orderBy, pageNumber, pageSize);
+                var suppliersPagedList = await _supplierRepository.GetSuppliersAsync(supplierName, supplierCategoryIds, province, isFeatured, averageRating, minPrice, maxPrice, sortAsc, orderBy, pageNumber, pageSize);
 
                 var suppliersDTO = _mapper.Map<List<SupplierDTO>>(suppliersPagedList);
               

@@ -54,7 +54,7 @@ namespace Bonheur.API.Controllers
         [EnableRateLimiting("global")]
         public async Task<IActionResult> GetSuppliers(
             [FromQuery] string? supplierName,
-            [FromQuery] int? supplierCategoryId,
+            [FromQuery] List<int>? supplierCategoryIds,
             [FromQuery] string? province,
             [FromQuery] bool? isFeatured,
             [FromQuery] decimal? averageRating,
@@ -66,7 +66,7 @@ namespace Bonheur.API.Controllers
             [FromQuery] int pageSize = 10)
         {         
             return Ok(await _supplierService.GetSuppliersAsync(supplierName,
-                supplierCategoryId,
+                supplierCategoryIds,
                 province,
                 isFeatured,
                 averageRating,

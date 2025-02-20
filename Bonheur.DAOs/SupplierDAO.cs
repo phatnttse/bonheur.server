@@ -54,7 +54,7 @@ namespace Bonheur.DAOs
 
         public Task<IPagedList<Supplier>> GetSuppliersAsync(
                 string? supplierName,
-                int? supplierCategoryId,
+                List<int>? supplierCategoryIds,
                 string? province,
                 bool? isFeatured,
                 decimal? averageRating,
@@ -72,7 +72,7 @@ namespace Bonheur.DAOs
                 .Include(s => s.SubscriptionPackage)
                 .Where(s => s.Status == SupplierStatus.Approved)
                 .Where(s => string.IsNullOrEmpty(supplierName) || s.Name!.ToLower().Contains(supplierName.ToLower()))
-                .Where(s => !supplierCategoryId.HasValue || s.CategoryId == supplierCategoryId)
+                .Where(s => supplierCategoryIds == null || !supplierCategoryIds.Any() || supplierCategoryIds.Contains(s.CategoryId)) 
                 .Where(s => string.IsNullOrEmpty(province) || s.Province!.ToLower().Contains(province.ToLower()))
                 .Where(s => !isFeatured.HasValue || s.IsFeatured == isFeatured)
                 .Where(s => !averageRating.HasValue || s.AverageRating >= averageRating)
