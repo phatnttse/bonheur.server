@@ -7,8 +7,10 @@ using Bonheur.Repositories;
 using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.RequestPricing;
 using Bonheur.Services.DTOs.Review;
+using Bonheur.Services.Email;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,12 +25,18 @@ namespace Bonheur.Services
     {
         private readonly IReviewRepository _reviewRepository;
         private readonly ISupplierRepository _supplierRepository;
+        private readonly IUserAccountRepository _userAccountRepository;
+        private readonly IEmailSender _emailSender;
         private readonly IMapper _mapper;
-        public ReviewService(IReviewRepository reviewRepository, IMapper mapper, ISupplierRepository supplierRepository)
+        private readonly ILogger<AuthService> _logger;
+        public ReviewService(IReviewRepository reviewRepository, IMapper mapper, ISupplierRepository supplierRepository, IEmailSender emailSender, IUserAccountRepository userAccountRepository, ILogger<AuthService> logger)
         {
             _reviewRepository = reviewRepository;
             _mapper = mapper;
+            _emailSender = emailSender;
             _supplierRepository = supplierRepository;
+            _userAccountRepository = userAccountRepository;
+            _logger = logger;
         }
 
         public async Task<ApplicationResponse> AddNewReview(CreateUpdateReviewDTO reviewDTO)
@@ -43,7 +51,7 @@ namespace Bonheur.Services
                 {
                     throw new ApiException("Review does not exist!");
                 }
-                if(review.SupplierId == supplier?.Id)
+                if (review.SupplierId == supplier?.Id)
                 {
                     throw new ApiException("Fobidden: You are reviewing yourself");
                 }
@@ -159,7 +167,7 @@ namespace Bonheur.Services
                 {
                     throw new ApiException("Review does not exist!");
                 }
-                await _reviewRepository.DeleteReview(id); 
+                await _reviewRepository.DeleteReview(id);
                 return new ApplicationResponse
                 {
                     Message = $"Review with id:{id} delete successfully!",
@@ -173,7 +181,7 @@ namespace Bonheur.Services
 
                 throw;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new ApiException(ex.Message, HttpStatusCode.InternalServerError);
             }
@@ -212,5 +220,65 @@ namespace Bonheur.Services
             }
         }
 
+
+        public async Task<ApplicationResponse> SendEmailRequestReview(
+            SendEmailReviewDTO sendEmailReviewDTO)
+        {
+            try
+            {
+                string currentSupplierUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
+                var supplier = await _supplierRepository.GetSupplierByUserIdAsync(currentSupplierUserId);
+                var supplierUserInfomation = await _userAccountRepository.GetUserByIdAsync(currentSupplierUserId);
+
+                if (sendEmailReviewDTO == null || string.IsNullOrEmpty(sendEmailReviewDTO.CustomerID))
+                {
+                    throw new ApiException("Invalid email or customer!");
+                }
+                var customer = await _userAccountRepository.GetUserByIdAsync(sendEmailReviewDTO.CustomerID);
+                if (customer == null)
+                {
+                    throw new ApiException("Customer does not existed!");
+                }
+
+                var senderName = supplier?.Name;
+                var senderEmail = supplierUserInfomation?.Email;
+                var host = supplier?.WebsiteUrl;
+
+                var customerName = customer.FullName;
+                var customerEmail = customer.Email;
+
+                var param = new Dictionary<string, string?>
+                {
+                    {"host", host?.ToString()},
+                };
+
+                var message = EmailTemplates.GetRequestToReview(customerName, senderName, host);
+
+                _ = Task.Run(async () =>
+                {
+                    (var success, var errorMsg) = await _emailSender.SendEmailAsync(
+                        customerName, customerEmail,
+                        $"Review Request from {senderName}", message);
+
+                    if (!success) _logger.LogError($"Failed to send review request email to {customerEmail}: {errorMsg}");
+                });
+
+                return new ApplicationResponse
+                {
+                    Success = true,
+                    Message = "Review request email sent successfully",
+                    Data = message,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, HttpStatusCode.InternalServerError);
+            }
+        }
     }
 }
