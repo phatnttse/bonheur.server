@@ -323,6 +323,13 @@ namespace Bonheur.DAOs
                 .HasForeignKey(ssn => ssn.SocialNetworkId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Review>()
+            .HasOne(r => r.Supplier)
+            .WithMany(s => s.Reviews) // Supplier có nhiều Review
+            .HasForeignKey(r => r.SupplierId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+
         }
 
         public override int SaveChanges()
