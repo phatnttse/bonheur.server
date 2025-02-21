@@ -18,5 +18,6 @@ namespace Bonheur.Services.Interfaces
         Task<ApplicationResponse> UpdateReview(CreateUpdateReviewDTO reviewDTO, int id);
 
         Task<ApplicationResponse> DeleteReview(int id);
+        Task<ApplicationResponse> SendEmailRequestReview(SendEmailReviewDTO sendEmailReviewDTO);
     }
 }

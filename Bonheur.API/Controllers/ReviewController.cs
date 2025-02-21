@@ -32,6 +32,15 @@ namespace Bonheur.API.Controllers
 
         }
 
+        [HttpPost("request-review")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+
+        public async Task<IActionResult> RequestToReview([FromBody] SendEmailReviewDTO sendEmailReviewDTO)
+        {
+            return Ok(await _reviewService.SendEmailRequestReview(sendEmailReviewDTO));
+        }
+
         [HttpPut("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
