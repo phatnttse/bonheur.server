@@ -19,5 +19,11 @@ namespace Bonheur.Services.DTOs.Supplier
 
         [Required]
         public required string District { get; set; }
+
+        [Required]
+        public required string Longitude { get; set; }
+
+        [Required]
+        public required string Latitude { get; set; }
     }
 }

@@ -7,7 +7,7 @@ namespace Bonheur.API.Configurations
     public static class OidcServerConfig
     {
         public const string ServerName = "Bonheur API";
-        public const string QuickAppClientID = "bonheur_spa";
+        public const string BonheurAppClientID = "bonheur_spa";
         public const string SwaggerClientID = "swagger_ui";
 
         public static async Task RegisterClientApplicationsAsync(IServiceProvider provider)
@@ -15,11 +15,11 @@ namespace Bonheur.API.Configurations
             var manager = provider.GetRequiredService<IOpenIddictApplicationManager>();
 
             // Angular SPA Client
-            if (await manager.FindByClientIdAsync(QuickAppClientID) is null)
+            if (await manager.FindByClientIdAsync(BonheurAppClientID) is null)
             {
                 await manager.CreateAsync(new OpenIddictApplicationDescriptor
                 {
-                    ClientId = QuickAppClientID,
+                    ClientId = BonheurAppClientID,
                     ClientType = ClientTypes.Public,
                     DisplayName = "Bonheur SPA",
                     Permissions =

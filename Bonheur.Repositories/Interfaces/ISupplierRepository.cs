@@ -16,7 +16,7 @@ namespace Bonheur.Repositories.Interfaces
         Task<Supplier?> GetSupplierByUserIdAsync(string userId);
         Task<IPagedList<Supplier>> GetSuppliersAsync(
                 string? supplierName,
-                int? supplierCategoryId,
+                List<int>? supplierCategoryIds,
                 string? province,
                 bool? isFeatured,
                 decimal? averageRating,

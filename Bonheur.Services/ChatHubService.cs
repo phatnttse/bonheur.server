@@ -3,13 +3,11 @@ using Bonheur.DAOs;
 using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Account;
 using Bonheur.Services.DTOs.Message;
-using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Cms;
 
 
 namespace Bonheur.Services
@@ -20,13 +18,15 @@ namespace Bonheur.Services
         private readonly IUserAccountRepository _userAccountRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
+        private readonly ISupplierRepository _supplierRepository;
 
         public ChatHubService(IUserAccountRepository userAccountRepository,
-            UserManager<ApplicationUser> userManager, ApplicationDbContext dbContext)
+            UserManager<ApplicationUser> userManager, ApplicationDbContext dbContext, ISupplierRepository supplierRepository)
         {
             _userAccountRepository = userAccountRepository;
             _userManager = userManager;
             _context = dbContext;
+            _supplierRepository = supplierRepository;
         }
 
         public static readonly Dictionary<string, OnlineUserDTO> onlineUsers = new Dictionary<string, OnlineUserDTO>();
@@ -36,10 +36,10 @@ namespace Bonheur.Services
             try
             {
                 var httpContext = Context.GetHttpContext();
-                var senderId = httpContext?.Request.Query["senderId"].ToString();
+                //var userId = httpContext?.Request.Query["uid"].ToString();
                 var userId = Utilities.GetCurrentUserId();
-                var userName = Context!.User!.Identity!.Name;
-                var currentUser = await _userAccountRepository.GetUserByIdAsync(userId!);
+                //var userName = Context!.User!.Identity!.Name;
+                var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var connectionId = Context.ConnectionId;
                 if (onlineUsers.ContainsKey(userId!))
                 {
@@ -76,14 +76,15 @@ namespace Bonheur.Services
         {
             try
             {
-                int pageSize = 10;
-                var userId = Utilities.GetCurrentUserId() ?? throw new ApiException("User not found");
-                var currentUser = await _userAccountRepository.GetUserByIdAsync(userId!);
+                int pageSize = 20;
+                var httpContext = Context.GetHttpContext();
+                var userId = Utilities.GetCurrentUserId();
+                var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
                 List<Message> messages = await _context.Messages
                     .Where(m => (m.SenderId == userId && m.ReceiverId == recipientId) ||
                                 (m.SenderId == recipientId && m.ReceiverId == userId))
-                    .OrderByDescending(m => m.CreatedAt)
+                    .OrderBy(m => m.CreatedAt)
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();
@@ -98,8 +99,7 @@ namespace Bonheur.Services
                         await _context.SaveChangesAsync();
                     }
                 }
-
-                await Clients.All.SendAsync("OnlineUsers", this.GetAllUsers());
+                await Clients.Caller.SendAsync("ReceiveMessageList", messages);
 
             }
             catch (ApiException)
@@ -117,13 +117,41 @@ namespace Bonheur.Services
         {
             try
             {
-                var senderId = Utilities.GetCurrentUserId() ?? throw new ApiException("User not found");
+                var senderId = Utilities.GetCurrentUserId() ?? throw new Exception("Sender not found");
                 var receiverId = message.ReceiverId ?? throw new Exception("Receiver not found");
+
+                var senderSupplier = await _supplierRepository.GetSupplierByUserIdAsync(senderId);
+                var senderUser = (ApplicationUser?)null;
+
+                if (senderSupplier == null)
+                {
+                    senderUser = await _userAccountRepository.GetUserByIdAsync(senderId);
+
+                    if (senderUser == null)
+                    {
+                        throw new Exception("Sender not found");
+                    }
+                }
+
+                var receiverSupplier = await _supplierRepository.GetSupplierByUserIdAsync(receiverId);
+                var receiverUser = (ApplicationUser?)null;
+
+                if (receiverSupplier == null)
+                {
+                     receiverUser = await _userAccountRepository.GetUserByIdAsync(receiverId);
+
+                    if (receiverUser == null)
+                    {
+                        throw new Exception("Receiver not found");
+                    }
+                }
 
                 var newMessage = new Message
                 {
                     SenderId = senderId,
+                    SenderName = senderSupplier != null ? senderSupplier.Name : senderUser!.FullName,
                     ReceiverId = receiverId,
+                    ReceiverName = receiverSupplier != null ? receiverSupplier.Name : receiverUser!.FullName,
                     Content = message.Content,
                     IsRead = false
                 };
@@ -131,8 +159,12 @@ namespace Bonheur.Services
                 _context.Messages.Add(newMessage);
                 await _context.SaveChangesAsync();
 
-                await Clients.User(receiverId).SendAsync("ReceiveNewMessage", newMessage);
+                var connectionId = onlineUsers.Values.FirstOrDefault(u => u.Id == receiverId)?.ConnectionId;
 
+                if (connectionId != null)
+                {
+                    await Clients.Client(connectionId).SendAsync("ReceiveNewMessage", newMessage);
+                }
             }
             catch (ApiException)
             {
@@ -147,42 +179,63 @@ namespace Bonheur.Services
 
         public async Task NotifyTyping(string recipientId)
         {
-            var senderId = Utilities.GetCurrentUserId() ?? throw new Exception("User not found");
+            var senderId = Utilities.GetCurrentUserId() ?? throw new Exception("Sender not found");
+
+            var senderSupplier = await _supplierRepository.GetSupplierByUserIdAsync(senderId);
+            var senderUser = (ApplicationUser?)null;
+
+            if (senderSupplier == null)
+            {
+                senderUser = await _userAccountRepository.GetUserByIdAsync(senderId);
+
+                if (senderUser == null)
+                {
+                    throw new Exception("Sender not found");
+                }
+            }
 
             var connectionId = onlineUsers.Values.FirstOrDefault(u => u.Id == recipientId)?.ConnectionId;
 
             if (connectionId != null)
             {
-                await Clients.Client(connectionId).SendAsync("ReceiveTypingNotification", senderId);
+                await Clients.Client(connectionId).SendAsync("ReceiveTypingNotification", senderSupplier != null ? senderSupplier.Name : senderUser!.FullName);
             }
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var userId = Utilities.GetCurrentUserId() ?? throw new Exception("User not found");
+            var httpContext = Context.GetHttpContext();
+            var userId = Utilities.GetCurrentUserId();
             onlineUsers.Remove(userId!, out _);
             await Clients.All.SendAsync("OnlineUsers", this.GetAllUsers());
         }
 
         private async Task<IEnumerable<OnlineUserDTO>> GetAllUsers()
         {
-            var currentUserId = Utilities.GetCurrentUserId() ?? throw new Exception("User not found");
-
-            var onlineUsersSet = new HashSet<string>(onlineUsers.Keys);
-
-            var users = await _userManager.Users.Select(u => new OnlineUserDTO
+            try
             {
-                Id = u.Id,
-                UserName = u.UserName,
-                FullName = u.FullName,
-                PictureUrl = u.PictureUrl,
-                IsOnline = onlineUsersSet.Contains(u.Id),
-                UnreadMessages = _context.Messages
-                    .Where(m => m.ReceiverId == currentUserId && m.SenderId == u.Id && !m.IsRead)
-                    .Count()
-            }).OrderByDescending(u => u.IsOnline).ToListAsync();
+                var userId = Utilities.GetCurrentUserId();
 
-            return users;
+                var onlineUsersSet = new HashSet<string>(onlineUsers.Keys);
+
+                var users = _userManager.Users.Select(u => new OnlineUserDTO
+                {
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    FullName = u.FullName,
+                    PictureUrl = u.PictureUrl,
+                    IsOnline = onlineUsersSet.Contains(u.Id),
+                    UnreadMessages = _context.Messages.Count(x => x.ReceiverId == userId && x.SenderId == u.Id && !x.IsRead)
+                }).OrderByDescending(u => u.IsOnline).ToList();
+
+                return await Task.FromResult(users);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error in GetAllUsers: {ex.Message}");
+                throw;
+            }
         }
+
     }
 }

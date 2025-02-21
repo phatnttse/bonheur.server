@@ -3,6 +3,7 @@ using System;
 using Bonheur.DAOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Bonheur.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250218035045_Add_Address_Supplier")]
+    partial class Add_Address_Supplier
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -737,12 +740,6 @@ namespace Bonheur.API.Migrations
                     b.Property<bool>("IsFeatured")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Latitude")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Longitude")
-                        .HasColumnType("text");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -783,9 +780,6 @@ namespace Bonheur.API.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<int?>("SubscriptionPackageId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TotalRating")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
@@ -1431,7 +1425,7 @@ namespace Bonheur.API.Migrations
             modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Review", b =>
                 {
                     b.HasOne("Bonheur.BusinessObjects.Entities.Supplier", "Supplier")
-                        .WithMany("Reviews")
+                        .WithMany()
                         .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1623,8 +1617,6 @@ namespace Bonheur.API.Migrations
                     b.Navigation("Faqs");
 
                     b.Navigation("Images");
-
-                    b.Navigation("Reviews");
 
                     b.Navigation("SocialNetworks");
                 });

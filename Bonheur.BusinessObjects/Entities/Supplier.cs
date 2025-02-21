@@ -30,6 +30,9 @@ namespace Bonheur.BusinessObjects.Entities
 
         public decimal? Price { get; set; }
 
+        [StringLength(255)]
+        public string? Address { get; set; }
+
         [StringLength(100)]
         public string? Street { get; set; }
 
@@ -42,13 +45,9 @@ namespace Bonheur.BusinessObjects.Entities
         [StringLength(100)]
         public string? District { get; set; }
 
-        public string? Address 
-        { 
-            get
-            {
-                return $"{Street}, {Ward}, {District}, {Province}";
-            }
-        }
+        public string? Longitude { get; set; }
+
+        public string? Latitude { get; set; }
 
         [Url]
         [StringLength(255)]
@@ -92,6 +91,8 @@ namespace Bonheur.BusinessObjects.Entities
 
         public decimal AverageRating { get; set; } = 0;
 
+        public int TotalRating { get; set; } = 0;
+
         // Gói dịch vụ
         public int? SubscriptionPackageId { get; set; }
         public virtual SubscriptionPackage? SubscriptionPackage { get; set; }
@@ -107,6 +108,8 @@ namespace Bonheur.BusinessObjects.Entities
 
         // Danh sách FAQ của Supplier
         public virtual ICollection<SupplierFAQ>? Faqs { get; set; }
+
+        public virtual ICollection<Review>? Reviews { get; set; }
 
     }
 }
