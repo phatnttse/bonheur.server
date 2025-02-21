@@ -91,6 +91,8 @@ namespace Bonheur.BusinessObjects.Entities
 
         public decimal AverageRating { get; set; } = 0;
 
+        public int TotalRating { get; set; } = 0;
+
         // Gói dịch vụ
         public int? SubscriptionPackageId { get; set; }
         public virtual SubscriptionPackage? SubscriptionPackage { get; set; }
@@ -106,6 +108,8 @@ namespace Bonheur.BusinessObjects.Entities
 
         // Danh sách FAQ của Supplier
         public virtual ICollection<SupplierFAQ>? Faqs { get; set; }
+
+        public virtual ICollection<Review>? Reviews { get; set; }
 
     }
 }

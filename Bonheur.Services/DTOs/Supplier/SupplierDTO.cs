@@ -1,4 +1,5 @@
 ﻿using Bonheur.BusinessObjects.Enums;
+using Bonheur.Services.DTOs.Review;
 using Bonheur.Services.DTOs.SocialNetwork;
 using Bonheur.Services.DTOs.SubscriptionPackage;
 using Bonheur.Services.DTOs.SupplierCategory;
@@ -35,6 +36,7 @@ namespace Bonheur.Services.DTOs.Supplier
         public List<SupplierSocialNetworkDTO>? SocialNetworks { get; set; }
         public List<SupplierFAQDTO>? Faqs { get; set; }
         public SubscriptionPackageDTO? SubscriptionPackage { get; set; }
+        public List<ReviewDTO>? Reviews { get; set; }
 
     }
 }
