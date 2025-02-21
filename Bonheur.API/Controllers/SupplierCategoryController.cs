@@ -39,19 +39,19 @@ namespace Bonheur.API.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [Authorize(Roles = Constants.Roles.ADMIN)]
-        public async Task<IActionResult> CreateNewSupplierCategory([FromBody] CreateSupplierCategoryDTO createSupplierCategoryDTO)
+        public async Task<IActionResult> CreateNewSupplierCategory([FromForm] IFormFile file, [FromForm] string name, [FromForm] string description)
         {
 
-            return Ok(await _supplierCategoryService.AddSupplierCategory(createSupplierCategoryDTO));
+            return Ok(await _supplierCategoryService.AddSupplierCategory(file, name, description));
         }
 
         [HttpPut("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [Authorize(Roles = Constants.Roles.ADMIN)]
-        public async Task<IActionResult> UpdateSupplierCategory([FromBody] SupplierCategoryDTO updateSupplierCategoryDTO, int id)
+        public async Task<IActionResult> UpdateSupplierCategory([FromForm] IFormFile? file, [FromForm] string name, [FromForm] string description, int id)
         {
-            return Ok(await _supplierCategoryService.UpdateSupplierCategory(updateSupplierCategoryDTO, id));
+            return Ok(await _supplierCategoryService.UpdateSupplierCategory(file, name, description, id));
         }
 
         [HttpDelete("{id}")]

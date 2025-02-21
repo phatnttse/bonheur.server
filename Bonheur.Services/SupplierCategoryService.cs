@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Models;
+using Bonheur.Repositories;
 using Bonheur.Repositories.Interfaces;
+using Bonheur.Services.DTOs.Storage;
 using Bonheur.Services.DTOs.SupplierCategory;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,17 +20,29 @@ namespace Bonheur.Services
     public class SupplierCategoryService : ISupplierCategoryService
     {
         private readonly ISupplierCategoryRepository _supplierCategoryRepository;
+        private readonly IStorageService _storageService;
         private readonly IMapper _mapper;
-        public SupplierCategoryService(ISupplierCategoryRepository supplierCategoryRepository, IMapper mapper)
+        public SupplierCategoryService(ISupplierCategoryRepository supplierCategoryRepository, IMapper mapper, IStorageService storageService)
         {
             _supplierCategoryRepository = supplierCategoryRepository;
             _mapper = mapper;
+            _storageService = storageService;
         }
 
-        public async Task<ApplicationResponse> AddSupplierCategory(CreateSupplierCategoryDTO supplierCategoryDTO)
+        public async Task<ApplicationResponse> AddSupplierCategory(IFormFile file, string name, string description)
         {
             try
             {
+                AzureBlobResponseDTO uploadResponse = await _storageService.UploadAsync(file);
+                if (uploadResponse.Error) throw new ApiException(uploadResponse?.Status!, System.Net.HttpStatusCode.BadRequest);
+
+                SupplierCategoryDTO supplierCategoryDTO = new SupplierCategoryDTO
+                {
+                    Name = name,
+                    Description = description,
+                    ImageFileName = uploadResponse.Blob.Name,
+                    ImageUrl = uploadResponse.Blob.Uri
+                };
                 var supplierCategory = _mapper.Map<SupplierCategory>(supplierCategoryDTO);
                 if (supplierCategory == null) { 
                     throw new ApiException("Supplier category is exist!", HttpStatusCode.BadRequest);
@@ -137,24 +152,38 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> UpdateSupplierCategory(SupplierCategoryDTO supplierCategoryDTO, int id)
+        public async Task<ApplicationResponse> UpdateSupplierCategory(IFormFile file, string name, string description, int id)
         {
             try
             {
-                if (supplierCategoryDTO == null)
-                {
-                    throw new ApiException("Invalid input data", HttpStatusCode.BadRequest);
-                }
 
-                var existingSupplierCategory = await _supplierCategoryRepository.GetSupplierCategoryByIdAsync(id);
+                SupplierCategory existingSupplierCategory = await _supplierCategoryRepository.GetSupplierCategoryByIdAsync(id) ?? throw new ApiException("Supplier category was not found!", System.Net.HttpStatusCode.NotFound);
 
                 if (existingSupplierCategory == null)
                 {
                     throw new ApiException("Supplier category not found!", HttpStatusCode.NotFound);
                 }
 
-                existingSupplierCategory.Name = supplierCategoryDTO.Name;
-                existingSupplierCategory.Description = supplierCategoryDTO.Description;
+
+                if (file != null)
+                {
+                    string currentFileName = existingSupplierCategory?.ImageFileName!;
+
+                    AzureBlobResponseDTO uploadResponse = await _storageService.UploadAsync(file);
+
+                    if (uploadResponse.Error) throw new ApiException(uploadResponse?.Status!, System.Net.HttpStatusCode.BadRequest);
+
+                    existingSupplierCategory!.ImageUrl = uploadResponse.Blob.Uri;
+                    existingSupplierCategory.ImageFileName = uploadResponse.Blob.Name;
+
+                    if (!string.IsNullOrEmpty(currentFileName))
+                    {
+                        await _storageService.DeleteAsync(currentFileName);
+                    }
+                }
+
+                existingSupplierCategory.Name = name;
+                existingSupplierCategory.Description = description;
 
                 await _supplierCategoryRepository.UpdateSupplierCategory(existingSupplierCategory);
 
