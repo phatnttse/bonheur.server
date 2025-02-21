@@ -19,6 +19,8 @@ namespace Bonheur.Services.DTOs.Supplier
         public string? Province { get; set; }
         public string? Ward { get; set; }
         public string? District { get; set; }
+        public string? Longitude { get; set; }
+        public string? Latitude { get; set; }
         public string? WebsiteUrl { get; set; }
         public string? ResponseTime { get; set; }
         public int Priority { get; set; }

@@ -44,7 +44,11 @@ namespace Bonheur.BusinessObjects.Entities
 
         [StringLength(100)]
         public string? District { get; set; }
-        
+
+        public string? Longitude { get; set; }
+
+        public string? Latitude { get; set; }
+
         [Url]
         [StringLength(255)]
         public string? WebsiteUrl { get; set; }
