@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Bonheur.Services.DTOs.SupplierFAQ;
 using Microsoft.AspNetCore.RateLimiting;
+using static Bonheur.Utils.Constants;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -99,7 +100,7 @@ namespace Bonheur.API.Controllers
         [HttpGet("users/{id}")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(404)]
-        [Authorize(Roles = Constants.Roles.SUPPLIER + "," + Constants.Roles.ADMIN)]
+        [Authorize(Roles = Constants.Roles.SUPPLIER + "," + Constants.Roles.ADMIN + "," + Constants.Roles.USER)]
         public async Task<IActionResult> GetSupplierByUserId(string id)
         {
             return Ok(await _supplierService.GetSupplierByUserIdAsync(id));

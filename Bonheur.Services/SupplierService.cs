@@ -127,7 +127,7 @@ namespace Bonheur.Services
             {
                 string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
 
-                var supplier = await _supplierRepository.GetSupplierByUserIdAsync(currentUserId);
+                var supplier = await _supplierRepository.GetSupplierByUserIdAsync(userId);
 
                 if (supplier == null) throw new ApiException("Supplier not found", System.Net.HttpStatusCode.NotFound);
 
