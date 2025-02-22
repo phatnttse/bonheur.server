@@ -210,25 +210,63 @@ namespace Bonheur.Services
             await Clients.All.SendAsync("OnlineUsers", this.GetAllUsers());
         }
 
+        //private async Task<IEnumerable<OnlineUserDTO>> GetAllUsers()
+        //{
+        //    try
+        //    {
+        //        var userId = Utilities.GetCurrentUserId();
+
+        //        var onlineUsersSet = new HashSet<string>(onlineUsers.Keys);
+
+        //        var users = _userManager.Users.Select(u => new OnlineUserDTO
+        //        {
+        //            Id = u.Id,
+        //            UserName = u.UserName,
+        //            FullName = u.FullName,
+        //            PictureUrl = u.PictureUrl,
+        //            IsOnline = onlineUsersSet.Contains(u.Id),
+        //            UnreadMessages = _context.Messages.Count(x => x.ReceiverId == userId && x.SenderId == u.Id && !x.IsRead)
+        //        }).OrderByDescending(u => u.IsOnline).ToList();
+
+        //        return await Task.FromResult(users);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.Error.WriteLine($"Error in GetAllUsers: {ex.Message}");
+        //        throw;
+        //    }
+        //}
+
         private async Task<IEnumerable<OnlineUserDTO>> GetAllUsers()
         {
             try
             {
                 var userId = Utilities.GetCurrentUserId();
 
+                // Lấy danh sách ID của các supplier mà userId đã từng gửi tin nhắn
+                var supplierIds = _context.Messages
+                    .Where(m => m.SenderId == userId)
+                    .Select(m => m.ReceiverId)
+                    .Distinct()
+                    .ToList();
+
                 var onlineUsersSet = new HashSet<string>(onlineUsers.Keys);
 
-                var users = _userManager.Users.Select(u => new OnlineUserDTO
-                {
-                    Id = u.Id,
-                    UserName = u.UserName,
-                    FullName = u.FullName,
-                    PictureUrl = u.PictureUrl,
-                    IsOnline = onlineUsersSet.Contains(u.Id),
-                    UnreadMessages = _context.Messages.Count(x => x.ReceiverId == userId && x.SenderId == u.Id && !x.IsRead)
-                }).OrderByDescending(u => u.IsOnline).ToList();
+                var suppliers = _userManager.Users
+                    .Where(u => supplierIds.Contains(u.Id)) // Chỉ lấy những supplier đã nhận tin nhắn từ userId
+                    .Select(u => new OnlineUserDTO
+                    {
+                        Id = u.Id,
+                        UserName = u.UserName,
+                        FullName = u.FullName,
+                        PictureUrl = u.PictureUrl,
+                        IsOnline = onlineUsersSet.Contains(u.Id),
+                        UnreadMessages = _context.Messages.Count(x => x.ReceiverId == userId && x.SenderId == u.Id && !x.IsRead)
+                    })
+                    .OrderByDescending(u => u.IsOnline)
+                    .ToList();
 
-                return await Task.FromResult(users);
+                return await Task.FromResult(suppliers);
             }
             catch (Exception ex)
             {
@@ -236,6 +274,7 @@ namespace Bonheur.Services
                 throw;
             }
         }
+
 
     }
 }
