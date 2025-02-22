@@ -63,6 +63,18 @@ namespace Bonheur.Services.Email
             return emailMessage;
         }
 
+        public static string GetRequestToReview(string recipientName, string senderName, string host)
+        {
+            confirmEmailTemplate ??= ReadPhysicalFile("Templates/RequestReview.template");
+
+            var emailMessage = confirmEmailTemplate
+                .Replace("{{recipientName}}", recipientName)
+                .Replace("{{senderName}}", senderName)
+                .Replace("{{host}}", host);
+
+            return emailMessage;
+        }
+
         private static string ReadPhysicalFile(string path)
         {
             if (_hostingEnvironment == null)

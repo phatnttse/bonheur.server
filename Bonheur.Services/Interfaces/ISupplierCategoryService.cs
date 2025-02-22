@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Bonheur.Services.Interfaces
 {
@@ -13,8 +14,8 @@ namespace Bonheur.Services.Interfaces
     {
         Task<ApplicationResponse> GetSupplierCategoryByIdAsync(int id);
         Task<ApplicationResponse> GetAllSupplierCategoryAsync();
-        Task<ApplicationResponse> AddSupplierCategory(CreateSupplierCategoryDTO supplierCategoryDTO);
-        Task<ApplicationResponse> UpdateSupplierCategory(SupplierCategoryDTO supplierCategoryDTO, int id);
+        Task<ApplicationResponse> AddSupplierCategory(IFormFile file, string name, string description);
+        Task<ApplicationResponse> UpdateSupplierCategory(IFormFile? file, string name, string description, int id);
         Task<ApplicationResponse> DeleteSupplierCategory(int id);
     }
 }
