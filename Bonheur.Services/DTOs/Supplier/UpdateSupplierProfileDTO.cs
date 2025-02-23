@@ -20,8 +20,9 @@ namespace Bonheur.Services.DTOs.Supplier
         [Required]
         public required string Description { get; set; }
 
-        [Required]
-        public required string ResponseTime { get; set; }
+        public TimeSpan ResponseTimeStart { get; set; }
+
+        public TimeSpan ResponseTimeEnd { get; set; }
 
         public decimal Discount { get; set; }
 
