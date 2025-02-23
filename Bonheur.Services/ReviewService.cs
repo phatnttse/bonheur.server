@@ -10,6 +10,7 @@ using Bonheur.Services.DTOs.Review;
 using Bonheur.Services.Email;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -270,6 +271,43 @@ namespace Bonheur.Services
                     Data = message,
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<ApplicationResponse> GetReviewsAverage(int supplierId)
+        {
+            try
+            {
+                var reviewData = await _reviewRepository.GetReviewsAverage(supplierId);
+                var averageScores = new
+                {
+                    AverageValueOfMoney = reviewData.GetType().GetProperty("AvgValueOfMoney")?.GetValue(reviewData) ?? 0,
+                    AverageFlexibility = reviewData.GetType().GetProperty("AvgFlexibility")?.GetValue(reviewData) ?? 0,
+                    AverageProfessionalism = reviewData.GetType().GetProperty("AvgProfessionalism")?.GetValue(reviewData) ?? 0,
+                    AverageQualityOfService = reviewData.GetType().GetProperty("AvgQualityOfService")?.GetValue(reviewData) ?? 0,
+                    AverageResponseTime = reviewData.GetType().GetProperty("AvgResponseTime")?.GetValue(reviewData) ?? 0
+                };
+                var responseData = new
+                {
+                    AverageScores = averageScores
+                };
+
+                return new ApplicationResponse
+                {
+                    Message = "Review query successfully!",
+                    Success = true,
+                    Data = responseData,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+
             }
             catch (ApiException)
             {
