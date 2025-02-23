@@ -9,5 +9,7 @@ namespace Bonheur.Services.DTOs.Review
     public class SendEmailReviewDTO
     {
         public string? CustomerID { get; set; }
+
+        public string? Content { get; set; }
     }
 }
