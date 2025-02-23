@@ -20,6 +20,8 @@ namespace Bonheur.BusinessObjects.Entities
         [EnumDataType(typeof(RequestPricingStatus))]
         public RequestPricingStatus? Status { get; set; }
 
+        public string? UserId { get; set; }
+        public virtual ApplicationUser? User { get; set; }
         public int SupplierId { get; set; }
 
         [ForeignKey("SupplierId")]

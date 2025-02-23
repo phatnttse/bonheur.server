@@ -11,6 +11,7 @@ namespace Bonheur.BusinessObjects.Enums
     {
         Pending,
         Responsed,
-        Rejected
+        Booked,
+        Discarded
     }
 }

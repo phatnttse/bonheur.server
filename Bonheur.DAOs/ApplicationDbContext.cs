@@ -105,6 +105,12 @@ namespace Bonheur.DAOs
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<RequestPricing>()
+               .HasOne(rp => rp.User)
+               .WithMany()
+               .HasForeignKey(rp => rp.UserId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RequestPricing>()
                 .Property(rp => rp.Status)
                 .HasConversion<string>();
 

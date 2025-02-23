@@ -19,6 +19,9 @@ namespace Bonheur.Repositories.Interfaces
         Task UpdateReview(Review review);
 
         Task DeleteReview(int id);
+
+        Task<object> GetReviewsAverage(int supplierId);
+
     }
 
 }

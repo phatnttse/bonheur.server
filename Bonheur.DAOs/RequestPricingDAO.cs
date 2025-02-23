@@ -28,7 +28,7 @@ namespace Bonheur.DAOs
         public Task<IPagedList<RequestPricing>> GetAllRequestPricing(int pageNumber = 1, int pageSize= 10)
         {
             IQueryable<RequestPricing> query = _context.RequestPricings
-                 .Where(rp => rp.Status != RequestPricingStatus.Rejected); 
+                 .Where(rp => rp.Status != RequestPricingStatus.Discarded); 
             var orderedQuery =  query.OrderByDescending(rp => rp.CreatedAt);
             var requestPricings =  orderedQuery.ToPagedList(pageNumber, pageSize);
             return Task.FromResult(requestPricings);
@@ -37,7 +37,7 @@ namespace Bonheur.DAOs
         public Task<IPagedList<RequestPricing>> GetAllRequestPricingBySupplierId(int supplierId, int pageNumber = 1, int pageSize = 10)
         {
             IQueryable<RequestPricing> query = _context.RequestPricings
-                 .Where(rp => rp.Status != RequestPricingStatus.Rejected && rp.SupplierId == supplierId);
+                 .Where(rp => rp.Status != RequestPricingStatus.Discarded && rp.SupplierId == supplierId);
             var orderedQuery = query.OrderByDescending(rp => rp.CreatedAt);
             var requestPricings = orderedQuery.ToPagedList(pageNumber, pageSize);
             return Task.FromResult(requestPricings);
