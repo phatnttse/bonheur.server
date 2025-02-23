@@ -53,7 +53,8 @@ namespace Bonheur.BusinessObjects.Entities
         [StringLength(255)]
         public string? WebsiteUrl { get; set; }
 
-        public string? ResponseTime { get; set; }
+        public TimeSpan? ResponseTimeStart { get; set; }
+        public TimeSpan? ResponseTimeEnd { get; set; }
 
         public int Priority { get; set; } = 0; 
 
@@ -92,6 +93,10 @@ namespace Bonheur.BusinessObjects.Entities
         public decimal AverageRating { get; set; } = 0;
 
         public int TotalRating { get; set; } = 0;
+
+        public int TotalReview { get; set; } = 0;
+
+        public int View { get; set; } = 0;
 
         // Gói dịch vụ
         public int? SubscriptionPackageId { get; set; }
