@@ -244,6 +244,7 @@ namespace Bonheur.Services
                 var senderName = supplier?.Name;
                 var senderEmail = supplierUserInfomation?.Email;
                 var host = supplier?.WebsiteUrl;
+                var content = sendEmailReviewDTO?.Content;
 
                 var customerName = customer.FullName;
                 var customerEmail = customer.Email;
@@ -253,7 +254,7 @@ namespace Bonheur.Services
                     {"host", host?.ToString()},
                 };
 
-                var message = EmailTemplates.GetRequestToReview(customerName, senderName, host);
+                var message = EmailTemplates.GetRequestToReview(customerName, senderName, host, content);
 
                 _ = Task.Run(async () =>
                 {
