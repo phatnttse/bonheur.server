@@ -26,6 +26,8 @@ namespace Bonheur.Repositories
 
         public Task<object> GetReviews(int supplierId, int pageNumber, int pageSize) => _reviewDAO.GetReviewsBySupplierIdPaginated(supplierId, pageNumber, pageSize);
 
+        public Task<object> GetReviewsAverage(int supplierId) => _reviewDAO.GetReviewsAverage(supplierId);
+
         public Task UpdateReview(Review review) => _reviewDAO.UpdateReview(review); 
     }
 }
