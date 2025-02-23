@@ -49,8 +49,36 @@ namespace Bonheur.DAOs
             return result;
         }
 
+        public async Task<object> GetReviewsAverage(int supplierId)
+        { 
+            var averages = await _context.Reviews
+                .Where(rv => rv.SupplierId == supplierId)
+                .GroupBy(rv => rv.SupplierId)
+                .Select(g => new
+                {
+                    AvgValueOfMoney = g.Average(rv => (double?)rv.ValueForMoney) ?? 0,
+                    AvgFlexibility = g.Average(rv => (double?)rv.Flexibility) ?? 0,
+                    AvgProfessionalism = g.Average(rv => (double?)rv.Professionalism) ?? 0,
+                    AvgQualityOfService = g.Average(rv => (double?)rv.QualityOfService) ?? 0,
+                    AvgResponseTime = g.Average(rv => (double?)rv.ResponseTime) ?? 0,
+                }).FirstOrDefaultAsync();
+
+            var result = new
+            {
+                AvgValueOfMoney = averages?.AvgValueOfMoney ?? 0,
+                AvgFlexibility = averages?.AvgFlexibility ?? 0,
+                AvgProfessionalism = averages?.AvgProfessionalism ?? 0,
+                AvgQualityOfService = averages?.AvgQualityOfService ?? 0,
+                AvgResponseTime = averages?.AvgResponseTime ?? 0,
+            };
+            return result;
+        }
+
+
+
         public Task<Review> GetReview(int id)
         {
+
             return _context.Reviews.Include(rv => rv.User).FirstOrDefaultAsync(x => x.Id == id);
         }
 
