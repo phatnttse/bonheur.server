@@ -34,7 +34,7 @@
 
                             <p>Thanks,</p>
                             <p style="font-weight: bold; font-size: 18px;">Best,</p>
-                            <p style="color: #0073e6; font-size: 20px; font-weight: bold;">{senderName}</p>
+                            <p style="color: #0073e6; font-size: 20px; font-weight: bold;">{{senderName}}</p>
                         </td>
                     </tr>
 
