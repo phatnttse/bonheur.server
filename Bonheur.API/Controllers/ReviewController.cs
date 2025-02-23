@@ -67,6 +67,14 @@ namespace Bonheur.API.Controllers
             return Ok(await _reviewService.GetReviewById(id));
         }
 
+        [HttpGet("average-rating/{supplierId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> GetReviewsAverage([FromRoute] int supplierId)
+        {
+            return Ok(await _reviewService.GetReviewsAverage(supplierId));
+        }
+
         [HttpDelete("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
