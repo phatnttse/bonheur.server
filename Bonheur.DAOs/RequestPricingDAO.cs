@@ -42,6 +42,7 @@ namespace Bonheur.DAOs
             //return Task.FromResult(requestPricings);
 
             var requestPricings = _context.RequestPricings
+                 .Include(rp => rp.User)
                  .Where(rp => rp.SupplierId == supplierId)
                  .OrderByDescending(rp => rp.CreatedAt);
 
