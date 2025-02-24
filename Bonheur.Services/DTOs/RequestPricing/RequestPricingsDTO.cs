@@ -17,5 +17,7 @@ namespace Bonheur.Services.DTOs.RequestPricing
         public virtual SupplierDTO? Supplier { get; set; }
         public DateTime? ExpirationDate { get; set; }
         public string? RejectReason { get; set; }
+        public DateTimeOffset? CreatedAt { get; set; }
+        public DateTimeOffset? UpdatedAt { get; set; }
     }
 }
