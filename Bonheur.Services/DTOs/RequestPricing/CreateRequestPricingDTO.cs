@@ -11,17 +11,21 @@ namespace Bonheur.Services.DTOs.RequestPricing
     {
         [Required]
         public string? Name { get; set; }
+
         [Required]
         public string? Email { get; set; }
+
         [Required]
         public string? PhoneNumber { get; set; }
+
         [Required]
         public DateTime EventDate { get; set; }
+
         [Required]
         public string? Message { get; set; }
+
         [Required]
-        public int? SupplierId { get; set; }
-        [Required]
-        public DateTime? ExpirationDate { get; set; } 
+        public int SupplierId { get; set; }
+
     }
 }

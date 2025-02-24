@@ -80,8 +80,8 @@ namespace Bonheur.Services.Mappers
 
             //RequestPricing
             CreateMap<CreateRequestPricingDTO, RequestPricing>();
-            CreateMap<RequestPricing, RequestPricingsDTO>();
-            CreateMap<RequestPricingsDTO, RequestPricing>();
+            CreateMap<RequestPricing, RequestPricingsDTO>().ReverseMap();
+            CreateMap<RequestPricingsDTO, RequestPricing>().ReverseMap();
 
             //SubscriptionPackage
             CreateMap<SubscriptionPackageDTO, SubscriptionPackage>();
