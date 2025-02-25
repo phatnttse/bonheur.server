@@ -42,7 +42,7 @@ namespace Bonheur.Services
                 //var userId = httpContext?.Request.Query["uid"].ToString();
                 var userId = Utilities.GetCurrentUserId();
                 //var userName = Context!.User!.Identity!.Name;
-                var currentUser = await _userAccountRepository.GetUserAndRolesAsync(userId);
+                var currentUser = await _userAccountRepository.GetUserByIdAsync(userId);
 
                 var connectionId = Context.ConnectionId;
                 if (onlineUsers.ContainsKey(userId!))
@@ -54,20 +54,18 @@ namespace Bonheur.Services
                     var user = new OnlineUserDTO
                     {
                         ConnectionId = connectionId,
-                        Id = currentUser?.User.Id,
-                        UserName = currentUser?.User.UserName,
-                        FullName = currentUser?.User.FullName,
-                        PictureUrl = currentUser?.User.PictureUrl
+                        Id = currentUser?.Id,
+                        UserName = currentUser?.UserName,
+                        FullName = currentUser?.FullName,
+                        PictureUrl = currentUser?.PictureUrl
                     };
                     onlineUsers.TryAdd(userId!, user);
 
                     await Clients.AllExcept(connectionId).SendAsync("UserConnected", user);
                 }
 
-                if (!currentUser.Value.Roles.Contains(Constants.Roles.SUPPLIER))
-                {
-                    await Clients.All.SendAsync("OnlineUsers", this.GetAllSuppliersContacted());
-                }
+                await Clients.All.SendAsync("OnlineUsers", this.GetAllSuppliersContacted());
+                
             }
             catch (ApiException)
             {
