@@ -44,9 +44,34 @@ namespace Bonheur.Services
         {
             try
             {
+                decimal averageRating = 0;
                 var review = _mapper.Map<Review>(reviewDTO);
                 string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
                 var supplier = await _supplierRepository.GetSupplierByUserIdAsync(currentUserId);
+                if (supplier == null) {
+                    throw new ApiException("Supplier was not found!");
+                }
+                #region Average rating
+                var supplierUpdate = await _supplierRepository.GetSupplierByIdAsync(reviewDTO.SupplierId, false);
+
+                if (supplierUpdate != null)
+                {
+                    var supplierTotalRating = (supplierUpdate.TotalRating) + 1;
+
+                    double reviewRating = (reviewDTO.QualityOfService + reviewDTO.Flexibility + reviewDTO.Professionalism
+                                          + reviewDTO.ValueForMoney + reviewDTO.ResponseTime) / 5.0;
+
+
+                    averageRating = (decimal) ((supplierUpdate.TotalRating) * (supplierUpdate.AverageRating) + (decimal)reviewRating) / (supplierTotalRating);
+
+                    supplierUpdate.TotalRating = supplierTotalRating;
+                    supplierUpdate.AverageRating = averageRating;
+
+                    await _supplierRepository.UpdateSupplierAsync(supplierUpdate);
+                }
+                #endregion
+
+
                 review.UserId = currentUserId;
                 if (reviewDTO == null)
                 {
