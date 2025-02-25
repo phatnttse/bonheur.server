@@ -41,7 +41,7 @@ namespace Bonheur.Services
                     throw new ApiException("Supplier was not existed!", System.Net.HttpStatusCode.BadRequest);
                 }
                 var checkSupplier = await _supplierRepository.GetSupplierByUserIdAsync(userId);
-                if (checkSupplier!.Id == favoriteSupplierDTO.SupplierId) {
+                if (checkSupplier!.Id == supplierId) {
                     throw new ApiException("You are loving yourself!", System.Net.HttpStatusCode.BadRequest);
                 }
                 var existedFavoriteSupplier = await _favoriteSupplierRepository.GetFavoriteSupplierAsync(supplierId);

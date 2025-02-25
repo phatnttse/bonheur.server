@@ -231,11 +231,11 @@ namespace Bonheur.Services
                 var supplier = await _supplierRepository.GetSupplierByUserIdAsync(currentSupplierUserId);
                 var supplierUserInfomation = await _userAccountRepository.GetUserByIdAsync(currentSupplierUserId);
 
-                if (sendEmailReviewDTO == null || string.IsNullOrEmpty(sendEmailReviewDTO.CustomerID))
+                if (sendEmailReviewDTO == null || string.IsNullOrEmpty(sendEmailReviewDTO.Email))
                 {
                     throw new ApiException("Invalid email or customer!");
                 }
-                var customer = await _userAccountRepository.GetUserByIdAsync(sendEmailReviewDTO.CustomerID);
+                var customer = await _userAccountRepository.GetUserByEmailAsync(sendEmailReviewDTO.Email);
                 if (customer == null)
                 {
                     throw new ApiException("Customer does not existed!");
