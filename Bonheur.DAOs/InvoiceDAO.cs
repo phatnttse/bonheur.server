@@ -80,5 +80,10 @@ namespace Bonheur.DAOs
             _context.Invoices.Remove(invoice);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<Invoice>> GetAllInvoicesAsync()
+        {
+            return await _context.Invoices.ToListAsync();
+        }
     }
 }

@@ -24,5 +24,7 @@ namespace Bonheur.Services.Interfaces
 
         Task<ApplicationResponse> UpdateRequestPricingStatus(int id, RequestPricingStatus status);
 
+        Task<byte[]> ExportToExcel();
+
     }
 }

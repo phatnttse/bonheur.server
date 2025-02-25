@@ -8,6 +8,8 @@ using Bonheur.Services.DTOs.RequestPricing;
 using Bonheur.Services.DTOs.Supplier;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using MiddlewareTool.OpenXML;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -228,6 +230,40 @@ namespace Bonheur.Services
                     Data = _mapper.Map<RequestPricingsDTO>(requestPricingExist),
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+
+                throw new ApiException(ex.Message, HttpStatusCode.InternalServerError);
+            }
+        }
+
+
+        public async Task<byte[]> ExportToExcel()
+        {
+            try
+            {
+                var currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
+
+                var supplier = await _supplierRepository.GetSupplierByUserIdAsync(currentUserId);
+
+                if (supplier == null) throw new ApiException("Supplier does not exist!", HttpStatusCode.NotFound);
+                
+                var requestPricings = await _requestPricingsRepository.GetRequestPricingsBySupplierId(supplier.Id);
+
+                var excelData = new Excel
+                {
+                    TemplateFileData = System.IO.File.ReadAllBytes("Templates/RequestPricingTemplate.xlsx")
+                };
+
+                var exportedData = excelData.Export(requestPricings);
+
+                return exportedData;
 
             }
             catch (ApiException)

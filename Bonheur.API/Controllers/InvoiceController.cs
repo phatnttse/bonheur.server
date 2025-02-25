@@ -41,5 +41,13 @@ namespace Bonheur.API.Controllers
             return Ok(await _invoiceService.GetInvoiceByIdAsync(id));
         }
 
+
+        [HttpGet]
+        [Authorize(Roles = Constants.Roles.ADMIN)]
+        public async Task<IActionResult> GetAllInvoicesAsync()
+        {
+            return Ok(await _invoiceService.GetAllInvoicesAsync());
+        }
+
     }
 }

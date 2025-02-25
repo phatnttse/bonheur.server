@@ -3,7 +3,6 @@ using Bonheur.Services.DTOs.RequestPricing;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bonheur.API.Controllers
@@ -64,6 +63,20 @@ namespace Bonheur.API.Controllers
         public async Task<IActionResult> UpdateRequestPricingStatus(int id, [FromBody] UpdateRequestPricingStatusDTO status)
         {
             return Ok(await _requestPricingsService.UpdateRequestPricingStatus(id, status.Status));
+        }
+
+        /// <summary>
+        /// Export request pricing list to excel
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("supplier/export/excel")]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        [ProducesResponseType(404)]
+        [Authorize(Roles = Constants.Roles.SUPPLIER)]
+        public async Task<IActionResult> ExportToExcel()
+        {
+            var fileBytes = await _requestPricingsService.ExportToExcel();
+            return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "RequestPricing.xlsx");
         }
     }
 }
