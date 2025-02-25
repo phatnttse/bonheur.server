@@ -7,8 +7,7 @@ using Bonheur.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-
+using Bonheur.BusinessObjects.Enums;
 
 namespace Bonheur.Services
 {
@@ -17,16 +16,20 @@ namespace Bonheur.Services
     {
         private readonly IUserAccountRepository _userAccountRepository;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ApplicationDbContext _context;
         private readonly ISupplierRepository _supplierRepository;
+        private readonly IMessageRepository _messageRepository;
+        private readonly IRequestPricingsRepository _requestPricingsRepository;
+        private readonly ApplicationDbContext _context;
 
         public ChatHubService(IUserAccountRepository userAccountRepository,
-            UserManager<ApplicationUser> userManager, ApplicationDbContext dbContext, ISupplierRepository supplierRepository)
+            UserManager<ApplicationUser> userManager, ISupplierRepository supplierRepository, IMessageRepository messageRepository, IRequestPricingsRepository requestPricingsRepository, ApplicationDbContext context)
         {
             _userAccountRepository = userAccountRepository;
             _userManager = userManager;
-            _context = dbContext;
             _supplierRepository = supplierRepository;
+            _messageRepository = messageRepository;
+            _requestPricingsRepository = requestPricingsRepository;
+            _context = context;
         }
 
         public static readonly Dictionary<string, OnlineUserDTO> onlineUsers = new Dictionary<string, OnlineUserDTO>();
@@ -39,7 +42,8 @@ namespace Bonheur.Services
                 //var userId = httpContext?.Request.Query["uid"].ToString();
                 var userId = Utilities.GetCurrentUserId();
                 //var userName = Context!.User!.Identity!.Name;
-                var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                var currentUser = await _userAccountRepository.GetUserAndRolesAsync(userId);
+
                 var connectionId = Context.ConnectionId;
                 if (onlineUsers.ContainsKey(userId!))
                 {
@@ -50,17 +54,20 @@ namespace Bonheur.Services
                     var user = new OnlineUserDTO
                     {
                         ConnectionId = connectionId,
-                        Id = currentUser?.Id,
-                        UserName = currentUser?.UserName,
-                        FullName = currentUser?.FullName,
-                        PictureUrl = currentUser?.PictureUrl
+                        Id = currentUser?.User.Id,
+                        UserName = currentUser?.User.UserName,
+                        FullName = currentUser?.User.FullName,
+                        PictureUrl = currentUser?.User.PictureUrl
                     };
                     onlineUsers.TryAdd(userId!, user);
 
                     await Clients.AllExcept(connectionId).SendAsync("UserConnected", user);
                 }
 
-                await Clients.All.SendAsync("OnlineUsers", this.GetAllUsers());
+                if (!currentUser.Value.Roles.Contains(Constants.Roles.SUPPLIER))
+                {
+                    await Clients.All.SendAsync("OnlineUsers", this.GetAllSuppliersContacted());
+                }
             }
             catch (ApiException)
             {
@@ -76,27 +83,21 @@ namespace Bonheur.Services
         {
             try
             {
-                int pageSize = 20;
+                int pageSize = 30;
                 var httpContext = Context.GetHttpContext();
                 var userId = Utilities.GetCurrentUserId();
-                var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                var currentUser = await _userAccountRepository.GetUserByIdAsync(userId);
 
-                List<Message> messages = await _context.Messages
-                    .Where(m => (m.SenderId == userId && m.ReceiverId == recipientId) ||
-                                (m.SenderId == recipientId && m.ReceiverId == userId))
-                    .OrderBy(m => m.CreatedAt)
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToListAsync();
+                List<Message> messages = await _messageRepository.GetMessages(userId, recipientId, pageNumber, pageSize);
 
                 foreach (var message in messages)
                 {
-                    var msg = await _context.Messages.FirstOrDefaultAsync(m => m.Id == message.Id);
+                    var msg = await _messageRepository.GetMessageByIdAsync(message.Id);
 
                     if (msg != null && msg.ReceiverId == userId)
                     {
                         msg.IsRead = true;
-                        await _context.SaveChangesAsync();
+                        await _messageRepository.UpdateMessage(msg);
                     }
                 }
                 await Clients.Caller.SendAsync("ReceiveMessageList", messages);
@@ -150,14 +151,26 @@ namespace Bonheur.Services
                 {
                     SenderId = senderId,
                     SenderName = senderSupplier != null ? senderSupplier.Name : senderUser!.FullName,
+                    SenderRole = senderSupplier != null ? Constants.Roles.SUPPLIER : Constants.Roles.USER,
                     ReceiverId = receiverId,
                     ReceiverName = receiverSupplier != null ? receiverSupplier.Name : receiverUser!.FullName,
+                    ReceiverRole = receiverSupplier != null ? Constants.Roles.SUPPLIER : Constants.Roles.USER,
                     Content = message.Content,
                     IsRead = false
                 };
 
-                _context.Messages.Add(newMessage);
-                await _context.SaveChangesAsync();
+                await _messageRepository.AddMessage(newMessage);
+
+                if (message.RequestPricingId != null && int.IsPositive((int)message.RequestPricingId) && message.isSupplierReply != null && (bool)message.isSupplierReply)
+                {
+                    var requestPricing = await _requestPricingsRepository.GetRequestPricingById((int)message.RequestPricingId);
+
+                    if (requestPricing != null && requestPricing.Status == RequestPricingStatus.Pending)
+                    {
+                        requestPricing.Status = RequestPricingStatus.Responded;
+                        await _requestPricingsRepository.UpdateRequestPricingStatus(requestPricing);
+                    }
+                }
 
                 var connectionId = onlineUsers.Values.FirstOrDefault(u => u.Id == receiverId)?.ConnectionId;
 
@@ -202,12 +215,12 @@ namespace Bonheur.Services
             }
         }
 
-        public override async Task OnDisconnectedAsync(Exception? exception)
+        public override Task OnDisconnectedAsync(Exception? exception)
         {
             var httpContext = Context.GetHttpContext();
             var userId = Utilities.GetCurrentUserId();
             onlineUsers.Remove(userId!, out _);
-            await Clients.All.SendAsync("OnlineUsers", this.GetAllUsers());
+            return Task.CompletedTask;
         }
 
         //private async Task<IEnumerable<OnlineUserDTO>> GetAllUsers()
@@ -237,23 +250,23 @@ namespace Bonheur.Services
         //    }
         //}
 
-        private async Task<IEnumerable<OnlineUserDTO>> GetAllUsers()
+        private Task<List<OnlineUserDTO>> GetAllSuppliersContacted()
         {
             try
             {
                 var userId = Utilities.GetCurrentUserId();
 
                 // Lấy danh sách ID của các supplier mà userId đã từng gửi tin nhắn
-                var supplierIds = _context.Messages
-                    .Where(m => m.SenderId == userId)
-                    .Select(m => m.ReceiverId)
-                    .Distinct()
-                    .ToList();
+                var supplierIds = _messageRepository.GetSupplierIdsContacted(userId).Result;
 
                 var onlineUsersSet = new HashSet<string>(onlineUsers.Keys);
 
+                // Lấy số lượng tin nhắn chưa đọc theo từng supplier
+                var unreadMessagesDict = _messageRepository.GetUnredMessagesBySupplierIds(userId, supplierIds).Result;
+
+                // Truy vấn danh sách suppliers từ UserManager một lần duy nhất
                 var suppliers = _userManager.Users
-                    .Where(u => supplierIds.Contains(u.Id)) // Chỉ lấy những supplier đã nhận tin nhắn từ userId
+                    .Where(u => supplierIds.Contains(u.Id))
                     .Select(u => new OnlineUserDTO
                     {
                         Id = u.Id,
@@ -261,20 +274,19 @@ namespace Bonheur.Services
                         FullName = u.FullName,
                         PictureUrl = u.PictureUrl,
                         IsOnline = onlineUsersSet.Contains(u.Id),
-                        UnreadMessages = _context.Messages.Count(x => x.ReceiverId == userId && x.SenderId == u.Id && !x.IsRead)
+                        UnreadMessages = unreadMessagesDict.ContainsKey(u.Id) ? unreadMessagesDict[u.Id] : 0
                     })
                     .OrderByDescending(u => u.IsOnline)
                     .ToList();
 
-                return await Task.FromResult(suppliers);
+                return Task.FromResult(suppliers);
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Error in GetAllUsers: {ex.Message}");
+                Console.Error.WriteLine($"Error in GetAllSuppliersContacted: {ex.Message}");
                 throw;
             }
         }
-
 
     }
 }

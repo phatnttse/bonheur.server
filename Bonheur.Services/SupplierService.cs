@@ -543,6 +543,10 @@ namespace Bonheur.Services
 
                 if (existingSupplier == null) throw new ApiException("Supplier not found", System.Net.HttpStatusCode.NotFound);
 
+                existingSupplier.View += 1;
+
+                await _supplierRepository.UpdateSupplierAsync(existingSupplier);
+
                 return new ApplicationResponse
                 {
                     Message = $"Supplier {existingSupplier.Name} found",

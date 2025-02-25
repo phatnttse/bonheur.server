@@ -23,12 +23,14 @@ namespace Bonheur.Services
         private readonly IUserAccountRepository _userAccountRepository;
         private readonly ISupplierRepository _supplierRepository;
         private readonly IMapper _mapper;
-        public RequestPricingsService(IRequestPricingsRepository requestPricingsRepository, IUserAccountRepository userAccountRepository, IMapper mapper, ISupplierRepository supplierRepository)
+        private readonly IMessageRepository _messageRepository;
+        public RequestPricingsService(IRequestPricingsRepository requestPricingsRepository, IUserAccountRepository userAccountRepository, IMapper mapper, ISupplierRepository supplierRepository, IMessageRepository messageRepository)
         {
             _requestPricingsRepository = requestPricingsRepository;
             _userAccountRepository = userAccountRepository;
             _supplierRepository = supplierRepository;
             _mapper = mapper;
+            _messageRepository = messageRepository;
         }
         public async Task<ApplicationResponse> CreateRequestPricing(CreateRequestPricingDTO requestPricingDTO)
         {
@@ -53,12 +55,26 @@ namespace Bonheur.Services
 
                 RequestPricing? createdRequestPricing = await _requestPricingsRepository.CreateRequestPricing(requestPricing);
 
+                Message message = new Message
+                {
+                    Content = requestPricingDTO.Message,
+                    SenderId = user.Id,
+                    SenderName = user.FullName,
+                    SenderRole = Constants.Roles.USER,
+                    ReceiverId = supplier.UserId,
+                    ReceiverName = supplier.Name,
+                    ReceiverRole = Constants.Roles.SUPPLIER,
+                    IsRead = false
+                };
+
+                await _messageRepository.AddMessage(message);
+
                 return new ApplicationResponse
                 {
                     Message = "Request pricing created successfully!",
                     Success = true,
                     Data = _mapper.Map<RequestPricingsDTO>(createdRequestPricing),
-                    StatusCode = System.Net.HttpStatusCode.Created
+                    StatusCode = System.Net.HttpStatusCode.OK
                 };
             }
             catch (ApiException)
