@@ -26,6 +26,7 @@ namespace Bonheur.Repositories
                 string? orderBy, int pageNumber = 1,
                 int pageSize = 10) => await _invoiceDAO.GetInvoicesBySupplierIdAsync(supplierId, sortAsc, orderBy, pageNumber, pageSize);
         public async Task UpdateInvoiceAsync(Invoice invoice) => await _invoiceDAO.UpdateInvoiceAsync(invoice);
+        public async Task<List<Invoice>> GetAllInvoicesAsync() => await _invoiceDAO.GetAllInvoicesAsync();
 
     }
 }

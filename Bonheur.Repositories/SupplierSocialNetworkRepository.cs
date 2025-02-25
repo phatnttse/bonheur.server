@@ -24,7 +24,7 @@ namespace Bonheur.Repositories
 
         public async Task<List<SupplierSocialNetwork>> GetSupplierSocialNetworksBySupplierIdAsync(int supplierId) => await _dao.GetSupplierSocialNetworksBySupplierIdAsync(supplierId);
 
-        public async Task<List<SupplierSocialNetwork>> GetBySocialNetworkIdsAsync(List<int> socialNetworkIds) => await _dao.GetBySocialNetworkIdsAsync(socialNetworkIds);
+        public async Task<List<SupplierSocialNetwork>> GetBySocialNetworkIdsAndSupplierIdAsync(List<int> socialNetworkIds, int supplierId) => await _dao.GetBySocialNetworkIdsAndSupplierIdAsync(socialNetworkIds, supplierId);
 
         public async Task<List<SupplierSocialNetwork>> CreateAsync(List<SupplierSocialNetwork> supplierSocialNetworks) => await _dao.CreateAsync(supplierSocialNetworks);
 

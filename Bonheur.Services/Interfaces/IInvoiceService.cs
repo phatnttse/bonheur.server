@@ -16,5 +16,7 @@ namespace Bonheur.Services.Interfaces
                 string? orderBy, int pageNumber = 1,
                 int pageSize = 10);
         Task<ApplicationResponse> GetInvoiceByIdAsync(int id);
+
+        Task<ApplicationResponse> GetAllInvoicesAsync();
     }
 }

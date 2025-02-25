@@ -5,6 +5,7 @@ using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Invoice;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Fields;
 using MigraDoc.DocumentObjectModel.Tables;
@@ -263,6 +264,31 @@ namespace Bonheur.Services
                     Success = true,
                     StatusCode = System.Net.HttpStatusCode.OK
                 });
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<ApplicationResponse> GetAllInvoicesAsync()
+        {
+            try
+            {
+                List<Invoice> invoices = await _invoiceRepository.GetAllInvoicesAsync();
+
+                return new ApplicationResponse
+                {
+                    Message = "Invoices retrieved successfully",
+                    Data = _mapper.Map<List<InvoiceDTO>>(invoices),
+                    Success = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
 
             }
             catch (ApiException)

@@ -32,9 +32,9 @@ namespace Bonheur.DAOs
             return await _dbcontext.SupplierSocialNetworks.Where(s => s.SupplierId == supplierId).ToListAsync();
         }
 
-        public async Task<List<SupplierSocialNetwork>> GetBySocialNetworkIdsAsync(List<int> socialNetworkIds)
+        public async Task<List<SupplierSocialNetwork>> GetBySocialNetworkIdsAndSupplierIdAsync(List<int> socialNetworkIds, int supplierId)
         {
-            return await _dbcontext.SupplierSocialNetworks.Where(s => socialNetworkIds.Contains(s.SocialNetworkId)).ToListAsync();
+            return await _dbcontext.SupplierSocialNetworks.Where(s => socialNetworkIds.Contains(s.SocialNetworkId) && s.SupplierId == supplierId).ToListAsync();
         }
 
         public async Task<List<SupplierSocialNetwork>> CreateAsync(List<SupplierSocialNetwork> supplierSocialNetworks)
