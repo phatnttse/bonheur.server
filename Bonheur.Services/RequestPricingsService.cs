@@ -34,22 +34,31 @@ namespace Bonheur.Services
         {
             try
             {
-                var requestPricing = _mapper.Map<RequestPricing>(requestPricingDTO);
-                if (requestPricing == null)
-                {
-                    throw new ApiException("Request pricing is not exist!");
-                }
-                var supplier = _supplierRepository.GetSupplierByIdAsync(requestPricing.SupplierId, false);
-                if (supplier == null) {
-                    throw new ApiException("Supplier was not found!");
-                }
-                await _requestPricingsRepository.CreateRequestPricing(requestPricing);
+                string userId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
+
+                ApplicationUser? user = await _userAccountRepository.GetUserByIdAsync(userId);
+
+                if (user == null) throw new ApiException("User does not exist!", HttpStatusCode.NotFound);
+
+                Supplier? supplier = await _supplierRepository.GetSupplierByIdAsync(requestPricingDTO.SupplierId, false);
+
+                if (supplier == null) throw new ApiException("Supplier does not exist!", HttpStatusCode.NotFound);
+
+                RequestPricing requestPricing = _mapper.Map<RequestPricing>(requestPricingDTO);
+
+                requestPricing.SupplierId = supplier.Id;
+                requestPricing.Status = RequestPricingStatus.Pending;
+                requestPricing.UserId = user.Id;
+
+
+                RequestPricing? createdRequestPricing = await _requestPricingsRepository.CreateRequestPricing(requestPricing);
+
                 return new ApplicationResponse
                 {
-                    Message = "Request pricing create successfully!",
+                    Message = "Request pricing created successfully!",
                     Success = true,
-                    Data = requestPricingDTO,
-                    StatusCode = System.Net.HttpStatusCode.OK
+                    Data = _mapper.Map<RequestPricingsDTO>(createdRequestPricing),
+                    StatusCode = System.Net.HttpStatusCode.Created
                 };
             }
             catch (ApiException)
@@ -161,7 +170,7 @@ namespace Bonheur.Services
                 {
                     Message = "Request pricing query successfully!",
                     Success = true,
-                    Data = requestPricing,
+                    Data = _mapper.Map<RequestPricingsDTO>(requestPricing),
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
 
@@ -200,7 +209,7 @@ namespace Bonheur.Services
                 {
                     Message = "Request pricing status update successfully!",
                     Success = true,
-                    Data = requestPricingExist,
+                    Data = _mapper.Map<RequestPricingsDTO>(requestPricingExist),
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
 

@@ -24,6 +24,7 @@ namespace Bonheur.API.Controllers
         [HttpPost]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
+        [Authorize]
         public async Task<IActionResult> CreateRequestPricing([FromBody] CreateRequestPricingDTO createRequestPricingDTO)
         {
             return Ok(await _requestPricingsService.CreateRequestPricing(createRequestPricingDTO));

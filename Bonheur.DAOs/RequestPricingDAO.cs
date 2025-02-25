@@ -27,25 +27,33 @@ namespace Bonheur.DAOs
 
         public Task<IPagedList<RequestPricing>> GetAllRequestPricing(int pageNumber = 1, int pageSize= 10)
         {
-            IQueryable<RequestPricing> query = _context.RequestPricings
-                 .Where(rp => rp.Status != RequestPricingStatus.Discarded); 
-            var orderedQuery =  query.OrderByDescending(rp => rp.CreatedAt);
+            IQueryable<RequestPricing> query = _context.RequestPricings; 
+            var orderedQuery = query.OrderByDescending(rp => rp.CreatedAt);
             var requestPricings =  orderedQuery.ToPagedList(pageNumber, pageSize);
             return Task.FromResult(requestPricings);
         }
 
         public Task<IPagedList<RequestPricing>> GetAllRequestPricingBySupplierId(int supplierId, int pageNumber = 1, int pageSize = 10)
         {
-            IQueryable<RequestPricing> query = _context.RequestPricings
-                 .Where(rp => rp.Status != RequestPricingStatus.Discarded && rp.SupplierId == supplierId);
-            var orderedQuery = query.OrderByDescending(rp => rp.CreatedAt);
-            var requestPricings = orderedQuery.ToPagedList(pageNumber, pageSize);
-            return Task.FromResult(requestPricings);
+            //IQueryable<RequestPricing> query = _context.RequestPricings
+            //     .Where(rp => rp.SupplierId == supplierId);
+            //var orderedQuery = query.OrderByDescending(rp => rp.CreatedAt);
+            //var requestPricings = orderedQuery.ToPagedList(pageNumber, pageSize);
+            //return Task.FromResult(requestPricings);
+
+            var requestPricings = _context.RequestPricings
+                 .Include(rp => rp.User)
+                 .Where(rp => rp.SupplierId == supplierId)
+                 .OrderByDescending(rp => rp.CreatedAt);
+
+            var result = requestPricings.ToPagedList(pageNumber, pageSize);
+            return Task.FromResult(result);
         }
 
         public async Task<RequestPricing> GetRequestPricingById(int id)
         {
             var result = await _context.RequestPricings
+                .Include(rp => rp.User)
                 .Include(rp=> rp.Supplier)
                 .FirstOrDefaultAsync(x => x.Id == id);
             return result;
