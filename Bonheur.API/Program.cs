@@ -286,7 +286,8 @@ namespace Bonheur.API
             {
                 options.AddPolicy("AllowSpecificOrigin",
                     builder => builder
-                        .WithOrigins("http://localhost:4200")  
+                        .WithOrigins("http://localhost:4200")
+                        .WithOrigins("https://bonheur.pro")
                         .AllowCredentials()                  
                         .AllowAnyHeader()                      
                         .AllowAnyMethod());                  
@@ -381,6 +382,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<SupplierSocialNetworkDAO>();
             builder.Services.AddScoped<SocialNetworkDAO>();
             builder.Services.AddScoped<SupplierFAQDAO>();
+            builder.Services.AddScoped<MessageDAO>();
 
             //Repositories
             builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
@@ -400,6 +402,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<ISupplierSocialNetworkRepository, SupplierSocialNetworkRepository>();
             builder.Services.AddScoped<ISocialNetworkRepository, SocialNetworkRepository>();
             builder.Services.AddScoped<ISupplierFAQRepository, SupplierFAQRepository>();
+            builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
             // Services
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();
@@ -423,6 +426,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<ISupplierFAQService, SupplierFAQService>();
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IPlaceService, PlaceService>();
+            builder.Services.AddScoped<IMessageService, MessageService>();
 
             // Auth Handlers
             builder.Services.AddSingleton<IAuthorizationHandler, ViewUserAuthorizationHandler>();

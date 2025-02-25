@@ -12,12 +12,14 @@ namespace Bonheur.BusinessObjects.Entities
         public string? SenderId { get; set; }  // Khóa ngoại đến ApplicationUser (người gửi)
         public virtual ApplicationUser? Sender { get; set; } // Người gửi (có thể là Supplier hoặc khách hàng)
         public string? SenderName { get; set; } // Tên người gửi
+        public string? SenderRole { get; set; } // Vai trò của người gửi (Supplier hoặc khách hàng)
 
 
         public string? ReceiverId { get; set; }  // Khóa ngoại đến ApplicationUser (người nhận)
         public virtual ApplicationUser? Receiver { get; set; } // Người nhận (có thể là Supplier hoặc khách hàng)
         public string? ReceiverName { get; set; } // Tên người nhận
-       
+        public string? ReceiverRole { get; set; } // Vai trò của người nhận (Supplier hoặc khách hàng)
+
         public string? Content { get; set; }  // Nội dung tin nhắn
         public bool IsRead { get; set; }  // Trạng thái đã đọc
 
