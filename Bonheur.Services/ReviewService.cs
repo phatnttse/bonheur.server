@@ -48,9 +48,7 @@ namespace Bonheur.Services
                 var review = _mapper.Map<Review>(reviewDTO);
                 string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
                 var supplier = await _supplierRepository.GetSupplierByUserIdAsync(currentUserId);
-                if (supplier == null) {
-                    throw new ApiException("Supplier was not found!");
-                }
+
                 #region Average rating
                 var supplierUpdate = await _supplierRepository.GetSupplierByIdAsync(reviewDTO.SupplierId, false);
 
