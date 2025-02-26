@@ -448,30 +448,30 @@ namespace Bonheur.API
 
 
             //Rate Limiter
-            builder.Services.AddRateLimiter(options =>
-            {
-                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            //builder.Services.AddRateLimiter(options =>
+            //{
+            //    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-                //global
-                options.AddPolicy("global", httpContext =>
-                    RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
-                        factory: _ => new FixedWindowRateLimiterOptions
-                        {
-                        PermitLimit = 100,
-                        Window = TimeSpan.FromMinutes(10),
-                        QueueLimit = 10
-                        }));
-                // /connect/token
-                options.AddPolicy("5_5", httpContext =>
-                    RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
-                        factory: _ => new FixedWindowRateLimiterOptions
-                        {
-                            PermitLimit = 5,
-                            Window = TimeSpan.FromMinutes(5)
-                        }));
-            });
+            //    //global
+            //    options.AddPolicy("global", httpContext =>
+            //        RateLimitPartition.GetFixedWindowLimiter(
+            //            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
+            //            factory: _ => new FixedWindowRateLimiterOptions
+            //            {
+            //            PermitLimit = 100,
+            //            Window = TimeSpan.FromMinutes(10),
+            //            QueueLimit = 10
+            //            }));
+            //    // /connect/token
+            //    options.AddPolicy("5_5", httpContext =>
+            //        RateLimitPartition.GetFixedWindowLimiter(
+            //            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
+            //            factory: _ => new FixedWindowRateLimiterOptions
+            //            {
+            //                PermitLimit = 5,
+            //                Window = TimeSpan.FromMinutes(5)
+            //            }));
+            //});
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -515,7 +515,7 @@ namespace Bonheur.API
                .AllowAnyHeader()
                .AllowAnyMethod());
 
-            app.UseRateLimiter();
+            //app.UseRateLimiter();
 
             app.UseAuthentication();
             app.UseAuthorization();

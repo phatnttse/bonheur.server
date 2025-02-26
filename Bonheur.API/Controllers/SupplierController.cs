@@ -52,7 +52,6 @@ namespace Bonheur.API.Controllers
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
-        [EnableRateLimiting("global")]
         public async Task<IActionResult> GetSuppliers(
             [FromQuery] string? supplierName,
             [FromQuery] List<int>? supplierCategoryIds,
