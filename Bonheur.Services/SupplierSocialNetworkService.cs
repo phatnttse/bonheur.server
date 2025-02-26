@@ -38,7 +38,7 @@ namespace Bonheur.Services
 
                 Supplier supplier = await _supplierRepository.GetSupplierByUserIdAsync(currentUserId) ?? throw new ApiException("Supplier not found", System.Net.HttpStatusCode.NotFound);
 
-                List<SupplierSocialNetwork> existingSocialNetwork = await _supplierSocialNetworkRepository.GetBySocialNetworkIdsAsync(dtos.Select(d => d.SocialNetworkId!.Value).ToList());
+                List<SupplierSocialNetwork> existingSocialNetwork = await _supplierSocialNetworkRepository.GetBySocialNetworkIdsAndSupplierIdAsync(dtos.Select(d => d.SocialNetworkId!.Value).ToList(), supplier.Id);
 
                 if (existingSocialNetwork.Count > 0) throw new ApiException("Social Network already exists", System.Net.HttpStatusCode.BadRequest);
 

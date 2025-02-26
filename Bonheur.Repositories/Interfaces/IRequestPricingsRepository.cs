@@ -20,5 +20,7 @@ namespace Bonheur.Repositories.Interfaces
         Task<RequestPricing> GetRequestPricingById(int id);
 
         Task UpdateRequestPricingStatus(RequestPricing status);
+
+        Task<List<RequestPricing>> GetRequestPricingsBySupplierId(int supplierId);
     }
 }

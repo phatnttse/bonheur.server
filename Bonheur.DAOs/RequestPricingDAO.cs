@@ -50,6 +50,15 @@ namespace Bonheur.DAOs
             return Task.FromResult(result);
         }
 
+        public async Task<List<RequestPricing>> GetRequestPricingsBySupplierId(int supplierId)
+        {
+            return await _context.RequestPricings
+                 .Include(rp => rp.User)
+                 .Where(rp => rp.SupplierId == supplierId)
+                 .OrderByDescending(rp => rp.CreatedAt)
+                 .ToListAsync();
+        }
+
         public async Task<RequestPricing> GetRequestPricingById(int id)
         {
             var result = await _context.RequestPricings
