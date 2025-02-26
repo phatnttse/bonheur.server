@@ -69,8 +69,6 @@ namespace Bonheur.Services
 
                 //if (data.description == "VQRIO123") return new PaymentResponse(0, "Ok", null); // confirm webhook
 
-                if (data.code == "00")
-                {
                     #region validate nullable values                  
 
                     Order? order = await _orderRepository.GetOrderByCodeAsync((int)data.orderCode);
@@ -96,10 +94,12 @@ namespace Bonheur.Services
 
                         order.Status = OrderStatus.Active;
                         order.PaymentStatus = PaymentStatus.Success;
-                        #endregion
+                    await _orderRepository.UpdateOrderAsync(order);
 
-                        #region Update subscription package for supplier
-                        int spId = order.OrderDetails?.ToList()[0].SubscriptionPackageId ?? throw new ApiException("Subscription package id not found", System.Net.HttpStatusCode.NotFound);
+                    #endregion
+
+                    #region Update subscription package for supplier
+                    int spId = order.OrderDetails?.ToList()[0].SubscriptionPackageId ?? throw new ApiException("Subscription package id not found", System.Net.HttpStatusCode.NotFound);
 
                         var subscriptionPackage = await _subscriptionPackageRepository.GetSubscriptionPackageByIdAsync(spId);
 
@@ -114,10 +114,13 @@ namespace Bonheur.Services
                         supplier.SubscriptionPackage = subscriptionPackage;
                         supplier.Priority = subscriptionPackage.Priority;
                         supplier.PriorityEnd = DateTimeOffset.UtcNow.AddDays(subscriptionPackage.DurationInDays);
-                        #endregion
 
-                        #region Create invoice
-                        int invoiceNumber = int.Parse(DateTimeOffset.UtcNow.ToString("ffffff"));
+                    await _supplierRepository.UpdateSupplierAsync(supplier);
+
+                    #endregion
+
+                    #region Create invoice
+                    int invoiceNumber = int.Parse(DateTimeOffset.UtcNow.ToString("ffffff"));
                         Invoice invoice = new Invoice
                         {
                             InvoiceNumber = invoiceNumber,
@@ -166,7 +169,6 @@ namespace Bonheur.Services
 
                         #region Update database
                         await _orderRepository.UpdateOrderAsync(order);
-                        await _supplierRepository.UpdateSupplierAsync(supplier);
                         #endregion
 
                         #region Send email to supplier
@@ -179,11 +181,7 @@ namespace Bonheur.Services
                         _ = Task.Run(async () => await _emailSender.SendEmailWithAttachmentAsync(recipientEmail, subject, emailBody, invoice.FileUrl!, invoice.FileName!));
                         #endregion
                     
-                    return new PaymentResponse(0, "Ok", null);
-                }
-
-                return new PaymentResponse(-1, "Fail", null);
-
+                    return new PaymentResponse(0, "Ok", null);            
             }
             catch (ApiException ex)
             {
