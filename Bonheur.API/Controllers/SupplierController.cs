@@ -100,7 +100,6 @@ namespace Bonheur.API.Controllers
         [HttpGet("users/{id}")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(404)]
-        [Authorize(Roles = Constants.Roles.SUPPLIER + "," + Constants.Roles.ADMIN + "," + Constants.Roles.USER)]
         public async Task<IActionResult> GetSupplierByUserId(string id)
         {
             return Ok(await _supplierService.GetSupplierByUserIdAsync(id));
