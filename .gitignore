@@ -12,7 +12,7 @@ obj/
 *.sln.docstates
 
 # ASP.NET Core
-wwwroot/
+# wwwroot/
 
 # ASP.NET core user secrets
 secrets/
