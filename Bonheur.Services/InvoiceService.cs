@@ -82,7 +82,9 @@ namespace Bonheur.Services
 
             // Right cell for logo
             var rightCell = headerRow.Cells[1];
-            var logo = rightCell.AddImage("wwwroot/images/logo.png");
+            var logoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/logo.png");
+            var logo = rightCell.AddImage(logoPath);
+
             logo.Width = "4cm";
             logo.Height = "4cm";
             rightCell.Format.Alignment = ParagraphAlignment.Left;

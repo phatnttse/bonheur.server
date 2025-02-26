@@ -69,9 +69,9 @@ namespace Bonheur.Services
 
                 //if (data.description == "VQRIO123") return new PaymentResponse(0, "Ok", null); // confirm webhook
 
-                    #region validate nullable values                  
+                #region validate nullable values                  
 
-                    Order? order = await _orderRepository.GetOrderByCodeAsync((int)data.orderCode);
+                Order? order = await _orderRepository.GetOrderByCodeAsync((int)data.orderCode);
 
                     if (order == null) throw new ApiException("Order not found", System.Net.HttpStatusCode.NotFound);
 
