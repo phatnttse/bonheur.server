@@ -5,6 +5,7 @@ using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Invoice;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
+using Microsoft.Extensions.Logging;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Fields;
 using MigraDoc.DocumentObjectModel.Tables;
@@ -19,16 +20,22 @@ namespace Bonheur.Services
         private readonly IInvoiceRepository _invoiceRepository;
         private readonly ISupplierRepository _supplierRepository;
         private readonly IMapper _mapper;
+        private readonly ILogger<InvoiceService> _logger;
 
-        public InvoiceService(IInvoiceRepository invoiceRepository, ISupplierRepository supplierRepository, IMapper mapper)
+        public InvoiceService(IInvoiceRepository invoiceRepository, ISupplierRepository supplierRepository, IMapper mapper, ILogger<InvoiceService> logger)
         {
             _invoiceRepository = invoiceRepository;
             _supplierRepository = supplierRepository;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<PdfDocument> GetInvoice(Invoice invoice)
         {
+            if (invoice == null) throw new ApiException("Invoice not found", System.Net.HttpStatusCode.NotFound);
+
+            _logger.LogInformation($"Start generating invoice PDF for invoice {invoice.InvoiceNumber}");
+
             var document = new Document();
 
             BuildDocument(document, invoice);
@@ -38,6 +45,8 @@ namespace Bonheur.Services
             renderer.Document = document;
 
             renderer.RenderDocument();
+
+            _logger.LogInformation($"End generating invoice PDF for invoice {invoice.InvoiceNumber}");
 
             return await Task.FromResult(renderer.PdfDocument);
         }

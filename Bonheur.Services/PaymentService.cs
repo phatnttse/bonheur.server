@@ -136,6 +136,7 @@ namespace Bonheur.Services
                 _logger.LogInformation("Start create invoice");
 
                 int invoiceNumber = int.Parse(DateTimeOffset.UtcNow.ToString("ffffff"));
+
                 Invoice invoice = new Invoice
                 {
                     InvoiceNumber = invoiceNumber,
@@ -154,10 +155,21 @@ namespace Bonheur.Services
                     Website = Constants.InvoiceInfo.WEBSITE,
                 };
 
+                _logger.LogInformation("Start create invoice Pdf");
+
+
                 PdfDocument invoicePdf = await _invoiceService.GetInvoice(invoice);
+
+                if (invoicePdf == null)
+                    throw new ApiException("Failed to generate invoice PDF", System.Net.HttpStatusCode.InternalServerError);
+
+
+                _logger.LogInformation("Invoice pdf created: {@invoice}", invoicePdf);
+
 
                 _logger.LogInformation("Invoice created: {@invoice}", invoice);
 
+                _logger.LogInformation("Start upload invoice to Azure Blob Storage");
                 // Save invoice PDF to Azure Blob Storage
                 MemoryStream stream = new MemoryStream();
                 invoicePdf.Save(stream);
@@ -176,6 +188,8 @@ namespace Bonheur.Services
 
                 invoice.FileUrl = uploadResponse.Blob.Uri;
                 invoice.FileName = uploadResponse.Blob.Name;
+
+                _logger.LogInformation("End upload");
 
                 _logger.LogInformation("Invoice created: {@invoice}", invoice);
 
