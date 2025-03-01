@@ -167,18 +167,22 @@ namespace Bonheur.Services
          
             _logger.LogInformation($"Adding order details to invoice PDF for invoice {invoice.InvoiceNumber}");
 
-            foreach (var orderDetail in order.OrderDetails)
+            if (order.OrderDetails != null)
             {
-                row = table.AddRow();
-                row.Height = "1cm"; // Increase row height
-                row.Format.Alignment = ParagraphAlignment.Center; // Căn giữa header
-                row.VerticalAlignment = VerticalAlignment.Center; // Căn giữa theo chiều dọc
-                row.Cells[0].AddParagraph(orderDetail.Order!.OrderCode!.ToString());
-                row.Cells[1].AddParagraph(orderDetail.Name!.ToString() ?? "N/A");
-                row.Cells[2].AddParagraph(orderDetail.Quantity.ToString());
-                row.Cells[3].AddParagraph(Utilities.FormatCurrency(orderDetail.Price));
-                row.Cells[4].AddParagraph(Utilities.FormatCurrency(orderDetail.TotalAmount));
+                foreach (OrderDetail orderDetail in order.OrderDetails)
+                {
+                    row = table.AddRow();
+                    row.Height = "1cm"; // Increase row height
+                    row.Format.Alignment = ParagraphAlignment.Center; // Căn giữa header
+                    row.VerticalAlignment = VerticalAlignment.Center; // Căn giữa theo chiều dọc
+                    row.Cells[0].AddParagraph(orderDetail.Order!.OrderCode!.ToString());
+                    row.Cells[1].AddParagraph(orderDetail.Name!.ToString() ?? "N/A");
+                    row.Cells[2].AddParagraph(orderDetail.Quantity.ToString());
+                    row.Cells[3].AddParagraph(Utilities.FormatCurrency(orderDetail.Price));
+                    row.Cells[4].AddParagraph(Utilities.FormatCurrency(orderDetail.TotalAmount));
+                }
             }
+            
           
             // Subtotal, Tax, and Total in table
             row = table.AddRow();
