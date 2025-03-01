@@ -67,7 +67,7 @@ namespace Bonheur.Services
             {
                 WebhookData data = _payOS.verifyPaymentWebhookData(body);
 
-                //if (data.description == "VQRIO123") return new PaymentResponse(0, "Ok", null); // confirm webhook
+                if (data.description == "VQRIO123") return new PaymentResponse(0, "Ok", null); // confirm webhook
 
                 #region validate nullable values                  
 
