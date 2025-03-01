@@ -111,6 +111,8 @@ namespace Bonheur.Services
                 #region Update subscription package for supplier
                 int spId = order.OrderDetails?.ToList()[0].SubscriptionPackageId ?? throw new ApiException("Subscription package id not found", System.Net.HttpStatusCode.NotFound);
 
+                _logger.LogInformation("Subscription package id: {@spId}", spId);
+
                 var subscriptionPackage = await _subscriptionPackageRepository.GetSubscriptionPackageByIdAsync(spId);
 
                 if (subscriptionPackage == null) throw new ApiException("Subscription package not found", System.Net.HttpStatusCode.NotFound);
@@ -135,6 +137,8 @@ namespace Bonheur.Services
 
                 _logger.LogInformation("Start create invoice");
 
+                _logger.LogInformation($"Order Details: {order.OrderDetails.ToList()}");
+
                 int invoiceNumber = int.Parse(DateTimeOffset.UtcNow.ToString("ffffff"));
 
                 Invoice invoice = new Invoice
@@ -155,8 +159,9 @@ namespace Bonheur.Services
                     Website = Constants.InvoiceInfo.WEBSITE,
                 };
 
-                _logger.LogInformation("Start create invoice Pdf");
+                _logger.LogInformation(invoice.Id.ToString());
 
+                _logger.LogInformation("Start create invoice Pdf");
 
                 PdfDocument invoicePdf = await _invoiceService.GetInvoice(invoice, order);
 
