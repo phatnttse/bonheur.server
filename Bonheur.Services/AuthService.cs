@@ -291,7 +291,7 @@ namespace Bonheur.Services
 
                 return new ApplicationResponse
                 {
-                    Message = "Please check your mailbox to confirm your email and complete registration.",
+                    Message = "Please check your mailbox to confirm your email",
                     Success = true,
                     StatusCode = System.Net.HttpStatusCode.OK
                 };

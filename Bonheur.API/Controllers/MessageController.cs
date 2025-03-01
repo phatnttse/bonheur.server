@@ -30,5 +30,12 @@ namespace Bonheur.API.Controllers
         {
             return Ok(await _messageService.GetUnreadMessagesCountByUser());
         }
+
+        [HttpPost("attachment")]
+        [Authorize(Roles = Constants.Roles.USER + "," + Constants.Roles.SUPPLIER + "," + Constants.Roles.ADMIN)]
+        public async Task<IActionResult> UploadAttachmentFile([FromForm] IFormFile file)
+        {
+            return Ok(await _messageService.UploadAttachmentFile(file));
+        }
     }
 }

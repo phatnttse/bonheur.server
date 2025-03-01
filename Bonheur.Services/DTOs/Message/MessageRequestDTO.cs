@@ -13,5 +13,6 @@ namespace Bonheur.Services.DTOs.Message
         public string? Content { get; set; }
         public int? RequestPricingId { get; set; }
         public bool? isSupplierReply { get; set; }
+        public int? MessageAttachmentId { get; set; }
     }
 }

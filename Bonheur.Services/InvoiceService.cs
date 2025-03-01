@@ -5,7 +5,6 @@ using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Invoice;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
-using DocumentFormat.OpenXml.Office2010.Excel;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Fields;
 using MigraDoc.DocumentObjectModel.Tables;
@@ -82,8 +81,8 @@ namespace Bonheur.Services
 
             // Right cell for logo
             var rightCell = headerRow.Cells[1];
-            var logoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/logo.png");
-            var logo = rightCell.AddImage(logoPath);
+            //var logoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/logo.png");
+            var logo = rightCell.AddImage(Constants.InvoiceInfo.LOGO_URL);
 
             logo.Width = "4cm";
             logo.Height = "4cm";

@@ -2,13 +2,14 @@
 using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Enums;
 using Bonheur.BusinessObjects.Models;
-using Bonheur.DAOs;
 using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Supplier;
+using Bonheur.Services.Email;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
 using MiddlewareTool.OpenXML;
 
 
@@ -22,9 +23,10 @@ namespace Bonheur.Services
         private readonly IMapper _mapper;
         private readonly ISupplierImageRepository _supplierImageRepository;
         private readonly ISupplierCategoryRepository _supplierCategoryRepository;
+        private readonly IEmailSender _emailSender;
 
         public SupplierService(ISupplierRepository supplierRepository, IStorageService storageService, IUserAccountRepository userAccountRepository, IMapper mapper, ISupplierImageRepository supplierImageRepository, 
-            ISupplierCategoryRepository supplierCategoryRepository)
+            ISupplierCategoryRepository supplierCategoryRepository, IEmailSender emailSender)
         {
             _supplierRepository = supplierRepository;
             _storageService = storageService;
@@ -32,6 +34,7 @@ namespace Bonheur.Services
             _mapper = mapper;
             _supplierImageRepository = supplierImageRepository;
             _supplierCategoryRepository = supplierCategoryRepository;
+            _emailSender = emailSender;
         }
 
 
@@ -39,16 +42,67 @@ namespace Bonheur.Services
         {
             try
             {
-                string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
-
-                if (await _supplierRepository.IsSupplierAsync(currentUserId)) throw new ApiException("User is already a supplier", System.Net.HttpStatusCode.BadRequest);
+                string currentUserId = String.Empty;
+                ApplicationUser? currentUser = null;
 
                 if (await _supplierCategoryRepository.GetSupplierCategoryByIdAsync(createSupplierDTO.CategoryId) == null) throw new ApiException("Category not found", System.Net.HttpStatusCode.NotFound);
 
-                var currentUser = await _userAccountRepository.GetUserByIdAsync(currentUserId);
+                if (String.IsNullOrEmpty(createSupplierDTO.Email) && String.IsNullOrEmpty(createSupplierDTO.Password))
+                {
+                    currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("Please ensure you are logged in.", System.Net.HttpStatusCode.Unauthorized);
 
-                if (currentUser == null) throw new ApiException("User not found", System.Net.HttpStatusCode.NotFound);
-                
+                    if (await _supplierRepository.IsSupplierAsync(currentUserId)) throw new ApiException("User is already a supplier", System.Net.HttpStatusCode.BadRequest);
+
+                    currentUser = await _userAccountRepository.GetUserByIdAsync(currentUserId);
+
+                    if (currentUser == null) throw new ApiException("User not found", System.Net.HttpStatusCode.NotFound);
+
+                }else
+                {
+                    var existingUser = await _userAccountRepository.GetUserByUserNameAsync(createSupplierDTO.Email!);
+
+                    if (existingUser != null)
+                    {
+                        if (!existingUser.EmailConfirmed) throw new ApiException("Email is registered and not authenticated. Check your mailbox!", System.Net.HttpStatusCode.BadRequest);
+
+                        throw new ApiException("Email has been registered", System.Net.HttpStatusCode.BadRequest);
+                    }
+
+                    currentUser = _mapper.Map<ApplicationUser>(createSupplierDTO);
+
+                    var result = await _userAccountRepository.CreateUserAsync(currentUser, new string[] { Constants.Roles.USER }, createSupplierDTO.Password!);
+
+                    if (!result.Succeeded)
+                    {
+                        throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
+                    }
+
+                    var recipientName = currentUser.FullName!;
+                    var recipientEmail = currentUser.Email!;
+
+                    var token = await _userAccountRepository.GenereEmailConfirmationTokenAsync(currentUser);
+
+                    var param = new Dictionary<string, string?>
+                    {
+                         {"token", token },
+                         {"email", currentUser.Email }
+                    };
+
+                    var confirmationLink = Environment.GetEnvironmentVariable("EMAIL_CONFIRMATION_URL") ?? throw new ApiException("Email confirmation link not found", System.Net.HttpStatusCode.InternalServerError);
+
+                    var callback = QueryHelpers.AddQueryString(confirmationLink!, param);
+
+                    var message = EmailTemplates.GetConfirmEmail(recipientName, callback);
+
+
+                    // Send email asynchronously in background
+                    _ = Task.Run(async () =>
+                    {
+                        await _emailSender.SendEmailAsync(recipientName, recipientEmail, "Bonheur Confirm Email", message);                       
+                    });
+
+                }
+
                 var supplier = _mapper.Map<Supplier>(createSupplierDTO);
 
                 supplier.UserId = currentUserId;
@@ -63,7 +117,7 @@ namespace Bonheur.Services
 
                 return new ApplicationResponse
                 {
-                    Message = "Sign up to become a supplier successfully",
+                    Message = createSupplierDTO.Password != null ? "Sign up to become a supplier successfully" : "Please check your mailbox to confirm your email",
                     StatusCode = System.Net.HttpStatusCode.OK,
                     Success = true,
                     Data = _mapper.Map<SupplierDTO>(createdSupplier),
