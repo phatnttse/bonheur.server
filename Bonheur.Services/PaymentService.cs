@@ -12,6 +12,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Net.payOS;
 using Net.payOS.Types;
 using PdfSharp.Pdf;
@@ -34,6 +35,7 @@ namespace Bonheur.Services
         private readonly IInvoiceService _invoiceService;
         private readonly IStorageService _storageService;
         private readonly IEmailSender _emailSender;
+        private readonly ILogger<PaymentService> _logger;
 
         public PaymentService(
             PayOS payOS, 
@@ -44,7 +46,8 @@ namespace Bonheur.Services
             ISupplierRepository supplierRepository,
             IInvoiceService invoiceService,
             IStorageService storageService,
-            IEmailSender emailSender
+            IEmailSender emailSender,
+            ILogger<PaymentService> logger
         )
         {
             _payOS = payOS;
@@ -59,6 +62,7 @@ namespace Bonheur.Services
             _invoiceService = invoiceService;
             _storageService = storageService;
             _emailSender = emailSender;
+            _logger = logger;
         }
 
         public async Task<PaymentResponse> PayOsTransferHandler(WebhookType body)
@@ -66,6 +70,9 @@ namespace Bonheur.Services
             try
             {
                 WebhookData data = _payOS.verifyPaymentWebhookData(body);
+                _logger.LogInformation("Webhook received: {@body}", body);
+                _logger.LogInformation("Webhook received: {@data}", data);
+
 
                 if (data.description == "VQRIO123") return new PaymentResponse(0, "Ok", null); // confirm webhook
 
@@ -97,6 +104,8 @@ namespace Bonheur.Services
 
                 await _orderRepository.UpdateOrderAsync(order);
 
+                _logger.LogInformation("Order updated: {@order}", order);
+
                 #endregion
 
                 #region Update subscription package for supplier
@@ -118,9 +127,14 @@ namespace Bonheur.Services
 
                 await _supplierRepository.UpdateSupplierAsync(supplier);
 
+                _logger.LogInformation("Supplier updated: {@supplier}", supplier);
+
                 #endregion
 
                 #region Create invoice
+
+                _logger.LogInformation("Start create invoice");
+
                 int invoiceNumber = int.Parse(DateTimeOffset.UtcNow.ToString("ffffff"));
                 Invoice invoice = new Invoice
                 {
@@ -142,6 +156,8 @@ namespace Bonheur.Services
 
                 PdfDocument invoicePdf = await _invoiceService.GetInvoice(invoice);
 
+                _logger.LogInformation("Invoice created: {@invoice}", invoice);
+
                 // Save invoice PDF to Azure Blob Storage
                 MemoryStream stream = new MemoryStream();
                 invoicePdf.Save(stream);
@@ -161,10 +177,16 @@ namespace Bonheur.Services
                 invoice.FileUrl = uploadResponse.Blob.Uri;
                 invoice.FileName = uploadResponse.Blob.Name;
 
+                _logger.LogInformation("Invoice created: {@invoice}", invoice);
+
+
                 // Giải phóng stream sau khi upload xong
                 stream.Dispose();
 
                 Invoice newInvoice = await _invoiceRepository.AddInvoiceAsync(invoice);
+
+                _logger.LogInformation("Invoice created: {@invoice}", invoice);
+
 
                 // Update invoice for order
                 order.InvoiceId = newInvoice.Id;
@@ -186,9 +208,9 @@ namespace Bonheur.Services
 
                 return new PaymentResponse(0, "Ok", null);
             }
-            catch (ApiException ex)
+            catch (ApiException)
             {
-                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+                throw;
                 //return new PaymentResponse(-1, ex.Message, null);
             }
             catch (Exception ex)
