@@ -169,8 +169,12 @@ namespace Bonheur.Services
 
             if (order.OrderDetails != null)
             {
+                _logger.LogInformation($"Order Detail Count: {order.OrderDetails.Count}");
+
                 foreach (OrderDetail orderDetail in order.OrderDetails)
                 {
+                    _logger.LogInformation($"Adding order detail {orderDetail.Name} to invoice PDF for invoice {invoice.InvoiceNumber}");
+
                     row = table.AddRow();
                     row.Height = "1cm"; // Increase row height
                     row.Format.Alignment = ParagraphAlignment.Center; // Căn giữa header
