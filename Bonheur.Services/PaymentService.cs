@@ -139,7 +139,7 @@ namespace Bonheur.Services
                             Website = Constants.InvoiceInfo.WEBSITE,
                         };
 
-                        PdfDocument invoicePdf = _invoiceService.GetInvoice(invoice);
+                        PdfDocument invoicePdf = await _invoiceService.GetInvoice(invoice);
 
                         // Save invoice PDF to Azure Blob Storage
                         using (MemoryStream stream = new MemoryStream())

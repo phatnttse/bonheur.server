@@ -27,7 +27,7 @@ namespace Bonheur.Services
             _mapper = mapper;
         }
 
-        public PdfDocument GetInvoice(Invoice invoice)
+        public async Task<PdfDocument> GetInvoice(Invoice invoice)
         {
             var document = new Document();
 
@@ -39,7 +39,7 @@ namespace Bonheur.Services
 
             renderer.RenderDocument();
 
-            return renderer.PdfDocument;
+            return await Task.FromResult(renderer.PdfDocument);
         }
 
         private void BuildDocument(Document document, Invoice invoice)
