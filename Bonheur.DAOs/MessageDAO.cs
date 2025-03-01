@@ -47,6 +47,7 @@ namespace Bonheur.DAOs
         public async Task<List<Message>> GetMessages(string userId, string recipientId, int pageNumber, int pageSize)
         {
            return  await _context.Messages
+            .Include(m => m.Attachments)
             .Where(m => (m.SenderId == userId && m.ReceiverId == recipientId) ||
                 (m.SenderId == recipientId && m.ReceiverId == userId))
                 .OrderBy(m => m.CreatedAt)

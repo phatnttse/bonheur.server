@@ -20,5 +20,10 @@ namespace Bonheur.Services.DTOs.Supplier
 
         public string? WebsiteUrl { get; set; }
 
+        [EmailAddress]
+        public string? Email { get; set; }
+
+        public string? Password { get; set; }
+
     }
 }

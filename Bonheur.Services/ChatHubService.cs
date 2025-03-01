@@ -1,5 +1,4 @@
 ﻿using Bonheur.BusinessObjects.Entities;
-using Bonheur.DAOs;
 using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Account;
 using Bonheur.Services.DTOs.Message;
@@ -8,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Bonheur.BusinessObjects.Enums;
+using AutoMapper;
 
 namespace Bonheur.Services
 {
@@ -19,17 +19,26 @@ namespace Bonheur.Services
         private readonly ISupplierRepository _supplierRepository;
         private readonly IMessageRepository _messageRepository;
         private readonly IRequestPricingsRepository _requestPricingsRepository;
-        private readonly ApplicationDbContext _context;
+        private readonly IMessageAttachmentRepository _messageAttachmentRepository;
+        private readonly IMapper _mapper;
 
-        public ChatHubService(IUserAccountRepository userAccountRepository,
-            UserManager<ApplicationUser> userManager, ISupplierRepository supplierRepository, IMessageRepository messageRepository, IRequestPricingsRepository requestPricingsRepository, ApplicationDbContext context)
+        public ChatHubService(
+            IUserAccountRepository userAccountRepository,
+            UserManager<ApplicationUser> userManager, 
+            ISupplierRepository supplierRepository,
+            IMessageRepository messageRepository, 
+            IRequestPricingsRepository requestPricingsRepository,
+            IMessageAttachmentRepository messageAttachmentRepository,
+            IMapper mapper
+        )
         {
             _userAccountRepository = userAccountRepository;
             _userManager = userManager;
             _supplierRepository = supplierRepository;
             _messageRepository = messageRepository;
             _requestPricingsRepository = requestPricingsRepository;
-            _context = context;
+            _messageAttachmentRepository = messageAttachmentRepository;
+            _mapper = mapper;
         }
 
         public static readonly Dictionary<string, OnlineUserDTO> onlineUsers = new Dictionary<string, OnlineUserDTO>();
@@ -42,7 +51,7 @@ namespace Bonheur.Services
                 //var userId = httpContext?.Request.Query["uid"].ToString();
                 var userId = Utilities.GetCurrentUserId();
                 //var userName = Context!.User!.Identity!.Name;
-                var currentUser = await _userAccountRepository.GetUserByIdAsync(userId);
+                var currentUser = await _userAccountRepository.GetUserByIdAsync(userId!);
 
                 var connectionId = Context.ConnectionId;
                 if (onlineUsers.ContainsKey(userId!))
@@ -98,7 +107,7 @@ namespace Bonheur.Services
                         await _messageRepository.UpdateMessage(msg);
                     }
                 }
-                await Clients.Caller.SendAsync("ReceiveMessageList", messages);
+                await Clients.Caller.SendAsync("ReceiveMessageList", _mapper.Map<List<MessageDTO>>(messages));
 
             }
             catch (ApiException)
@@ -144,7 +153,7 @@ namespace Bonheur.Services
                         throw new Exception("Receiver not found");
                     }
                 }
-
+              
                 var newMessage = new Message
                 {
                     SenderId = senderId,
@@ -158,6 +167,16 @@ namespace Bonheur.Services
                 };
 
                 await _messageRepository.AddMessage(newMessage);
+
+                if (message.MessageAttachmentId != null)
+                {
+                    var messageAttachment = await _messageAttachmentRepository.GetMessageAttachmentByIdAsync((int)message.MessageAttachmentId) ?? throw new Exception("Message attachment not found");
+
+                    messageAttachment.MessageId = newMessage.Id;
+
+                    await _messageAttachmentRepository.UpdateMessageAttachmentAsync(messageAttachment);
+
+                }
 
                 if (message.RequestPricingId != null && int.IsPositive((int)message.RequestPricingId) && message.isSupplierReply != null && (bool)message.isSupplierReply)
                 {
@@ -174,7 +193,8 @@ namespace Bonheur.Services
 
                 if (connectionId != null)
                 {
-                    await Clients.Client(connectionId).SendAsync("ReceiveNewMessage", newMessage);
+                    await Clients.Client(connectionId).SendAsync("ReceiveNewMessage", _mapper.Map<MessageDTO>(message));
+                    await Clients.Client(connectionId).SendAsync("ReceiveMessageNotification", senderSupplier != null ? senderSupplier.Name : senderUser!.FullName);
                 }
             }
             catch (ApiException)

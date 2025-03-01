@@ -46,6 +46,7 @@ namespace Bonheur.Utils
             public const string PHONE_NUMBER = "0392341142";
             public const string EMAIL = "bonheur201@gmail.com";
             public const string WEBSITE = "https://bonheur.pro";
+            public const string LOGO_URL = "https://services.bonheur.pro/images/logo.png";
         } 
     }
 }

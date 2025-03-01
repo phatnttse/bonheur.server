@@ -1,15 +1,13 @@
-﻿using Bonheur.BusinessObjects.Entities;
+﻿using AutoMapper;
+using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Models;
-using Bonheur.Repositories;
 using Bonheur.Repositories.Interfaces;
+using Bonheur.Services.DTOs.Message;
+using Bonheur.Services.DTOs.Storage;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+
 
 namespace Bonheur.Services
 {
@@ -17,10 +15,16 @@ namespace Bonheur.Services
     {
         private readonly IMessageRepository _messageRepository;
         private readonly IUserAccountRepository _userAccountRepository;
-        public MessageService(IMessageRepository messageRepository, IUserAccountRepository userAccountRepository)
+        private readonly IStorageService _storageService;
+        private readonly IMessageAttachmentRepository _messageAttachmentRepository;
+        private readonly IMapper _mapper;
+        public MessageService(IMessageRepository messageRepository, IUserAccountRepository userAccountRepository, IStorageService storageService, IMessageAttachmentRepository messageAttachmentRepository, IMapper mapper)
         {
             _messageRepository = messageRepository;
             _userAccountRepository = userAccountRepository;
+            _storageService = storageService;
+            _messageAttachmentRepository = messageAttachmentRepository;
+            _mapper = mapper;
         }
 
         public ApplicationResponse GetSupplierMessageStatistics()
@@ -63,6 +67,40 @@ namespace Bonheur.Services
                     Success = true,
                     Message = "Get unread messages by user successfully!",
                     Data = unreadMessagesCount,
+                    StatusCode = System.Net.HttpStatusCode.OK,
+                };
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<ApplicationResponse> UploadAttachmentFile(IFormFile file)
+        {
+            try
+            {
+                AzureBlobResponseDTO uploadResult = await _storageService.UploadAsync(file);
+
+                MessageAttachment attachment = new MessageAttachment
+                {
+                    FileName = uploadResult.Blob.Name,
+                    FilePath = uploadResult.Blob.Uri,
+                    FileType = file.ContentType
+                };
+
+                MessageAttachment newAttachment = await _messageAttachmentRepository.CreateMessageAttachmentAsync(attachment);
+
+                return new ApplicationResponse
+                {
+                    Success = true,
+                    Message = "Upload attachment file successfully!",
+                    Data = _mapper.Map<MessageAttachmentDTO>(newAttachment),
                     StatusCode = System.Net.HttpStatusCode.OK,
                 };
 

@@ -225,13 +225,18 @@ namespace Bonheur.API
             .AddCookie()
             .AddOpenIdConnect(options =>
             {
-                options.Authority = "https://localhost:7175";
+                options.Authority = "https://services.bonheur.pro";
                 options.ClientId = OidcServerConfig.BonheurAppClientID;
                 options.SaveTokens = true;
                 options.ResponseType = "code";
                 options.Scope.Add("openid");
                 options.Scope.Add("profile");
                 options.Scope.Add("email");
+                options.Scope.Add("address");
+                options.Scope.Add("phone");
+                options.Scope.Add("roles");
+                options.GetClaimsFromUserInfoEndpoint = true;
+
 
                 // Lấy access_token từ query string khi cần
                 options.Events.OnMessageReceived = context =>
@@ -286,7 +291,7 @@ namespace Bonheur.API
             {
                 options.AddPolicy("AllowSpecificOrigin",
                     builder => builder
-                        .WithOrigins("http://localhost:4200")
+                        .WithOrigins("http://localhost:4300")
                         .WithOrigins("https://bonheur.pro")
                         .AllowCredentials()                  
                         .AllowAnyHeader()                      
@@ -383,6 +388,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<SocialNetworkDAO>();
             builder.Services.AddScoped<SupplierFAQDAO>();
             builder.Services.AddScoped<MessageDAO>();
+            builder.Services.AddScoped<MessageAttachmentDAO>();
 
             //Repositories
             builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
@@ -403,6 +409,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<ISocialNetworkRepository, SocialNetworkRepository>();
             builder.Services.AddScoped<ISupplierFAQRepository, SupplierFAQRepository>();
             builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+            builder.Services.AddScoped<IMessageAttachmentRepository, MessageAttachmentRepository>();
 
             // Services
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System.Globalization;
 using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -41,13 +42,45 @@ namespace Bonheur.Utils
 
         public static string GenerateSlug(string text)
         {
+            // Chuyển thành chữ thường
             text = text.ToLower();
-            text = Regex.Replace(text, @"[^a-z0-9\s-]", "");  
-            text = Regex.Replace(text, @"\s+", " ").Trim();   
-            text = text.Substring(0, text.Length <= 45 ? text.Length : 45).Trim();  
-            text = Regex.Replace(text, @"\s", "-");          
-            string ticks = DateTime.Now.Ticks.ToString();     
+
+            // Chuẩn hóa tiếng Việt thành không dấu
+            text = RemoveDiacritics(text);
+
+            // Xóa các ký tự không mong muốn, giữ lại a-z, 0-9, khoảng trắng và dấu '-'
+            text = Regex.Replace(text, @"[^a-z0-9\s-]", "");
+
+            // Thay nhiều khoảng trắng bằng 1 khoảng trắng
+            text = Regex.Replace(text, @"\s+", " ").Trim();
+
+            // Giới hạn độ dài slug
+            text = text.Substring(0, text.Length <= 45 ? text.Length : 45).Trim();
+
+            // Chuyển khoảng trắng thành dấu gạch ngang
+            text = Regex.Replace(text, @"\s", "-");
+
+            // Thêm timestamp
+            string ticks = DateTime.Now.Ticks.ToString();
+
             return $"{text}_{ticks}";
+        }
+
+        private static string RemoveDiacritics(string text)
+        {
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
 
         public static string NormalizeString(string input)
