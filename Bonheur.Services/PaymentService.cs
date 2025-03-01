@@ -73,125 +73,129 @@ namespace Bonheur.Services
 
                 Order? order = await _orderRepository.GetOrderByCodeAsync((int)data.orderCode);
 
-                    if (order == null) throw new ApiException("Order not found", System.Net.HttpStatusCode.NotFound);
+                if (order == null) throw new ApiException("Order not found", System.Net.HttpStatusCode.NotFound);
 
-                    ApplicationUser? account = await _userAccountRepository.GetUserByIdAsync(order.UserId!);
+                ApplicationUser? account = await _userAccountRepository.GetUserByIdAsync(order.UserId!);
 
-                    if (account == null) throw new ApiException("User not found", System.Net.HttpStatusCode.NotFound);
+                if (account == null) throw new ApiException("User not found", System.Net.HttpStatusCode.NotFound);
 
-                    Supplier? supplier = await _supplierRepository.GetSupplierByIdAsync((int)order.SupplierId!, false);
+                Supplier? supplier = await _supplierRepository.GetSupplierByIdAsync((int)order.SupplierId!, false);
 
-                    if (supplier == null) throw new ApiException("Supplier not found", System.Net.HttpStatusCode.NotFound);
+                if (supplier == null) throw new ApiException("Supplier not found", System.Net.HttpStatusCode.NotFound);
 
-                    #endregion
+                #endregion
 
-                    #region Update order status                   
-                    if (order.Status == OrderStatus.Active) throw new ApiException("Order already active", System.Net.HttpStatusCode.BadRequest);
+                #region Update order status                   
+                if (order.Status == OrderStatus.Active) throw new ApiException("Order already active", System.Net.HttpStatusCode.BadRequest);
 
-                        if (order.PaymentStatus == PaymentStatus.Success) throw new ApiException("Payment already successful", System.Net.HttpStatusCode.BadRequest);
+                if (order.PaymentStatus == PaymentStatus.Success) throw new ApiException("Payment already successful", System.Net.HttpStatusCode.BadRequest);
 
-                        if (order.SupplierId != supplier.Id) throw new ApiException("You are not the owner of this order", System.Net.HttpStatusCode.Unauthorized);
+                if (order.SupplierId != supplier.Id) throw new ApiException("You are not the owner of this order", System.Net.HttpStatusCode.Unauthorized);
 
-                        order.Status = OrderStatus.Active;
-                        order.PaymentStatus = PaymentStatus.Success;
-                    await _orderRepository.UpdateOrderAsync(order);
+                order.Status = OrderStatus.Active;
+                order.PaymentStatus = PaymentStatus.Success;
 
-                    #endregion
+                await _orderRepository.UpdateOrderAsync(order);
 
-                    #region Update subscription package for supplier
-                    int spId = order.OrderDetails?.ToList()[0].SubscriptionPackageId ?? throw new ApiException("Subscription package id not found", System.Net.HttpStatusCode.NotFound);
+                #endregion
 
-                        var subscriptionPackage = await _subscriptionPackageRepository.GetSubscriptionPackageByIdAsync(spId);
+                #region Update subscription package for supplier
+                int spId = order.OrderDetails?.ToList()[0].SubscriptionPackageId ?? throw new ApiException("Subscription package id not found", System.Net.HttpStatusCode.NotFound);
 
-                        if (subscriptionPackage == null) throw new ApiException("Subscription package not found", System.Net.HttpStatusCode.NotFound);
+                var subscriptionPackage = await _subscriptionPackageRepository.GetSubscriptionPackageByIdAsync(spId);
 
-                        if (subscriptionPackage.IsFeatured)
-                        {
-                            supplier.IsFeatured = true;
-                        }
+                if (subscriptionPackage == null) throw new ApiException("Subscription package not found", System.Net.HttpStatusCode.NotFound);
 
-                        supplier.SubscriptionPackageId = subscriptionPackage.Id;
-                        supplier.SubscriptionPackage = subscriptionPackage;
-                        supplier.Priority = subscriptionPackage.Priority;
-                        supplier.PriorityEnd = DateTimeOffset.UtcNow.AddDays(subscriptionPackage.DurationInDays);
+                if (subscriptionPackage.IsFeatured)
+                {
+                    supplier.IsFeatured = true;
+                }
 
-                    await _supplierRepository.UpdateSupplierAsync(supplier);
+                supplier.SubscriptionPackageId = subscriptionPackage.Id;
+                supplier.SubscriptionPackage = subscriptionPackage;
+                supplier.Priority = subscriptionPackage.Priority;
+                supplier.PriorityEnd = DateTimeOffset.UtcNow.AddDays(subscriptionPackage.DurationInDays);
 
-                    #endregion
+                await _supplierRepository.UpdateSupplierAsync(supplier);
 
-                    #region Create invoice
-                    int invoiceNumber = int.Parse(DateTimeOffset.UtcNow.ToString("ffffff"));
-                        Invoice invoice = new Invoice
-                        {
-                            InvoiceNumber = invoiceNumber,
-                            Description = order.OrderDetails?.ToList()[0].Name,
-                            OrderId = order.Id,
-                            Order = order,
-                            UserId = account.Id,
-                            User = account,
-                            SupplierId = supplier.Id,
-                            Supplier = supplier,
-                            TotalAmount = order.TotalAmount,
-                            CompanyName = Constants.InvoiceInfo.COMPANY_NAME,
-                            CompanyAddress = Constants.InvoiceInfo.COMPANY_ADDRESS,
-                            PhoneNumber = Constants.InvoiceInfo.PHONE_NUMBER,
-                            Email = Constants.InvoiceInfo.EMAIL,
-                            Website = Constants.InvoiceInfo.WEBSITE,
-                        };
+                #endregion
 
-                        PdfDocument invoicePdf = await _invoiceService.GetInvoice(invoice);
+                #region Create invoice
+                int invoiceNumber = int.Parse(DateTimeOffset.UtcNow.ToString("ffffff"));
+                Invoice invoice = new Invoice
+                {
+                    InvoiceNumber = invoiceNumber,
+                    Description = order.OrderDetails?.ToList()[0].Name,
+                    OrderId = order.Id,
+                    Order = order,
+                    UserId = account.Id,
+                    User = account,
+                    SupplierId = supplier.Id,
+                    Supplier = supplier,
+                    TotalAmount = order.TotalAmount,
+                    CompanyName = Constants.InvoiceInfo.COMPANY_NAME,
+                    CompanyAddress = Constants.InvoiceInfo.COMPANY_ADDRESS,
+                    PhoneNumber = Constants.InvoiceInfo.PHONE_NUMBER,
+                    Email = Constants.InvoiceInfo.EMAIL,
+                    Website = Constants.InvoiceInfo.WEBSITE,
+                };
 
-                        // Save invoice PDF to Azure Blob Storage
-                        using (MemoryStream stream = new MemoryStream())
-                        {
-                            invoicePdf.Save(stream);
-                            stream.Position = 0;
+                PdfDocument invoicePdf = await _invoiceService.GetInvoice(invoice);
 
-                            var formFile = new FormFile(stream, 0, stream.Length, "invoice", $"Invoice.pdf")
-                            {
-                                Headers = new HeaderDictionary(),
-                                ContentType = "application/pdf"
-                            };
+                // Save invoice PDF to Azure Blob Storage
+                MemoryStream stream = new MemoryStream();
+                invoicePdf.Save(stream);
+                stream.Position = 0;
 
-                            AzureBlobResponseDTO uploadResponse = await _storageService.UploadAsync(formFile);
+                var formFile = new FormFile(stream, 0, stream.Length, "invoice", $"Invoice.pdf")
+                {
+                    Headers = new HeaderDictionary(),
+                    ContentType = "application/pdf"
+                };
 
-                            if (uploadResponse.Error) throw new ApiException(uploadResponse?.Status!, System.Net.HttpStatusCode.InternalServerError);
+                AzureBlobResponseDTO uploadResponse = await _storageService.UploadAsync(formFile);
 
-                            invoice.FileUrl = uploadResponse.Blob.Uri;
-                            invoice.FileName = uploadResponse.Blob.Name;
-                        }
+                if (uploadResponse.Error)
+                    throw new ApiException(uploadResponse?.Status!, System.Net.HttpStatusCode.InternalServerError);
 
-                        Invoice newInvoice = await _invoiceRepository.AddInvoiceAsync(invoice);
+                invoice.FileUrl = uploadResponse.Blob.Uri;
+                invoice.FileName = uploadResponse.Blob.Name;
 
-                        // Update invoice for order
-                        order.InvoiceId = newInvoice.Id;
-                        #endregion
+                // Giải phóng stream sau khi upload xong
+                stream.Dispose();
 
-                        #region Update database
-                        await _orderRepository.UpdateOrderAsync(order);
-                        #endregion
+                Invoice newInvoice = await _invoiceRepository.AddInvoiceAsync(invoice);
 
-                        #region Send email to supplier
-                        string emailBody = EmailTemplates.GetThankForPurchase(supplier.Name!, subscriptionPackage.Name!, Constants.InvoiceInfo.WEBSITE, Constants.Common.DOMAIN);
+                // Update invoice for order
+                order.InvoiceId = newInvoice.Id;
+                #endregion
 
-                        string recipientName = supplier.Name!;
-                        string recipientEmail = account.Email!;
-                        string subject = "Thank you for your purchase";
+                #region Update database
+                await _orderRepository.UpdateOrderAsync(order);
+                #endregion
 
-                        _ = Task.Run(async () => await _emailSender.SendEmailWithAttachmentAsync(recipientEmail, subject, emailBody, invoice.FileUrl!, invoice.FileName!));
-                        #endregion
-                    
-                    return new PaymentResponse(0, "Ok", null);            
+                #region Send email to supplier
+                string emailBody = EmailTemplates.GetThankForPurchase(supplier.Name!, subscriptionPackage.Name!, Constants.InvoiceInfo.WEBSITE, Constants.Common.DOMAIN);
+
+                string recipientName = supplier.Name!;
+                string recipientEmail = account.Email!;
+                string subject = "Thank you for your purchase";
+
+                _ = Task.Run(async () => await _emailSender.SendEmailWithAttachmentAsync(recipientEmail, subject, emailBody, invoice.FileUrl!, invoice.FileName!));
+                #endregion
+
+                return new PaymentResponse(0, "Ok", null);
             }
             catch (ApiException ex)
             {
-                return new PaymentResponse(-1, ex.Message, null);
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+                //return new PaymentResponse(-1, ex.Message, null);
             }
             catch (Exception ex)
             {
-                return new PaymentResponse(-1, ex.Message, null);
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+                //return new PaymentResponse(-1, ex.Message, null);
             }
-
 
         }
 
