@@ -199,6 +199,12 @@ namespace Bonheur.Services
             row.Format.Alignment = ParagraphAlignment.Center; // Căn giữa header
             row.VerticalAlignment = VerticalAlignment.Center; // Căn giữa theo chiều dọc
 
+            _logger.LogInformation($"{order.TotalAmount}");
+            _logger.LogInformation($"{invoice.TaxAmount}");
+            _logger.LogInformation($"{invoice.CompanyAddress}");
+            _logger.LogInformation($"{invoice.CompanyName}");
+
+
             row = table.AddRow();
             row.Height = "1cm";
             row.Cells[0].MergeRight = 2;
@@ -221,7 +227,11 @@ namespace Bonheur.Services
             // Footer
             paragraph = section.Footers.Primary.AddParagraph();
             paragraph.AddText($"{invoice.CompanyName} . {invoice.CompanyAddress}");
+
+   
             paragraph.Format.Alignment = ParagraphAlignment.Center;
+
+            _logger.LogInformation($"Building invoice PDF for invoice {invoice.InvoiceNumber} completed");
 
         }
 

@@ -175,6 +175,8 @@ namespace Bonheur.Services
                 _logger.LogInformation("Invoice created: {@invoice}", invoice);
 
                 _logger.LogInformation("Start upload invoice to Azure Blob Storage");
+
+
                 // Save invoice PDF to Azure Blob Storage
                 MemoryStream stream = new MemoryStream();
                 invoicePdf.Save(stream);
