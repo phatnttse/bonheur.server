@@ -171,23 +171,24 @@ namespace Bonheur.Services
             {
                 _logger.LogInformation($"Order Detail Count: {order.OrderDetails.Count}");
 
-                foreach (OrderDetail orderDetail in order.OrderDetails)
-                {
-                    _logger.LogInformation($"Adding order detail {orderDetail.Name} to invoice PDF for invoice {invoice.InvoiceNumber}");
+                _logger.LogInformation($"Adding order detail {order.OrderDetails.ToList()[0].Name}");
+                _logger.LogInformation($"Adding order detail {order.OrderDetails.ToList()[0].Price}");
+                _logger.LogInformation($"Adding order detail {order.OrderDetails.ToList()[0].TotalAmount}");
 
                     row = table.AddRow();
                     row.Height = "1cm"; // Increase row height
                     row.Format.Alignment = ParagraphAlignment.Center; // Căn giữa header
                     row.VerticalAlignment = VerticalAlignment.Center; // Căn giữa theo chiều dọc
-                    row.Cells[0].AddParagraph(orderDetail.Order!.OrderCode!.ToString());
-                    row.Cells[1].AddParagraph(orderDetail.Name!.ToString() ?? "N/A");
-                    row.Cells[2].AddParagraph(orderDetail.Quantity.ToString());
-                    row.Cells[3].AddParagraph(Utilities.FormatCurrency(orderDetail.Price));
-                    row.Cells[4].AddParagraph(Utilities.FormatCurrency(orderDetail.TotalAmount));
-                }
+                    row.Cells[0].AddParagraph(order.OrderCode!.ToString());
+                    row.Cells[1].AddParagraph(order.OrderDetails.ToList()[0].Name!.ToString() ?? "N/A");
+                    row.Cells[2].AddParagraph(order.OrderDetails.ToList()[0].Quantity.ToString());
+                    row.Cells[3].AddParagraph(Utilities.FormatCurrency(order.OrderDetails.ToList()[0].Price));
+                    row.Cells[4].AddParagraph(Utilities.FormatCurrency(order.OrderDetails.ToList()[0].TotalAmount));
+               
             }
             
-          
+            _logger.LogInformation($"Adding order details to invoice PDF for invoice {invoice.InvoiceNumber} completed");
+
             // Subtotal, Tax, and Total in table
             row = table.AddRow();
             row.Height = "1cm";          
