@@ -158,7 +158,7 @@ namespace Bonheur.Services
                 _logger.LogInformation("Start create invoice Pdf");
 
 
-                PdfDocument invoicePdf = await _invoiceService.GetInvoice(invoice);
+                PdfDocument invoicePdf = await _invoiceService.GetInvoice(invoice, order);
 
                 if (invoicePdf == null)
                     throw new ApiException("Failed to generate invoice PDF", System.Net.HttpStatusCode.InternalServerError);

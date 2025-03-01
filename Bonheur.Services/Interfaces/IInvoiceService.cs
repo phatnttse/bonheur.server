@@ -11,7 +11,7 @@ namespace Bonheur.Services.Interfaces
 {
     public interface IInvoiceService
     {
-        Task<PdfDocument> GetInvoice(Invoice invoice);
+        Task<PdfDocument> GetInvoice(Invoice invoice, Order order);
         Task<ApplicationResponse> GetInvoicesBySupplierAsync(bool? sortAsc,
                 string? orderBy, int pageNumber = 1,
                 int pageSize = 10);
