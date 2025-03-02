@@ -71,8 +71,6 @@ namespace Bonheur.Services
             {
                 WebhookData data = _payOS.verifyPaymentWebhookData(body);
                 _logger.LogInformation("Webhook received: {@body}", body);
-                _logger.LogInformation("Webhook received: {@data}", data);
-
 
                 if (data.description == "VQRIO123") return new PaymentResponse(0, "Ok", null); // confirm webhook
 
@@ -102,16 +100,10 @@ namespace Bonheur.Services
                 order.Status = OrderStatus.Active;
                 order.PaymentStatus = PaymentStatus.Success;
 
-                await _orderRepository.UpdateOrderAsync(order);
-
-                _logger.LogInformation("Order updated: {@order}", order);
-
                 #endregion
 
                 #region Update subscription package for supplier
                 int spId = order.OrderDetails?.ToList()[0].SubscriptionPackageId ?? throw new ApiException("Subscription package id not found", System.Net.HttpStatusCode.NotFound);
-
-                _logger.LogInformation("Subscription package id: {@spId}", spId);
 
                 var subscriptionPackage = await _subscriptionPackageRepository.GetSubscriptionPackageByIdAsync(spId);
 
@@ -129,15 +121,11 @@ namespace Bonheur.Services
 
                 await _supplierRepository.UpdateSupplierAsync(supplier);
 
-                _logger.LogInformation("Supplier updated: {@supplier}", supplier);
-
                 #endregion
 
                 #region Create invoice
 
                 _logger.LogInformation("Start create invoice");
-
-                _logger.LogInformation($"Order Details: {order.OrderDetails.ToList()}");
 
                 int invoiceNumber = int.Parse(DateTimeOffset.UtcNow.ToString("ffffff"));
 
@@ -168,15 +156,6 @@ namespace Bonheur.Services
                 if (invoicePdf == null)
                     throw new ApiException("Failed to generate invoice PDF", System.Net.HttpStatusCode.InternalServerError);
 
-
-                _logger.LogInformation("Invoice pdf created: {@invoice}", invoicePdf);
-
-
-                _logger.LogInformation("Invoice created: {@invoice}", invoice);
-
-                _logger.LogInformation("Start upload invoice to Azure Blob Storage");
-
-
                 // Save invoice PDF to Azure Blob Storage
                 MemoryStream stream = new MemoryStream();
                 invoicePdf.Save(stream);
@@ -196,18 +175,10 @@ namespace Bonheur.Services
                 invoice.FileUrl = uploadResponse.Blob.Uri;
                 invoice.FileName = uploadResponse.Blob.Name;
 
-                _logger.LogInformation("End upload");
-
-                _logger.LogInformation("Invoice created: {@invoice}", invoice);
-
-
                 // Giải phóng stream sau khi upload xong
                 stream.Dispose();
 
                 Invoice newInvoice = await _invoiceRepository.AddInvoiceAsync(invoice);
-
-                _logger.LogInformation("Invoice created: {@invoice}", invoice);
-
 
                 // Update invoice for order
                 order.InvoiceId = newInvoice.Id;
