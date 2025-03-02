@@ -50,7 +50,7 @@ namespace Bonheur.DAOs
             .Include(m => m.Attachments)
             .Where(m => (m.SenderId == userId && m.ReceiverId == recipientId) ||
                 (m.SenderId == recipientId && m.ReceiverId == userId))
-                .OrderBy(m => m.CreatedAt)
+                .OrderByDescending(m => m.CreatedAt)
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bonheur.Services.DTOs.Storage;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,6 @@ namespace Bonheur.Services.DTOs.Message
         public string? Content { get; set; }
         public int? RequestPricingId { get; set; }
         public bool? isSupplierReply { get; set; }
-        public int? MessageAttachmentId { get; set; }
+        public List<AzureBlobResponseDTO>? AzureBlobUploadedResponses{ get; set; }
     }
 }

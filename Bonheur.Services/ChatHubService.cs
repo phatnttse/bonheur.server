@@ -90,7 +90,7 @@ namespace Bonheur.Services
         {
             try
             {
-                int pageSize = 30;
+                int pageSize = 10;
                 var httpContext = Context.GetHttpContext();
                 var userId = Utilities.GetCurrentUserId();
                 var currentUser = await _userAccountRepository.GetUserByIdAsync(userId);
@@ -153,8 +153,8 @@ namespace Bonheur.Services
                         throw new Exception("Receiver not found");
                     }
                 }
-              
-                var newMessage = new Message
+
+                Message newMessage = new Message
                 {
                     SenderId = senderId,
                     SenderName = senderSupplier != null ? senderSupplier.Name : senderUser!.FullName,
@@ -168,14 +168,20 @@ namespace Bonheur.Services
 
                 await _messageRepository.AddMessage(newMessage);
 
-                if (message.MessageAttachmentId != null && int.IsPositive((int)message.MessageAttachmentId))
+                if (message.AzureBlobUploadedResponses != null && message.AzureBlobUploadedResponses.Count > 0)
                 {
-                    var messageAttachment = await _messageAttachmentRepository.GetMessageAttachmentByIdAsync((int)message.MessageAttachmentId) ?? throw new Exception("Message attachment not found");
+                    foreach (var uploadedResponse in message.AzureBlobUploadedResponses)
+                    {
+                        var newMessageAttachment = new MessageAttachment
+                        {
+                            FileName = uploadedResponse.Blob.Name,
+                            FilePath = uploadedResponse.Blob.Uri,
+                            FileType = uploadedResponse.Blob.ContentType,
+                            MessageId = newMessage.Id
+                        };
 
-                    messageAttachment.MessageId = newMessage.Id;
-
-                    await _messageAttachmentRepository.UpdateMessageAttachmentAsync(messageAttachment);
-
+                        await _messageAttachmentRepository.CreateMessageAttachmentAsync(newMessageAttachment);
+                    }                   
                 }
 
                 if (message.RequestPricingId != null && int.IsPositive((int)message.RequestPricingId) && message.isSupplierReply != null && (bool)message.isSupplierReply)
@@ -193,7 +199,7 @@ namespace Bonheur.Services
 
                 if (connectionId != null)
                 {
-                    await Clients.Client(connectionId).SendAsync("ReceiveNewMessage", _mapper.Map<MessageDTO>(message));
+                    await Clients.Client(connectionId).SendAsync("ReceiveNewMessage", _mapper.Map<MessageDTO>(newMessage));
                     await Clients.Client(connectionId).SendAsync("ReceiveMessageNotification", senderSupplier != null ? senderSupplier.Name : senderUser!.FullName);
                 }
             }
@@ -233,13 +239,13 @@ namespace Bonheur.Services
             }
         }
 
-        //public override Task OnDisconnectedAsync(Exception? exception)
-        //{
-        //    var httpContext = Context.GetHttpContext();
-        //    var userId = Utilities.GetCurrentUserId();
-        //    onlineUsers.Remove(userId!, out _);
-        //    return Task.CompletedTask;
-        //}
+        public override Task OnDisconnectedAsync(Exception? exception)
+        {
+            var httpContext = Context.GetHttpContext();
+            var userId = Utilities.GetCurrentUserId();
+            onlineUsers.Remove(userId!, out _);
+            return Task.CompletedTask;
+        }
 
         //private async Task<IEnumerable<OnlineUserDTO>> GetAllUsers()
         //{

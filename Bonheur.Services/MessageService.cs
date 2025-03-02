@@ -81,26 +81,33 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> UploadAttachmentFile(IFormFile file)
-        {
+        public async Task<ApplicationResponse> UploadAttachmentFile(List<IFormFile> files)
+        { 
             try
             {
-                AzureBlobResponseDTO uploadResult = await _storageService.UploadAsync(file);
+                if (files.Count == 0) throw new ApiException("Please select a file to upload!", System.Net.HttpStatusCode.BadRequest);
 
-                MessageAttachment attachment = new MessageAttachment
+                if (files.Count > 5) throw new ApiException("You can only upload up to 5 files at a time!", System.Net.HttpStatusCode.BadRequest);
+
+                List<AzureBlobResponseDTO> uploadResponses = new List<AzureBlobResponseDTO>();
+
+                foreach (IFormFile file in files)
                 {
-                    FileName = uploadResult.Blob.Name,
-                    FilePath = uploadResult.Blob.Uri,
-                    FileType = file.ContentType
-                };
+                    if (file.Length == 0) throw new ApiException("File is empty!", System.Net.HttpStatusCode.BadRequest);
 
-                MessageAttachment newAttachment = await _messageAttachmentRepository.CreateMessageAttachmentAsync(attachment);
+                    if (file.Length > 10485760) throw new ApiException("File size is too large! Maximum file size is 10MB.", System.Net.HttpStatusCode.BadRequest);
+
+                    AzureBlobResponseDTO uploadResult = await _storageService.UploadAsync(file);
+
+                    uploadResponses.Add(uploadResult);
+
+                }
 
                 return new ApplicationResponse
                 {
                     Success = true,
                     Message = "Upload attachment file successfully!",
-                    Data = _mapper.Map<MessageAttachmentDTO>(newAttachment),
+                    Data = uploadResponses,
                     StatusCode = System.Net.HttpStatusCode.OK,
                 };
 
