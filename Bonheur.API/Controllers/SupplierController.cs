@@ -112,7 +112,6 @@ namespace Bonheur.API.Controllers
         [HttpPost]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(404)]
-        [Authorize(Roles = Constants.Roles.USER + "," + Constants.Roles.ADMIN)]
         public async Task<IActionResult> SignupToBecomeSupplier([FromBody]CreateSupplierDTO createSupplierDTO)
         {
             return Ok(await _supplierService.CreateSupplierAsync(createSupplierDTO));

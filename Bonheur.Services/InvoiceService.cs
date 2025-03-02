@@ -46,8 +46,6 @@ namespace Bonheur.Services
 
             renderer.RenderDocument();
 
-            _logger.LogInformation($"End generating invoice PDF for invoice {invoice.InvoiceNumber}");
-
             return await Task.FromResult(renderer.PdfDocument);
         }
 
@@ -93,8 +91,8 @@ namespace Bonheur.Services
 
             // Right cell for logo
             var rightCell = headerRow.Cells[1];
-            //var logoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/logo.png");
-            var logo = rightCell.AddImage(Constants.InvoiceInfo.LOGO_URL);
+            var logoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/logo.png");
+            var logo = rightCell.AddImage(logoPath);
 
             logo.Width = "4cm";
             logo.Height = "4cm";
@@ -165,30 +163,24 @@ namespace Bonheur.Services
             row.Format.Alignment = ParagraphAlignment.Center; // Căn giữa header
             row.VerticalAlignment = VerticalAlignment.Center; // Căn giữa theo chiều dọc
          
-            _logger.LogInformation($"Adding order details to invoice PDF for invoice {invoice.InvoiceNumber}");
 
             if (order.OrderDetails != null)
             {
-                _logger.LogInformation($"Order Detail Count: {order.OrderDetails.Count}");
 
-                _logger.LogInformation($"Adding order detail {order.OrderDetails.ToList()[0].Name}");
-                _logger.LogInformation($"Adding order detail {order.OrderDetails.ToList()[0].Price}");
-                _logger.LogInformation($"Adding order detail {order.OrderDetails.ToList()[0].TotalAmount}");
-
+                foreach (OrderDetail orderDetail in order.OrderDetails)
+                {
                     row = table.AddRow();
                     row.Height = "1cm"; // Increase row height
                     row.Format.Alignment = ParagraphAlignment.Center; // Căn giữa header
                     row.VerticalAlignment = VerticalAlignment.Center; // Căn giữa theo chiều dọc
-                    row.Cells[0].AddParagraph(order.OrderCode!.ToString());
-                    row.Cells[1].AddParagraph(order.OrderDetails.ToList()[0].Name!.ToString() ?? "N/A");
-                    row.Cells[2].AddParagraph(order.OrderDetails.ToList()[0].Quantity.ToString());
-                    row.Cells[3].AddParagraph(Utilities.FormatCurrency(order.OrderDetails.ToList()[0].Price));
-                    row.Cells[4].AddParagraph(Utilities.FormatCurrency(order.OrderDetails.ToList()[0].TotalAmount));
-               
+                    row.Cells[0].AddParagraph(orderDetail.Order!.OrderCode!.ToString());
+                    row.Cells[1].AddParagraph(orderDetail.Name!.ToString() ?? "N/A");
+                    row.Cells[2].AddParagraph(orderDetail.Quantity.ToString());
+                    row.Cells[3].AddParagraph(Utilities.FormatCurrency(orderDetail.Price));
+                    row.Cells[4].AddParagraph(Utilities.FormatCurrency(orderDetail.TotalAmount));
+                }
             }
             
-            _logger.LogInformation($"Adding order details to invoice PDF for invoice {invoice.InvoiceNumber} completed");
-
             // Subtotal, Tax, and Total in table
             row = table.AddRow();
             row.Height = "1cm";          
@@ -198,12 +190,6 @@ namespace Bonheur.Services
             row.Cells[4].AddParagraph(Utilities.FormatCurrency(order.TotalAmount - invoice.TaxAmount));
             row.Format.Alignment = ParagraphAlignment.Center; // Căn giữa header
             row.VerticalAlignment = VerticalAlignment.Center; // Căn giữa theo chiều dọc
-
-            _logger.LogInformation($"{order.TotalAmount}");
-            _logger.LogInformation($"{invoice.TaxAmount}");
-            _logger.LogInformation($"{invoice.CompanyAddress}");
-            _logger.LogInformation($"{invoice.CompanyName}");
-
 
             row = table.AddRow();
             row.Height = "1cm";
@@ -227,11 +213,7 @@ namespace Bonheur.Services
             // Footer
             paragraph = section.Footers.Primary.AddParagraph();
             paragraph.AddText($"{invoice.CompanyName} . {invoice.CompanyAddress}");
-
-   
             paragraph.Format.Alignment = ParagraphAlignment.Center;
-
-            _logger.LogInformation($"Building invoice PDF for invoice {invoice.InvoiceNumber} completed");
 
         }
 

@@ -168,7 +168,7 @@ namespace Bonheur.Services
 
                 await _messageRepository.AddMessage(newMessage);
 
-                if (message.MessageAttachmentId != null)
+                if (message.MessageAttachmentId != null && int.IsPositive((int)message.MessageAttachmentId))
                 {
                     var messageAttachment = await _messageAttachmentRepository.GetMessageAttachmentByIdAsync((int)message.MessageAttachmentId) ?? throw new Exception("Message attachment not found");
 
@@ -233,13 +233,13 @@ namespace Bonheur.Services
             }
         }
 
-        public override Task OnDisconnectedAsync(Exception? exception)
-        {
-            var httpContext = Context.GetHttpContext();
-            var userId = Utilities.GetCurrentUserId();
-            onlineUsers.Remove(userId!, out _);
-            return Task.CompletedTask;
-        }
+        //public override Task OnDisconnectedAsync(Exception? exception)
+        //{
+        //    var httpContext = Context.GetHttpContext();
+        //    var userId = Utilities.GetCurrentUserId();
+        //    onlineUsers.Remove(userId!, out _);
+        //    return Task.CompletedTask;
+        //}
 
         //private async Task<IEnumerable<OnlineUserDTO>> GetAllUsers()
         //{
