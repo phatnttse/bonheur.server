@@ -33,9 +33,9 @@ namespace Bonheur.API.Controllers
 
         [HttpPost("attachment")]
         [Authorize(Roles = Constants.Roles.USER + "," + Constants.Roles.SUPPLIER + "," + Constants.Roles.ADMIN)]
-        public async Task<IActionResult> UploadAttachmentFile([FromForm] IFormFile file)
+        public async Task<IActionResult> UploadAttachmentFile([FromForm] List<IFormFile> files)
         {
-            return Ok(await _messageService.UploadAttachmentFile(file));
+            return Ok(await _messageService.UploadAttachmentFile(files));
         }
     }
 }

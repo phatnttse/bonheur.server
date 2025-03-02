@@ -12,6 +12,6 @@ namespace Bonheur.Services.Interfaces
     {
         ApplicationResponse GetSupplierMessageStatistics();
         Task<ApplicationResponse> GetUnreadMessagesCountByUser();
-        Task<ApplicationResponse> UploadAttachmentFile(IFormFile file);
+        Task<ApplicationResponse> UploadAttachmentFile(List<IFormFile> files);
     }
 }
