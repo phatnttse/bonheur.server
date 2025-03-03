@@ -99,5 +99,24 @@ namespace Bonheur.DAOs
                 .CountAsync();
         }
 
+        public async Task<Dictionary<string, (string LatestMessage, DateTimeOffset? LatestMessageAt)>> GetLatestMessageBySupplierIds(string userId, List<string> supplierIds)
+        {
+            var result = await _context.Messages
+                .Where(m => (m.SenderId == userId && supplierIds.Contains(m.ReceiverId)) ||
+                            (m.ReceiverId == userId && supplierIds.Contains(m.SenderId)))
+                .GroupBy(m => m.SenderId == userId ? m.ReceiverId : m.SenderId)
+                .Select(g => new
+                {
+                    SupplierId = g.Key,
+                    LatestMessage = g.OrderByDescending(m => m.CreatedAt).First()
+                })
+                .ToListAsync(); // Use ToListAsync() to avoid async error
+
+            return result.ToDictionary(
+                x => x.SupplierId!,
+                x => ((string)x.LatestMessage.Content!, (DateTimeOffset?)x.LatestMessage.CreatedAt) // Cast to non-nullable types
+            );
+        }
+
     }
 }

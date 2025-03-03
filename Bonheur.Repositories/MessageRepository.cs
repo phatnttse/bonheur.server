@@ -27,5 +27,6 @@ namespace Bonheur.Repositories
         public Task<List<string?>> GetSupplierIdsContacted(string userId) => _messageDAO.GetSupplierIdsContacted(userId);
         public Task<Dictionary<string, int>> GetUnredMessagesBySupplierIds(string userId, List<string> supplierIds) => _messageDAO.GetUnredMessagesBySupplierIds(userId, supplierIds);
         public async Task<int> GetUnreadMessagesCountByUserId(string userId) => await _messageDAO.GetUnreadMessagesCountByUserId(userId);
+        public Task<Dictionary<string, (string LatestMessage, DateTimeOffset? LatestMessageAt)>> GetLatestMessageBySupplierIds(string userId, List<string> supplierIds) => _messageDAO.GetLatestMessageBySupplierIds(userId, supplierIds);
     }
 }
