@@ -288,6 +288,9 @@ namespace Bonheur.Services
                 // Lấy số lượng tin nhắn chưa đọc theo từng supplier
                 var unreadMessagesDict = _messageRepository.GetUnredMessagesBySupplierIds(userId, supplierIds).Result;
 
+                var latestMessagesDict = _messageRepository.GetLatestMessageBySupplierIds(userId, supplierIds).Result;
+
+
                 // Truy vấn danh sách suppliers từ UserManager một lần duy nhất
                 var suppliers = _userManager.Users
                     .Where(u => supplierIds.Contains(u.Id))
@@ -298,7 +301,9 @@ namespace Bonheur.Services
                         FullName = u.FullName,
                         PictureUrl = u.PictureUrl,
                         IsOnline = onlineUsersSet.Contains(u.Id),
-                        UnreadMessages = unreadMessagesDict.ContainsKey(u.Id) ? unreadMessagesDict[u.Id] : 0
+                        UnreadMessages = unreadMessagesDict.ContainsKey(u.Id) ? unreadMessagesDict[u.Id] : 0,
+                        LatestMessage = latestMessagesDict.ContainsKey(u.Id) ? latestMessagesDict[u.Id].LatestMessage : null,
+                        LatestMessageAt = latestMessagesDict.ContainsKey(u.Id) ? latestMessagesDict[u.Id].LatestMessageAt : null
                     })
                     .OrderByDescending(u => u.IsOnline)
                     .ToList();
