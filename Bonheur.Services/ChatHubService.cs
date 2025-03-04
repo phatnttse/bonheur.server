@@ -241,7 +241,6 @@ namespace Bonheur.Services
 
         public override Task OnDisconnectedAsync(Exception? exception)
         {
-            var httpContext = Context.GetHttpContext();
             var userId = Utilities.GetCurrentUserId();
             onlineUsers.Remove(userId!, out _);
             return Task.CompletedTask;
