@@ -36,6 +36,8 @@ namespace Bonheur.DAOs
                 .Include(i => i.Supplier)
                 .Include(i => i.User)
                 .Where(i => i.SupplierId == supplierId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .OrderByDescending(o => o.CreatedAt);
 
             if (!string.IsNullOrEmpty(orderBy))

@@ -27,10 +27,15 @@ namespace Bonheur.DAOs
 
         public Task<IPagedList<RequestPricing>> GetAllRequestPricing(int pageNumber = 1, int pageSize= 10)
         {
-            IQueryable<RequestPricing> query = _context.RequestPricings; 
-            var orderedQuery = query.OrderByDescending(rp => rp.CreatedAt);
-            var requestPricings =  orderedQuery.ToPagedList(pageNumber, pageSize);
-            return Task.FromResult(requestPricings);
+            var result = _context.RequestPricings
+                .Include(rp => rp.User)
+                .Include(rp => rp.Supplier)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .OrderByDescending(rp => rp.CreatedAt)
+                .ToPagedList(pageNumber, pageSize);
+
+            return Task.FromResult(result);
         }
 
         public Task<IPagedList<RequestPricing>> GetAllRequestPricingBySupplierId(int supplierId, int pageNumber = 1, int pageSize = 10)
