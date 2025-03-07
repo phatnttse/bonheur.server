@@ -3,6 +3,7 @@ using System;
 using Bonheur.DAOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Bonheur.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250307085526_Update_Supplier")]
+    partial class Update_Supplier
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -785,15 +788,6 @@ namespace Bonheur.API.Migrations
                     b.Property<bool>("IsFeatured")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsStep1Completed")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsStep2Completed")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsStep3Completed")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Latitude")
                         .HasColumnType("text");
 
@@ -838,7 +832,7 @@ namespace Bonheur.API.Migrations
                     b.Property<string>("Status")
                         .HasColumnType("text");
 
-                    b.Property<int>("StepCompletedCount")
+                    b.Property<int>("StepCompeletedCount")
                         .HasColumnType("integer");
 
                     b.Property<string>("Street")

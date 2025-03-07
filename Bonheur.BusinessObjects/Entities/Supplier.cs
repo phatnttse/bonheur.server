@@ -67,27 +67,8 @@ namespace Bonheur.BusinessObjects.Entities
 
         [StringLength(50)]
         [EnumDataType(typeof(OnBoardStatus))]
-        public OnBoardStatus? OnBoardStatus { get; set; } = Enums.OnBoardStatus.BusinessInfo;
-        public int OnBoardPercent
-        {
-            get
-            {
-                switch (OnBoardStatus)
-                {
-                    case Enums.OnBoardStatus.BusinessInfo:
-                        return 25;
-                    case Enums.OnBoardStatus.Location:
-                        return 50;
-                    case Enums.OnBoardStatus.Photos:
-                        return 75;
-                    case Enums.OnBoardStatus.Completed:
-                        return 100;
-                    default:
-                        return 0;
-                }
-            }
-        }
-
+        public OnBoardStatus? OnBoardStatus { get; set; } = Enums.OnBoardStatus.Pending;
+        
         public decimal Discount { get; set; } = 0;
 
         public decimal AverageRating { get; set; } = 0;
@@ -97,6 +78,14 @@ namespace Bonheur.BusinessObjects.Entities
         public int TotalReview { get; set; } = 0;
 
         public int View { get; set; } = 0;
+
+        public int StepCompletedCount { get; set; }
+
+        public bool IsStep1Completed { get; set; }
+
+        public bool IsStep2Completed { get; set; }
+
+        public bool IsStep3Completed { get; set; }
 
         // Gói dịch vụ
         public int? SubscriptionPackageId { get; set; }
