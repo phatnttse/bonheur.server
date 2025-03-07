@@ -68,7 +68,13 @@ namespace Bonheur.Services
                         throw new ApiException("Email has been registered", System.Net.HttpStatusCode.BadRequest);
                     }
 
-                    currentUser = _mapper.Map<ApplicationUser>(createSupplierDTO);
+                    currentUser = new ApplicationUser
+                    {
+                        Email = createSupplierDTO.Email,
+                        UserName = createSupplierDTO.Email,
+                        EmailConfirmed = false,
+                        FullName = createSupplierDTO.Name
+                    };
 
                     var result = await _userAccountRepository.CreateUserAsync(currentUser, new string[] { Constants.Roles.USER }, createSupplierDTO.Password!);
 
@@ -76,6 +82,8 @@ namespace Bonheur.Services
                     {
                         throw new ApiException(string.Join("; ", result.Errors.Select(error => error)), System.Net.HttpStatusCode.BadRequest);
                     }
+
+                    currentUserId = currentUser.Id!;
 
                     var recipientName = currentUser.FullName!;
                     var recipientEmail = currentUser.Email!;
@@ -313,7 +321,9 @@ namespace Bonheur.Services
 
                 if (supplier.OnBoardStatus != OnBoardStatus.Completed)
                 {
-                    updatedSupplier.OnBoardStatus = OnBoardStatus.Location; // Chuyển trạng thái của supplier sang bước cập nhật địa chỉ
+                    updatedSupplier.StepCompletedCount += 1;
+                    if (updatedSupplier.StepCompletedCount == 3) updatedSupplier.OnBoardStatus = OnBoardStatus.Completed; // Chuyển trạng thái của supplier sang bước hoàn thành
+                    supplier.IsStep1Completed = true;
                 }
 
                 var result = await _supplierRepository.UpdateSupplierAsync(updatedSupplier);
@@ -352,7 +362,9 @@ namespace Bonheur.Services
 
                 if (supplier.OnBoardStatus != OnBoardStatus.Completed)
                 {
-                    updatedSupplier.OnBoardStatus = OnBoardStatus.Photos; // Chuyển trạng thái của supplier sang bước tải lên hình ảnh
+                    updatedSupplier.StepCompletedCount += 1;
+                    if (updatedSupplier.StepCompletedCount == 3) updatedSupplier.OnBoardStatus = OnBoardStatus.Completed; // Chuyển trạng thái của supplier sang bước hoàn thành
+                    updatedSupplier.IsStep2Completed = true;
                 }
 
                 var result = await _supplierRepository.UpdateSupplierAsync(updatedSupplier);
@@ -426,9 +438,9 @@ namespace Bonheur.Services
 
                 if (supplier.OnBoardStatus != OnBoardStatus.Completed)
                 {
-                    supplier.OnBoardStatus = OnBoardStatus.Completed;
-                    var supplierUpdated = await _supplierRepository.UpdateSupplierAsync(supplier);
-                    
+                    supplier.StepCompletedCount += 1;
+                    if (supplier.StepCompletedCount == 3) supplier.OnBoardStatus = OnBoardStatus.Completed; // Chuyển trạng thái của supplier sang bước hoàn thành
+                    supplier.IsStep3Completed = true;
                 }
 
                 return new ApplicationResponse

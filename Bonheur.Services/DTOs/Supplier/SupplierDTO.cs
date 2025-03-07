@@ -37,14 +37,15 @@ namespace Bonheur.Services.DTOs.Supplier
         public DateTimeOffset? PriorityEnd { get; set; }
         public SupplierStatus? Status { get; set; } 
         public OnBoardStatus? OnBoardStatus { get; set; }
-        public int OnBoardPercent { get; set; }
         public bool IsFeatured { get; set; }
         public decimal AverageRating { get; set; }
         public int TotalRating { get; set; } 
-        public int TotalReview { get; set; }
         public decimal Discount { get; set; }
         public int View { get; set; }
-
+        public int StepCompletedCount { get; set; }
+        public bool IsStep1Completed { get; set; }
+        public bool IsStep2Completed { get; set; }
+        public bool IsStep3Completed { get; set; }
         public List<SupplierImageDTO>? Images { get; set; }
         public List<SupplierSocialNetworkDTO>? SocialNetworks { get; set; }
         public List<SupplierFAQDTO>? Faqs { get; set; }
