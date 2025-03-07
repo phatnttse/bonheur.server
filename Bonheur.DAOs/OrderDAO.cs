@@ -104,5 +104,10 @@ namespace Bonheur.DAOs
             _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<int> GetTotalOrdersCountAsync()
+        {
+            return await _context.Orders.CountAsync();
+        }
     }
 }

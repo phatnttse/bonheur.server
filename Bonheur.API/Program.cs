@@ -36,6 +36,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using MassTransit;
+using Bonheur.Services.MessageBrokers;
+using Bonheur.Services.MessageBrokers.Consumers;
 
 namespace Bonheur.API
 {
@@ -285,7 +288,7 @@ namespace Bonheur.API
                     policy => policy.Requirements.Add(new AssignRolesAuthorizationRequirement()));
 
             // Add cors
-            builder.Services.AddCors();
+            //builder.Services.AddCors();
 
             builder.Services.AddCors(options =>
             {
@@ -315,7 +318,7 @@ namespace Bonheur.API
                     new QueryStringApiVersionReader("api-version"),
                     new HeaderApiVersionReader("x-version"),
                     new MediaTypeApiVersionReader("version")
-                    );
+                );
             });
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -369,6 +372,35 @@ namespace Bonheur.API
 
             builder.Services.AddSingleton(payOS);
 
+            //MassTransit
+            //builder.Services.AddMassTransit(busConfigurator =>
+            //{
+            //    busConfigurator.AddConsumer<NotificationCreatedConsumer>();
+
+            //    busConfigurator.UsingRabbitMq((context, cfg) =>
+            //    {
+            //        string RABBITMQ_HOST = Environment.GetEnvironmentVariable("RabbitMQ_Host") ??
+            //            throw new InvalidOperationException("Environement string 'RabbitMQ_Host' not found.");
+
+            //        string RABBITMQ_USERNAME = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ??
+            //            throw new InvalidOperationException("Environement string 'RABBITMQ_USERNAME' not found.");
+
+            //        string RABBITMQ_PASSWORD = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ??
+            //            throw new InvalidOperationException("Environement string 'RABBITMQ_PASSWORD' not found.");
+
+            //        cfg.Host(new Uri(RABBITMQ_HOST), h =>
+            //        {
+            //            h.Username(RABBITMQ_USERNAME);
+            //            h.Password(RABBITMQ_PASSWORD);
+            //        });
+
+            //        cfg.ConfigureEndpoints(context);
+            //    });
+
+            //});
+
+            //builder.Services.AddTransient<IEventBus, EventBus>();
+
             // DAOs
             builder.Services.AddScoped<UserAccountDAO>();
             builder.Services.AddScoped<UserRoleDAO>();
@@ -389,6 +421,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<SupplierFAQDAO>();
             builder.Services.AddScoped<MessageDAO>();
             builder.Services.AddScoped<MessageAttachmentDAO>();
+            builder.Services.AddScoped<NotificationDAO>();
 
             //Repositories
             builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
@@ -410,6 +443,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<ISupplierFAQRepository, SupplierFAQRepository>();
             builder.Services.AddScoped<IMessageRepository, MessageRepository>();
             builder.Services.AddScoped<IMessageAttachmentRepository, MessageAttachmentRepository>();
+            builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
             // Services
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();
@@ -424,7 +458,6 @@ namespace Bonheur.API
             builder.Services.AddScoped<IReviewService, ReviewService>();
             builder.Services.AddScoped<IAdPackageService,AdPackageService>();   
             builder.Services.AddScoped<IAdvertisementService, AdvertisementService>();
-            //builder.Services.AddScoped<IChatHubService, ChatHubService>();
             builder.Services.AddScoped<IFavoriteSupplierService, FavoriteSupplierService>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddScoped<IInvoiceService, InvoiceService>();
@@ -434,6 +467,8 @@ namespace Bonheur.API
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IPlaceService, PlaceService>();
             builder.Services.AddScoped<IMessageService, MessageService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
 
             // Auth Handlers
             builder.Services.AddSingleton<IAuthorizationHandler, ViewUserAuthorizationHandler>();
@@ -517,10 +552,10 @@ namespace Bonheur.API
 
             app.UseCors("AllowSpecificOrigin");
 
-            app.UseCors(builder => builder
-               .AllowAnyOrigin()
-               .AllowAnyHeader()
-               .AllowAnyMethod());
+            //app.UseCors(builder => builder
+            //   .AllowAnyOrigin()
+            //   .AllowAnyHeader()
+            //   .AllowAnyMethod());
 
             //app.UseRateLimiter();
 

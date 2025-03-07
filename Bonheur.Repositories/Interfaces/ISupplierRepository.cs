@@ -47,6 +47,7 @@ namespace Bonheur.Repositories.Interfaces
                int pageNumber = 1,
                int pageSize = 10
            );
+        Task<int> GetTotalSuppliersCountAsync();
 
     }
 }

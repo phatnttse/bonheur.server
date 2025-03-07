@@ -38,5 +38,6 @@ namespace Bonheur.Repositories.Interfaces
         Task AddToRolesAsync(ApplicationUser user, IEnumerable<string> roles);
         Task<string> GenerateChangeEmailTokenAsync(ApplicationUser user, string newEmail);
         Task<IdentityResult> ChangeEmailAsync(ApplicationUser user, string newEmail, string token);
+        Task<int> GetTotalUsersCountAsync();
     }
 }

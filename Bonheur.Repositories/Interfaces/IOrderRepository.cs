@@ -20,5 +20,7 @@ namespace Bonheur.Repositories.Interfaces
         Task DeleteOrderAsync(Order order);
         Task<IPagedList<Order>> GetOrdersAsync(string? orderCode, OrderStatus? status, string? name, string? email, string? phone, string? address, string? province, string? ward, string? district, bool? sortAsc, string? orderBy, int pageNumber = 1, int pageSize = 10);
 
+        Task<int> GetTotalOrdersCountAsync();
+
     }
 }

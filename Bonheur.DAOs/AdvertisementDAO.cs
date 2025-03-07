@@ -56,5 +56,10 @@ namespace Bonheur.DAOs
             _context.Advertisements.Remove(advertisement);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<int> GetTotalAdvertisementsCount()
+        {
+            return await _context.Advertisements.CountAsync();
+        }
     }
 }
