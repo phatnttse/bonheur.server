@@ -30,5 +30,8 @@ namespace Bonheur.Repositories
         public async Task<IPagedList<RequestPricing>> GetAllRequestPricingBySupplierId(int supplierId, int pageNumber = 1, int pageSize = 10) => await _requestPricingDAO.GetAllRequestPricingBySupplierId(supplierId,pageNumber, pageSize);
 
         public async Task<List<RequestPricing>> GetRequestPricingsBySupplierId(int supplierId) => await _requestPricingDAO.GetRequestPricingsBySupplierId(supplierId);
+
+        public async Task<int> GetTotalRequestPricingsCount() => await _requestPricingDAO.GetTotalRequestPricingsCount();
+
     }
 }

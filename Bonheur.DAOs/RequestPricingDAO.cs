@@ -79,5 +79,10 @@ namespace Bonheur.DAOs
             _context.RequestPricings.Update(requestPricing);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<int> GetTotalRequestPricingsCount()
+        {
+            return await _context.RequestPricings.CountAsync();
+        }
     }
 }

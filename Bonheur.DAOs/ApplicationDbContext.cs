@@ -28,6 +28,7 @@ namespace Bonheur.DAOs
         public DbSet<SocialNetwork> SocialNetworks { get; set; }
         public DbSet<SupplierSocialNetwork> SupplierSocialNetworks { get; set; }
         public DbSet<SupplierFAQ> SupplierFAQs { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
 
 

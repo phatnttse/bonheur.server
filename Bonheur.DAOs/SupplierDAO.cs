@@ -205,6 +205,11 @@ namespace Bonheur.DAOs
                 .SingleOrDefaultAsync(s => s.Slug == slug && s.Status == SupplierStatus.Approved);
         }
 
+        public async Task<int> GetTotalSuppliersCountAsync()
+        {
+            return await _context.Suppliers.CountAsync();
+        }
+
     }
 }
 

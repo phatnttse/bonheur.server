@@ -1,5 +1,4 @@
-﻿using Bonheur.BusinessObjects.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Bonheur.Services.Interfaces
 {
-    public interface INotificationService
+    public interface IEventBus
     {
-        Task<Notification> CreateNotificationAsync();
+        Task PublishAsync<T>(T message, CancellationToken cancellationToken = default) where T : class;
     }
 }

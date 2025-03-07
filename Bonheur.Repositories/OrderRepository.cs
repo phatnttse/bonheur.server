@@ -28,5 +28,7 @@ namespace Bonheur.Repositories
         public async Task<Order> UpdateOrderAsync(Order order) => await _orderDAO.UpdateOrderAsync(order);
         public async Task DeleteOrderAsync(Order order) => await _orderDAO.DeleteOrderAsync(order);
 
+        public async Task<int> GetTotalOrdersCountAsync() => await _orderDAO.GetTotalOrdersCountAsync();
+
     }
 }

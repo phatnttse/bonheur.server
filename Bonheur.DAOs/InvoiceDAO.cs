@@ -87,5 +87,10 @@ namespace Bonheur.DAOs
         {
             return await _context.Invoices.ToListAsync();
         }
+
+        public async Task<int> GetTotalInvoicesCountAsync()
+        {
+            return await _context.Invoices.CountAsync();
+        }
     }
 }

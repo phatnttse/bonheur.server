@@ -299,5 +299,10 @@ namespace Bonheur.DAOs
             return await _userManager.ChangeEmailAsync(user, newEmail, token);
         }
 
+        public async Task<int> GetTotalUsersCountAsync()
+        {
+            return await _context.Users.CountAsync();
+        }
+
     }
 }

@@ -60,5 +60,7 @@ namespace Bonheur.Repositories
                int pageNumber = 1,
                int pageSize = 10
            ) => await _supplierDAO.GetSuppliersByAdminAsync(supplierName, supplierCategoryId, province, isFeatured, averageRating, minPrice, maxPrice, status, sortAsc, orderBy, pageNumber, pageSize);
+
+        public async Task<int> GetTotalSuppliersCountAsync() => await _supplierDAO.GetTotalSuppliersCountAsync();
     }
 }

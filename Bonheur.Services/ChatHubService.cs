@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Bonheur.BusinessObjects.Enums;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Bonheur.DAOs;
 
 namespace Bonheur.Services
 {
@@ -21,6 +23,7 @@ namespace Bonheur.Services
         private readonly IRequestPricingsRepository _requestPricingsRepository;
         private readonly IMessageAttachmentRepository _messageAttachmentRepository;
         private readonly IMapper _mapper;
+        private readonly ApplicationDbContext _context;
 
         public ChatHubService(
             IUserAccountRepository userAccountRepository,
@@ -29,7 +32,8 @@ namespace Bonheur.Services
             IMessageRepository messageRepository, 
             IRequestPricingsRepository requestPricingsRepository,
             IMessageAttachmentRepository messageAttachmentRepository,
-            IMapper mapper
+            IMapper mapper,
+            ApplicationDbContext context
         )
         {
             _userAccountRepository = userAccountRepository;
@@ -39,6 +43,7 @@ namespace Bonheur.Services
             _requestPricingsRepository = requestPricingsRepository;
             _messageAttachmentRepository = messageAttachmentRepository;
             _mapper = mapper;
+            _context = context;
         }
 
         public static readonly Dictionary<string, OnlineUserDTO> onlineUsers = new Dictionary<string, OnlineUserDTO>();
@@ -291,21 +296,24 @@ namespace Bonheur.Services
 
 
                 // Truy vấn danh sách suppliers từ UserManager một lần duy nhất
-                var suppliers = _userManager.Users
-                    .Where(u => supplierIds.Contains(u.Id))
-                    .Select(u => new OnlineUserDTO
-                    {
-                        Id = u.Id,
-                        UserName = u.UserName,
-                        FullName = u.FullName,
-                        PictureUrl = u.PictureUrl,
-                        IsOnline = onlineUsersSet.Contains(u.Id),
-                        UnreadMessages = unreadMessagesDict.ContainsKey(u.Id) ? unreadMessagesDict[u.Id] : 0,
-                        LatestMessage = latestMessagesDict.ContainsKey(u.Id) ? latestMessagesDict[u.Id].LatestMessage : null,
-                        LatestMessageAt = latestMessagesDict.ContainsKey(u.Id) ? latestMessagesDict[u.Id].LatestMessageAt : null
-                    })
-                    .OrderByDescending(u => u.IsOnline)
-                    .ToList();
+                var suppliers = (from u in _userManager.Users
+                                 join s in _context.Suppliers on u.Id equals s.UserId
+                                 where supplierIds.Contains(u.Id)
+                                 select new OnlineUserDTO
+                                 {
+                                     Id = u.Id,
+                                     UserName = u.UserName,
+                                     FullName = s != null ? s.Name : u.FullName,
+                                     PictureUrl = s != null ? s.Images.Where(s => s.IsPrimary).FirstOrDefault().ImageUrl : u.PictureUrl,
+                                     IsOnline = onlineUsersSet.Contains(u.Id),
+                                     UnreadMessages = unreadMessagesDict.ContainsKey(u.Id) ? unreadMessagesDict[u.Id] : 0,
+                                     LatestMessage = latestMessagesDict.ContainsKey(u.Id) ? latestMessagesDict[u.Id].LatestMessage : null,
+                                     LatestMessageAt = latestMessagesDict.ContainsKey(u.Id) ? latestMessagesDict[u.Id].LatestMessageAt : null
+                                 })
+                                 .AsEnumerable()
+                                 .OrderByDescending(u => u.LatestMessageAt)
+                                 .ToList();
+
 
                 return Task.FromResult(suppliers);
             }
