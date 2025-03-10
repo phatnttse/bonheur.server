@@ -17,7 +17,7 @@ namespace Bonheur.Repositories.Interfaces
         Task<List<string?>> GetSupplierIdsContacted(string userId);
         Task<Dictionary<string, int>> GetUnredMessagesBySupplierIds(string userId, List<string> supplierIds);
         Task<int> GetUnreadMessagesCountByUserId(string userId);
-
+        Task<Dictionary<string, (string LatestMessage, DateTimeOffset? LatestMessageAt)>> GetLatestMessageBySupplierIds(string userId, List<string> supplierIds);
 
     }
 }

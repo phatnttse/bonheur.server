@@ -5,7 +5,7 @@ using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Invoice;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
-using DocumentFormat.OpenXml.Office2010.Excel;
+using Microsoft.Extensions.Logging;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Fields;
 using MigraDoc.DocumentObjectModel.Tables;
@@ -20,19 +20,25 @@ namespace Bonheur.Services
         private readonly IInvoiceRepository _invoiceRepository;
         private readonly ISupplierRepository _supplierRepository;
         private readonly IMapper _mapper;
+        private readonly ILogger<InvoiceService> _logger;
 
-        public InvoiceService(IInvoiceRepository invoiceRepository, ISupplierRepository supplierRepository, IMapper mapper)
+        public InvoiceService(IInvoiceRepository invoiceRepository, ISupplierRepository supplierRepository, IMapper mapper, ILogger<InvoiceService> logger)
         {
             _invoiceRepository = invoiceRepository;
             _supplierRepository = supplierRepository;
             _mapper = mapper;
+            _logger = logger;
         }
 
-        public PdfDocument GetInvoice(Invoice invoice)
+        public async Task<PdfDocument> GetInvoice(Invoice invoice, Order order)
         {
+            if (invoice == null) throw new ApiException("Invoice not found", System.Net.HttpStatusCode.NotFound);
+
+            _logger.LogInformation($"Start generating invoice PDF for invoice {invoice.InvoiceNumber}");
+
             var document = new Document();
 
-            BuildDocument(document, invoice);
+            BuildDocument(document, invoice, order);
 
             var renderer = new PdfDocumentRenderer();
 
@@ -40,11 +46,14 @@ namespace Bonheur.Services
 
             renderer.RenderDocument();
 
-            return renderer.PdfDocument;
+            return await Task.FromResult(renderer.PdfDocument);
         }
 
-        private void BuildDocument(Document document, Invoice invoice)
+        private void BuildDocument(Document document, Invoice invoice, Order order)
         {
+
+            _logger.LogInformation($"Building invoice PDF for invoice {invoice.InvoiceNumber}");
+
             Section section = document.AddSection();
 
             section.PageSetup.TopMargin = Unit.FromCentimeter(2); // 2 cm trên
@@ -82,7 +91,9 @@ namespace Bonheur.Services
 
             // Right cell for logo
             var rightCell = headerRow.Cells[1];
-            var logo = rightCell.AddImage("wwwroot/images/logo.png");
+            var logoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/logo.png");
+            var logo = rightCell.AddImage(logoPath);
+
             logo.Width = "4cm";
             logo.Height = "4cm";
             rightCell.Format.Alignment = ParagraphAlignment.Left;
@@ -151,27 +162,32 @@ namespace Bonheur.Services
             row.Cells[4].AddParagraph("Amount");
             row.Format.Alignment = ParagraphAlignment.Center; // Căn giữa header
             row.VerticalAlignment = VerticalAlignment.Center; // Căn giữa theo chiều dọc
+         
 
-            foreach (var orderDetail in invoice.Order!.OrderDetails!)
+            if (order.OrderDetails != null)
             {
-                row = table.AddRow();
-                row.Height = "1cm"; // Increase row height
-                row.Format.Alignment = ParagraphAlignment.Center; // Căn giữa header
-                row.VerticalAlignment = VerticalAlignment.Center; // Căn giữa theo chiều dọc
-                row.Cells[0].AddParagraph(orderDetail.Order!.OrderCode!.ToString());
-                row.Cells[1].AddParagraph(orderDetail.Name!.ToString() ?? "N/A");
-                row.Cells[2].AddParagraph(orderDetail.Quantity.ToString());
-                row.Cells[3].AddParagraph(Utilities.FormatCurrency(orderDetail.Price));
-                row.Cells[4].AddParagraph(Utilities.FormatCurrency(orderDetail.TotalAmount));
+
+                foreach (OrderDetail orderDetail in order.OrderDetails)
+                {
+                    row = table.AddRow();
+                    row.Height = "1cm"; // Increase row height
+                    row.Format.Alignment = ParagraphAlignment.Center; // Căn giữa header
+                    row.VerticalAlignment = VerticalAlignment.Center; // Căn giữa theo chiều dọc
+                    row.Cells[0].AddParagraph(orderDetail.Order!.OrderCode!.ToString());
+                    row.Cells[1].AddParagraph(orderDetail.Name!.ToString() ?? "N/A");
+                    row.Cells[2].AddParagraph(orderDetail.Quantity.ToString());
+                    row.Cells[3].AddParagraph(Utilities.FormatCurrency(orderDetail.Price));
+                    row.Cells[4].AddParagraph(Utilities.FormatCurrency(orderDetail.TotalAmount));
+                }
             }
-          
+            
             // Subtotal, Tax, and Total in table
             row = table.AddRow();
             row.Height = "1cm";          
             row.Cells[0].MergeRight = 2; // Merge first three columns
             row.Cells[0].AddParagraph(""); // Empty space
             row.Cells[3].AddParagraph("Subtotal");
-            row.Cells[4].AddParagraph(Utilities.FormatCurrency(invoice.Order.TotalAmount - invoice.TaxAmount));
+            row.Cells[4].AddParagraph(Utilities.FormatCurrency(order.TotalAmount - invoice.TaxAmount));
             row.Format.Alignment = ParagraphAlignment.Center; // Căn giữa header
             row.VerticalAlignment = VerticalAlignment.Center; // Căn giữa theo chiều dọc
 
@@ -189,7 +205,7 @@ namespace Bonheur.Services
             row.Cells[0].MergeRight = 2;
             row.Cells[0].AddParagraph("");
             row.Cells[3].AddParagraph("Total");
-            row.Cells[4].AddParagraph(Utilities.FormatCurrency(invoice.Order.TotalAmount));
+            row.Cells[4].AddParagraph(Utilities.FormatCurrency(order.TotalAmount));
             row.Cells[4].Format.Font.Bold = true;
             row.Format.Alignment = ParagraphAlignment.Center; // Căn giữa header
             row.VerticalAlignment = VerticalAlignment.Center; // Căn giữa theo chiều dọc

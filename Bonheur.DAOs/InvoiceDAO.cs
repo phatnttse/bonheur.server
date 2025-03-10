@@ -36,6 +36,8 @@ namespace Bonheur.DAOs
                 .Include(i => i.Supplier)
                 .Include(i => i.User)
                 .Where(i => i.SupplierId == supplierId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .OrderByDescending(o => o.CreatedAt);
 
             if (!string.IsNullOrEmpty(orderBy))
@@ -84,6 +86,11 @@ namespace Bonheur.DAOs
         public async Task<List<Invoice>> GetAllInvoicesAsync()
         {
             return await _context.Invoices.ToListAsync();
+        }
+
+        public async Task<int> GetTotalInvoicesCountAsync()
+        {
+            return await _context.Invoices.CountAsync();
         }
     }
 }

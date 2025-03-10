@@ -36,6 +36,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using MassTransit;
+using Bonheur.Services.MessageBrokers;
+using Bonheur.Services.MessageBrokers.Consumers;
 
 namespace Bonheur.API
 {
@@ -225,13 +228,18 @@ namespace Bonheur.API
             .AddCookie()
             .AddOpenIdConnect(options =>
             {
-                options.Authority = "https://localhost:7175";
+                options.Authority = "https://services.bonheur.pro";
                 options.ClientId = OidcServerConfig.BonheurAppClientID;
                 options.SaveTokens = true;
                 options.ResponseType = "code";
                 options.Scope.Add("openid");
                 options.Scope.Add("profile");
                 options.Scope.Add("email");
+                options.Scope.Add("address");
+                options.Scope.Add("phone");
+                options.Scope.Add("roles");
+                options.GetClaimsFromUserInfoEndpoint = true;
+
 
                 // Lấy access_token từ query string khi cần
                 options.Events.OnMessageReceived = context =>
@@ -280,13 +288,13 @@ namespace Bonheur.API
                     policy => policy.Requirements.Add(new AssignRolesAuthorizationRequirement()));
 
             // Add cors
-            builder.Services.AddCors();
+            //builder.Services.AddCors();
 
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigin",
                     builder => builder
-                        .WithOrigins("http://localhost:4200")
+                        .WithOrigins("http://localhost:4300")
                         .WithOrigins("https://bonheur.pro")
                         .AllowCredentials()                  
                         .AllowAnyHeader()                      
@@ -310,7 +318,7 @@ namespace Bonheur.API
                     new QueryStringApiVersionReader("api-version"),
                     new HeaderApiVersionReader("x-version"),
                     new MediaTypeApiVersionReader("version")
-                    );
+                );
             });
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -364,6 +372,35 @@ namespace Bonheur.API
 
             builder.Services.AddSingleton(payOS);
 
+            //MassTransit
+            //builder.Services.AddMassTransit(busConfigurator =>
+            //{
+            //    busConfigurator.AddConsumer<NotificationCreatedConsumer>();
+
+            //    busConfigurator.UsingRabbitMq((context, cfg) =>
+            //    {
+            //        string RABBITMQ_HOST = Environment.GetEnvironmentVariable("RabbitMQ_Host") ??
+            //            throw new InvalidOperationException("Environement string 'RabbitMQ_Host' not found.");
+
+            //        string RABBITMQ_USERNAME = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ??
+            //            throw new InvalidOperationException("Environement string 'RABBITMQ_USERNAME' not found.");
+
+            //        string RABBITMQ_PASSWORD = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ??
+            //            throw new InvalidOperationException("Environement string 'RABBITMQ_PASSWORD' not found.");
+
+            //        cfg.Host(new Uri(RABBITMQ_HOST), h =>
+            //        {
+            //            h.Username(RABBITMQ_USERNAME);
+            //            h.Password(RABBITMQ_PASSWORD);
+            //        });
+
+            //        cfg.ConfigureEndpoints(context);
+            //    });
+
+            //});
+
+            //builder.Services.AddTransient<IEventBus, EventBus>();
+
             // DAOs
             builder.Services.AddScoped<UserAccountDAO>();
             builder.Services.AddScoped<UserRoleDAO>();
@@ -383,6 +420,8 @@ namespace Bonheur.API
             builder.Services.AddScoped<SocialNetworkDAO>();
             builder.Services.AddScoped<SupplierFAQDAO>();
             builder.Services.AddScoped<MessageDAO>();
+            builder.Services.AddScoped<MessageAttachmentDAO>();
+            builder.Services.AddScoped<NotificationDAO>();
 
             //Repositories
             builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
@@ -403,6 +442,8 @@ namespace Bonheur.API
             builder.Services.AddScoped<ISocialNetworkRepository, SocialNetworkRepository>();
             builder.Services.AddScoped<ISupplierFAQRepository, SupplierFAQRepository>();
             builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+            builder.Services.AddScoped<IMessageAttachmentRepository, MessageAttachmentRepository>();
+            builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
             // Services
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();
@@ -417,7 +458,6 @@ namespace Bonheur.API
             builder.Services.AddScoped<IReviewService, ReviewService>();
             builder.Services.AddScoped<IAdPackageService,AdPackageService>();   
             builder.Services.AddScoped<IAdvertisementService, AdvertisementService>();
-            //builder.Services.AddScoped<IChatHubService, ChatHubService>();
             builder.Services.AddScoped<IFavoriteSupplierService, FavoriteSupplierService>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddScoped<IInvoiceService, InvoiceService>();
@@ -427,6 +467,8 @@ namespace Bonheur.API
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IPlaceService, PlaceService>();
             builder.Services.AddScoped<IMessageService, MessageService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
 
             // Auth Handlers
             builder.Services.AddSingleton<IAuthorizationHandler, ViewUserAuthorizationHandler>();
@@ -448,30 +490,30 @@ namespace Bonheur.API
 
 
             //Rate Limiter
-            builder.Services.AddRateLimiter(options =>
-            {
-                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            //builder.Services.AddRateLimiter(options =>
+            //{
+            //    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-                //global
-                options.AddPolicy("global", httpContext =>
-                    RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
-                        factory: _ => new FixedWindowRateLimiterOptions
-                        {
-                        PermitLimit = 100,
-                        Window = TimeSpan.FromMinutes(10),
-                        QueueLimit = 10
-                        }));
-                // /connect/token
-                options.AddPolicy("5_5", httpContext =>
-                    RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
-                        factory: _ => new FixedWindowRateLimiterOptions
-                        {
-                            PermitLimit = 5,
-                            Window = TimeSpan.FromMinutes(5)
-                        }));
-            });
+            //    //global
+            //    options.AddPolicy("global", httpContext =>
+            //        RateLimitPartition.GetFixedWindowLimiter(
+            //            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
+            //            factory: _ => new FixedWindowRateLimiterOptions
+            //            {
+            //            PermitLimit = 100,
+            //            Window = TimeSpan.FromMinutes(10),
+            //            QueueLimit = 10
+            //            }));
+            //    // /connect/token
+            //    options.AddPolicy("5_5", httpContext =>
+            //        RateLimitPartition.GetFixedWindowLimiter(
+            //            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
+            //            factory: _ => new FixedWindowRateLimiterOptions
+            //            {
+            //                PermitLimit = 5,
+            //                Window = TimeSpan.FromMinutes(5)
+            //            }));
+            //});
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -510,12 +552,12 @@ namespace Bonheur.API
 
             app.UseCors("AllowSpecificOrigin");
 
-            app.UseCors(builder => builder
-               .AllowAnyOrigin()
-               .AllowAnyHeader()
-               .AllowAnyMethod());
+            //app.UseCors(builder => builder
+            //   .AllowAnyOrigin()
+            //   .AllowAnyHeader()
+            //   .AllowAnyMethod());
 
-            app.UseRateLimiter();
+            //app.UseRateLimiter();
 
             app.UseAuthentication();
             app.UseAuthorization();

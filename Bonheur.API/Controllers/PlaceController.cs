@@ -27,7 +27,6 @@ namespace Bonheur.API.Controllers
         /// <returns></returns>
         [HttpGet("autocomplete")]
         [Authorize(Roles = Constants.Roles.SUPPLIER)]
-        [EnableRateLimiting("global")]
         public async Task<IActionResult> GetAutocompletePlaces([FromQuery] string input, [FromQuery] string? location)
         {
             return Ok(await _placeService.AutoComplete(input, location));

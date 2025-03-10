@@ -10,26 +10,15 @@ namespace Bonheur.Services.DTOs.AdPackage
 {
     public class AdPackageDTO
     {
-        private int Id { get; set; }
+        public int Id { get; set; }
         public string? Title { get; set; }
-
-        [Required]
         public string? Description { get; set; }
-
-        [Required]
         public decimal Price { get; set; }
-
-        [Required]
         public DateTimeOffset StartDate { get; set; }
-
-        [Required]
         public DateTimeOffset EndDate { get; set; }
-
-        [Required]
-        [EnumDataType(typeof(AdType))]
         public AdType AdType { get; set; }
-
-        [Required]
         public bool IsActive { get; set; } = true; 
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
     }
 }

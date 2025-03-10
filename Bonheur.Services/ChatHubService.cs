@@ -1,5 +1,4 @@
 ﻿using Bonheur.BusinessObjects.Entities;
-using Bonheur.DAOs;
 using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Account;
 using Bonheur.Services.DTOs.Message;
@@ -8,6 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Bonheur.BusinessObjects.Enums;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Bonheur.DAOs;
 
 namespace Bonheur.Services
 {
@@ -19,16 +21,28 @@ namespace Bonheur.Services
         private readonly ISupplierRepository _supplierRepository;
         private readonly IMessageRepository _messageRepository;
         private readonly IRequestPricingsRepository _requestPricingsRepository;
+        private readonly IMessageAttachmentRepository _messageAttachmentRepository;
+        private readonly IMapper _mapper;
         private readonly ApplicationDbContext _context;
 
-        public ChatHubService(IUserAccountRepository userAccountRepository,
-            UserManager<ApplicationUser> userManager, ISupplierRepository supplierRepository, IMessageRepository messageRepository, IRequestPricingsRepository requestPricingsRepository, ApplicationDbContext context)
+        public ChatHubService(
+            IUserAccountRepository userAccountRepository,
+            UserManager<ApplicationUser> userManager, 
+            ISupplierRepository supplierRepository,
+            IMessageRepository messageRepository, 
+            IRequestPricingsRepository requestPricingsRepository,
+            IMessageAttachmentRepository messageAttachmentRepository,
+            IMapper mapper,
+            ApplicationDbContext context
+        )
         {
             _userAccountRepository = userAccountRepository;
             _userManager = userManager;
             _supplierRepository = supplierRepository;
             _messageRepository = messageRepository;
             _requestPricingsRepository = requestPricingsRepository;
+            _messageAttachmentRepository = messageAttachmentRepository;
+            _mapper = mapper;
             _context = context;
         }
 
@@ -42,7 +56,7 @@ namespace Bonheur.Services
                 //var userId = httpContext?.Request.Query["uid"].ToString();
                 var userId = Utilities.GetCurrentUserId();
                 //var userName = Context!.User!.Identity!.Name;
-                var currentUser = await _userAccountRepository.GetUserByIdAsync(userId);
+                var currentUser = await _userAccountRepository.GetUserByIdAsync(userId!);
 
                 var connectionId = Context.ConnectionId;
                 if (onlineUsers.ContainsKey(userId!))
@@ -81,7 +95,7 @@ namespace Bonheur.Services
         {
             try
             {
-                int pageSize = 30;
+                int pageSize = 10;
                 var httpContext = Context.GetHttpContext();
                 var userId = Utilities.GetCurrentUserId();
                 var currentUser = await _userAccountRepository.GetUserByIdAsync(userId);
@@ -98,7 +112,7 @@ namespace Bonheur.Services
                         await _messageRepository.UpdateMessage(msg);
                     }
                 }
-                await Clients.Caller.SendAsync("ReceiveMessageList", messages);
+                await Clients.Caller.SendAsync("ReceiveMessageList", _mapper.Map<List<MessageDTO>>(messages));
 
             }
             catch (ApiException)
@@ -145,7 +159,7 @@ namespace Bonheur.Services
                     }
                 }
 
-                var newMessage = new Message
+                Message newMessage = new Message
                 {
                     SenderId = senderId,
                     SenderName = senderSupplier != null ? senderSupplier.Name : senderUser!.FullName,
@@ -158,6 +172,22 @@ namespace Bonheur.Services
                 };
 
                 await _messageRepository.AddMessage(newMessage);
+
+                if (message.AzureBlobUploadedResponses != null && message.AzureBlobUploadedResponses.Count > 0)
+                {
+                    foreach (var uploadedResponse in message.AzureBlobUploadedResponses)
+                    {
+                        var newMessageAttachment = new MessageAttachment
+                        {
+                            FileName = uploadedResponse.Blob.Name,
+                            FilePath = uploadedResponse.Blob.Uri,
+                            FileType = uploadedResponse.Blob.ContentType,
+                            MessageId = newMessage.Id
+                        };
+
+                        await _messageAttachmentRepository.CreateMessageAttachmentAsync(newMessageAttachment);
+                    }                   
+                }
 
                 if (message.RequestPricingId != null && int.IsPositive((int)message.RequestPricingId) && message.isSupplierReply != null && (bool)message.isSupplierReply)
                 {
@@ -174,7 +204,8 @@ namespace Bonheur.Services
 
                 if (connectionId != null)
                 {
-                    await Clients.Client(connectionId).SendAsync("ReceiveNewMessage", newMessage);
+                    await Clients.Client(connectionId).SendAsync("ReceiveNewMessage", _mapper.Map<MessageDTO>(newMessage));
+                    await Clients.Client(connectionId).SendAsync("ReceiveMessageNotification", senderSupplier != null ? senderSupplier.Name : senderUser!.FullName);
                 }
             }
             catch (ApiException)
@@ -215,7 +246,6 @@ namespace Bonheur.Services
 
         public override Task OnDisconnectedAsync(Exception? exception)
         {
-            var httpContext = Context.GetHttpContext();
             var userId = Utilities.GetCurrentUserId();
             onlineUsers.Remove(userId!, out _);
             return Task.CompletedTask;
@@ -262,20 +292,28 @@ namespace Bonheur.Services
                 // Lấy số lượng tin nhắn chưa đọc theo từng supplier
                 var unreadMessagesDict = _messageRepository.GetUnredMessagesBySupplierIds(userId, supplierIds).Result;
 
+                var latestMessagesDict = _messageRepository.GetLatestMessageBySupplierIds(userId, supplierIds).Result;
+
+
                 // Truy vấn danh sách suppliers từ UserManager một lần duy nhất
-                var suppliers = _userManager.Users
-                    .Where(u => supplierIds.Contains(u.Id))
-                    .Select(u => new OnlineUserDTO
-                    {
-                        Id = u.Id,
-                        UserName = u.UserName,
-                        FullName = u.FullName,
-                        PictureUrl = u.PictureUrl,
-                        IsOnline = onlineUsersSet.Contains(u.Id),
-                        UnreadMessages = unreadMessagesDict.ContainsKey(u.Id) ? unreadMessagesDict[u.Id] : 0
-                    })
-                    .OrderByDescending(u => u.IsOnline)
-                    .ToList();
+                var suppliers = (from u in _userManager.Users
+                                 join s in _context.Suppliers on u.Id equals s.UserId
+                                 where supplierIds.Contains(u.Id)
+                                 select new OnlineUserDTO
+                                 {
+                                     Id = u.Id,
+                                     UserName = u.UserName,
+                                     FullName = s != null ? s.Name : u.FullName,
+                                     PictureUrl = s != null ? s.Images.Where(s => s.IsPrimary).FirstOrDefault().ImageUrl : u.PictureUrl,
+                                     IsOnline = onlineUsersSet.Contains(u.Id),
+                                     UnreadMessages = unreadMessagesDict.ContainsKey(u.Id) ? unreadMessagesDict[u.Id] : 0,
+                                     LatestMessage = latestMessagesDict.ContainsKey(u.Id) ? latestMessagesDict[u.Id].LatestMessage : null,
+                                     LatestMessageAt = latestMessagesDict.ContainsKey(u.Id) ? latestMessagesDict[u.Id].LatestMessageAt : null
+                                 })
+                                 .AsEnumerable()
+                                 .OrderByDescending(u => u.LatestMessageAt)
+                                 .ToList();
+
 
                 return Task.FromResult(suppliers);
             }

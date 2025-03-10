@@ -72,16 +72,18 @@ namespace Bonheur.DAOs
                 .Include(s => s.SubscriptionPackage)
                 .Where(s => s.Status == SupplierStatus.Approved)
                 .Where(s => string.IsNullOrEmpty(supplierName) || s.Name!.ToLower().Contains(supplierName.ToLower()))
-                .Where(s => supplierCategoryIds == null || !supplierCategoryIds.Any() || supplierCategoryIds.Contains(s.CategoryId)) 
+                .Where(s => supplierCategoryIds == null || !supplierCategoryIds.Any() || supplierCategoryIds.Contains(s.CategoryId))
                 .Where(s => string.IsNullOrEmpty(province) || s.Province!.ToLower().Contains(province.ToLower()))
                 .Where(s => !isFeatured.HasValue || s.IsFeatured == isFeatured)
                 .Where(s => !averageRating.HasValue || s.AverageRating >= averageRating)
                 .Where(s => !minPrice.HasValue || s.Price >= minPrice)
                 .Where(s => !maxPrice.HasValue || s.Price <= maxPrice)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .OrderByDescending(s => s.PriorityEnd ?? DateTimeOffset.MinValue)
                 .ThenByDescending(s => s.Priority)
                 .ThenByDescending(s => s.AverageRating)
-                .ThenBy(s => s.Id);
+                .ThenBy(s => s.Id);            
 
             if (!string.IsNullOrEmpty(orderBy))
             {
@@ -96,10 +98,7 @@ namespace Bonheur.DAOs
                     : suppliers.OrderByDescending(lambda);
             }
 
-            var result = suppliers
-                .ToPagedList(pageNumber, pageSize);
-
-             return Task.FromResult(result);
+             return Task.FromResult(suppliers.ToPagedList(pageNumber, pageSize));
         }
 
         public Task<IPagedList<Supplier>> GetSuppliersByAdminAsync(
@@ -128,6 +127,8 @@ namespace Bonheur.DAOs
                 .Where(s => !averageRating.HasValue || s.AverageRating >= averageRating)
                 .Where(s => !minPrice.HasValue || s.Price >= minPrice)
                 .Where(s => !maxPrice.HasValue || s.Price <= maxPrice)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .OrderByDescending(s => s.PriorityEnd ?? DateTimeOffset.MinValue)
                 .ThenByDescending(s => s.Priority)
                 .ThenByDescending(s => s.AverageRating)
@@ -202,6 +203,11 @@ namespace Bonheur.DAOs
                 .Include(s => s.SocialNetworks)
                 .ThenInclude(ssn => ssn.SocialNetwork)
                 .SingleOrDefaultAsync(s => s.Slug == slug && s.Status == SupplierStatus.Approved);
+        }
+
+        public async Task<int> GetTotalSuppliersCountAsync()
+        {
+            return await _context.Suppliers.CountAsync();
         }
 
     }

@@ -16,5 +16,7 @@ namespace Bonheur.Services.DTOs.Account
         public string? PictureUrl { get; set; }
         public bool IsOnline { get; set; }
         public int UnreadMessages { get; set; }
+        public string? LatestMessage { get; set; }
+        public DateTimeOffset? LatestMessageAt { get; set; }
     }
 }

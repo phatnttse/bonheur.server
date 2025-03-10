@@ -19,5 +19,6 @@ namespace Bonheur.Repositories.Interfaces
         Task UpdateInvoiceAsync(Invoice invoice);
         Task DeleteInvoiceAsync(Invoice invoice);
         Task<List<Invoice>> GetAllInvoicesAsync();
+        Task<int> GetTotalInvoicesCountAsync();
     }
 }

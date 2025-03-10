@@ -47,9 +47,10 @@ namespace Bonheur.DAOs
         public async Task<List<Message>> GetMessages(string userId, string recipientId, int pageNumber, int pageSize)
         {
            return  await _context.Messages
+            .Include(m => m.Attachments)
             .Where(m => (m.SenderId == userId && m.ReceiverId == recipientId) ||
                 (m.SenderId == recipientId && m.ReceiverId == userId))
-                .OrderBy(m => m.CreatedAt)
+                .OrderByDescending(m => m.CreatedAt)
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();
@@ -96,6 +97,25 @@ namespace Bonheur.DAOs
             return await _context.Messages
                 .Where(m => m.ReceiverId == userId && !m.IsRead && m.ReceiverRole == Constants.Roles.USER)
                 .CountAsync();
+        }
+
+        public async Task<Dictionary<string, (string LatestMessage, DateTimeOffset? LatestMessageAt)>> GetLatestMessageBySupplierIds(string userId, List<string> supplierIds)
+        {
+            var result = await _context.Messages
+                .Where(m => (m.SenderId == userId && supplierIds.Contains(m.ReceiverId)) ||
+                            (m.ReceiverId == userId && supplierIds.Contains(m.SenderId)))
+                .GroupBy(m => m.SenderId == userId ? m.ReceiverId : m.SenderId)
+                .Select(g => new
+                {
+                    SupplierId = g.Key,
+                    LatestMessage = g.OrderByDescending(m => m.CreatedAt).First()
+                })
+                .ToListAsync(); // Use ToListAsync() to avoid async error
+
+            return result.ToDictionary(
+                x => x.SupplierId!,
+                x => ((string)x.LatestMessage.Content!, (DateTimeOffset?)x.LatestMessage.CreatedAt) // Cast to non-nullable types
+            );
         }
 
     }

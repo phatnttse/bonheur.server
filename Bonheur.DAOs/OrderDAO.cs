@@ -49,6 +49,8 @@ namespace Bonheur.DAOs
                 .Where(o => string.IsNullOrEmpty(province) || o.Supplier!.Province!.ToLower().Contains(province.ToLower()))
                 .Where(o => string.IsNullOrEmpty(ward) || o.Supplier!.Ward!.Contains(ward))
                 .Where(o => string.IsNullOrEmpty(district) || o.Supplier!.District!.ToLower().Contains(district.ToLower()))
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .OrderByDescending(o => o.CreatedAt);
 
             if (!string.IsNullOrEmpty(orderBy))
@@ -101,6 +103,11 @@ namespace Bonheur.DAOs
             _context.OrderDetails.RemoveRange(order.OrderDetails!);
             _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> GetTotalOrdersCountAsync()
+        {
+            return await _context.Orders.CountAsync();
         }
     }
 }
