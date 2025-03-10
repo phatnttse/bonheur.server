@@ -5,12 +5,6 @@ using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Advertisement;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
-using DocumentFormat.OpenXml.Spreadsheet;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bonheur.Services
 {
@@ -18,27 +12,46 @@ namespace Bonheur.Services
     {
         private IAdvertisementRepository _advertisementRepository;
         private IMapper _mapper;
-        public AdvertisementService(IAdvertisementRepository advertisementRepository
-            , IMapper mapper)
+        private IAdPackageRepository _adPackageRepository;
+        private ISupplierRepository _supplierRepository;
+        public AdvertisementService(
+            IAdvertisementRepository advertisementRepository, 
+            IMapper mapper,
+            IAdPackageRepository adPackageRepository,
+            ISupplierRepository supplierRepository
+        )
         {
             _advertisementRepository = advertisementRepository;
             _mapper = mapper;
-
+            _adPackageRepository = adPackageRepository;
+            _supplierRepository = supplierRepository;
         }
 
-        public async Task<ApplicationResponse> AddAdvertisementAsync(AdvertisementDTO advertisementDTO)
+        public async Task<ApplicationResponse> AddAdvertisementAsync(CreateAdvertisementDTO advertisementDTO)
         {
             try
             {
+
+                Supplier supplier = await _supplierRepository.GetSupplierByIdAsync(advertisementDTO.SupplierId, false) ??
+                    throw new ApiException("Supplier does not exist!");
+
+                AdPackage adPackage = await _adPackageRepository.GetAdPackageById(advertisementDTO.AdPackageId) ??
+                    throw new ApiException("Ad Package does not exist!");
+
                 var advertisement = _mapper.Map<Advertisement>(advertisementDTO);
+                advertisement.SupplierId = supplier.Id;
+                advertisement.AdPackageId = adPackage.Id;
+
                 await _advertisementRepository.AddAdvertisementAsync(advertisement);
+
                 return new ApplicationResponse
                 {
                     Success = true,
-                    Message = "Advertisement was added successfully!",
-                    Data = advertisementDTO,
+                    Message = "Advertisement added successfully!",
+                    Data = advertisement,
                     StatusCode = System.Net.HttpStatusCode.OK
                 };
+
             }
             catch (ApiException)
             {
@@ -56,11 +69,13 @@ namespace Bonheur.Services
             {
                 var advertisement = await _advertisementRepository.GetAdvertisementByIdAsync(id) ??
                     throw new ApiException("Advertisement was not found!");
+
                 await _advertisementRepository.DeleteAdvertisementAsync(advertisement);
+
                 return new ApplicationResponse
                 {
                     Success = true,
-                    Message = "Advertisement was deleted successfully!",
+                    Message = "Advertisement deleted successfully!",
                     Data = null,
                     StatusCode = System.Net.HttpStatusCode.InternalServerError
                 };
@@ -79,12 +94,10 @@ namespace Bonheur.Services
         {
             try
             {
-                var advertisement = await _advertisementRepository.GetAdvertisementByIdAsync(id);
-                if (advertisement == null)
-                {
-                    throw new ApiException("Advertisement was not found!");
-                }
+                var advertisement = await _advertisementRepository.GetAdvertisementByIdAsync(id) ?? throw new ApiException("Advertisement not found!");
+                
                 var advertisementDTO = _mapper.Map<AdvertisementDTO>(advertisement);
+
                 return new ApplicationResponse
                 {
                     Success = true,
@@ -108,7 +121,9 @@ namespace Bonheur.Services
             try
             {
                 var listAdvertisement = await _advertisementRepository.GetAdvertisementsAsync(searchTitle, searchContent, pageNumber, pageSize);
+
                 var listAdvertisementDTO = _mapper.Map<List<AdvertisementDTO>>(listAdvertisement);
+
                 var responseData = new PagedData<AdvertisementDTO> { 
                     Items = listAdvertisementDTO,
                     PageNumber = listAdvertisement.PageNumber,
@@ -135,19 +150,23 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> UpdateAdvertisementAsync(int id, AdvertisementDTO advertisementDTO)
+        public async Task<ApplicationResponse> UpdateAdvertisementAsync(int id, UpdateAdvertisementDTO advertisementDTO)
         {
             try
             {
                 var existedAdvertisement = await _advertisementRepository.GetAdvertisementByIdAsync(id) ??
-                    throw new ApiException("Advertisement was not found!");
+                    throw new ApiException("Advertisement not found!");
+
                 _mapper.Map(existedAdvertisement, advertisementDTO);
+
                 await _advertisementRepository.UpdateAdvertisementAsync(existedAdvertisement);
+
                 var updatedAdvertisement = _mapper.Map<AdvertisementDTO>(existedAdvertisement);
+
                 return new ApplicationResponse
                 {
                     Success = true,
-                    Message = "Advertisement was updated successfully!",
+                    Message = "Advertisement updated successfully!",
                     Data = updatedAdvertisement,
                     StatusCode = System.Net.HttpStatusCode.OK,
                 };

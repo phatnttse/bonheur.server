@@ -3,7 +3,6 @@ using Bonheur.Services.DTOs.Advertisement;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bonheur.API.Controllers
@@ -40,7 +39,7 @@ namespace Bonheur.API.Controllers
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
         [Authorize(Roles = Constants.Roles.ADMIN)]
-        public async Task<IActionResult> CreateAdvertisement([FromBody] AdvertisementDTO advertisementDTO)
+        public async Task<IActionResult> CreateAdvertisement([FromBody] CreateAdvertisementDTO advertisementDTO)
         {
             return Ok(await _advertisementService.AddAdvertisementAsync(advertisementDTO));
         }
@@ -49,7 +48,7 @@ namespace Bonheur.API.Controllers
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
         [Authorize(Roles = Constants.Roles.ADMIN)]
-        public async Task<IActionResult> UpdateAdvertisement([FromRoute] int id, [FromBody] AdvertisementDTO advertisementDTO)
+        public async Task<IActionResult> UpdateAdvertisement([FromRoute] int id, [FromBody] UpdateAdvertisementDTO advertisementDTO)
         {
             return Ok(await _advertisementService.UpdateAdvertisementAsync(id, advertisementDTO));
         }
