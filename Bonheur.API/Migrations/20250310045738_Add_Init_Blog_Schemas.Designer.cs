@@ -3,6 +3,7 @@ using System;
 using Bonheur.DAOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Bonheur.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250310045738_Add_Init_Blog_Schemas")]
+    partial class Add_Init_Blog_Schemas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -577,43 +580,6 @@ namespace Bonheur.API.Migrations
                     b.ToTable("MessageAttachments");
                 });
 
-            modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Notification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Link")
-                        .HasColumnType("text");
-
-                    b.Property<string>("RecipientId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Notifications");
-                });
-
             modelBuilder.Entity("Bonheur.BusinessObjects.Entities.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -934,15 +900,6 @@ namespace Bonheur.API.Migrations
                     b.Property<bool>("IsFeatured")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsStep1Completed")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsStep2Completed")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsStep3Completed")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Latitude")
                         .HasColumnType("text");
 
@@ -986,9 +943,6 @@ namespace Bonheur.API.Migrations
 
                     b.Property<string>("Status")
                         .HasColumnType("text");
-
-                    b.Property<int>("StepCompletedCount")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Street")
                         .HasMaxLength(100)
