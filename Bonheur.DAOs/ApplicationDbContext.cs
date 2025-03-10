@@ -20,7 +20,7 @@ namespace Bonheur.DAOs
         public DbSet<Review> Reviews { get; set; }
         public DbSet<AdPackage> AdPackages { get; set; }
         public DbSet<Message> Messages { get; set; }
-        public DbSet<MessageAttachment> MessageAttachments { get; set; }  
+        public DbSet<MessageAttachment> MessageAttachments { get; set; }
         public DbSet<FavoriteSupplier> FavoriteSuppliers { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
@@ -28,8 +28,10 @@ namespace Bonheur.DAOs
         public DbSet<SocialNetwork> SocialNetworks { get; set; }
         public DbSet<SupplierSocialNetwork> SupplierSocialNetworks { get; set; }
         public DbSet<SupplierFAQ> SupplierFAQs { get; set; }
-
-
+        public DbSet<BlogPost> BlogPosts { get; set; }
+        public DbSet<BlogCategory> BlogCategories { get; set; }
+        public DbSet<BlogTag> BlogTags { get; set; }
+        public DbSet<BlogComment> BlogComments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -122,7 +124,7 @@ namespace Bonheur.DAOs
 
             modelBuilder.Entity<Review>()
                 .HasOne(r => r.User)
-                .WithMany() 
+                .WithMany()
                 .HasForeignKey(r => r.UserId);
 
 
@@ -228,17 +230,17 @@ namespace Bonheur.DAOs
             // Configure FavoriteSupplier Table
             modelBuilder.Entity<FavoriteSupplier>(entity =>
             {
-                entity.HasKey(fs => fs.Id); 
+                entity.HasKey(fs => fs.Id);
 
                 entity.HasOne(fs => fs.User)
                       .WithMany(u => u.FavoriteSuppliers)
                       .HasForeignKey(fs => fs.UserId)
-                      .OnDelete(DeleteBehavior.Cascade); 
+                      .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(fs => fs.Supplier)
                       .WithMany()
                       .HasForeignKey(fs => fs.SupplierId)
-                      .OnDelete(DeleteBehavior.Cascade); 
+                      .OnDelete(DeleteBehavior.Cascade);
 
                 entity.ToTable("FavoriteSuppliers");
             });
@@ -335,6 +337,42 @@ namespace Bonheur.DAOs
             .HasForeignKey(r => r.SupplierId)
             .OnDelete(DeleteBehavior.Cascade);
 
+            #region Blog entity relations
+
+            // Cấu hình Many-to-Many cho BlogPost - BlogTag
+            modelBuilder.Entity<BlogPost>()
+                .HasMany(p => p.Tags)
+                .WithMany(t => t.BlogPosts);
+
+            // Cấu hình quan hệ BlogPost - BlogCategory
+            modelBuilder.Entity<BlogPost>()
+                .HasOne(p => p.Category)
+                .WithMany(c => c.BlogPosts)
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Cấu hình quan hệ BlogPost - User
+            modelBuilder.Entity<BlogPost>()
+                .HasOne(p => p.Author)
+                .WithMany(u => u.BlogPosts)
+                .HasForeignKey(p => p.AuthorId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Cấu hình quan hệ Comment - BlogPost
+            modelBuilder.Entity<BlogComment>()
+                .HasOne(c => c.Post)
+                .WithMany(p => p.Comments)
+                .HasForeignKey(c => c.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Cấu hình quan hệ Comment - User
+            modelBuilder.Entity<BlogComment>()
+                .HasOne(c => c.User)
+                .WithMany()
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            #endregion
 
         }
 
