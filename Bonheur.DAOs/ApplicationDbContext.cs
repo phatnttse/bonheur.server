@@ -33,6 +33,7 @@ namespace Bonheur.DAOs
         public DbSet<BlogTag> BlogTags { get; set; }
         public DbSet<BlogComment> BlogComments { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<SupplierVideo> SupplierVideos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
