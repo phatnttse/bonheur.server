@@ -16,5 +16,6 @@ namespace Bonheur.Repositories.Interfaces
         Task UpdateAdvertisementAsync(Advertisement advertisement);
         Task DeleteAdvertisementAsync(Advertisement advertisement);
         Task<int> GetTotalAdvertisementsCountAsync();
+        Task<IPagedList<Advertisement>> GetAdvertisementsBySupplier(int supplierId, int pageNumber = 1, int pageSize = 10);
     }
 }

@@ -16,5 +16,6 @@ namespace Bonheur.Services.Interfaces
         Task<ApplicationResponse> AddAdvertisementAsync(CreateAdvertisementDTO request);
         Task<ApplicationResponse> UpdateAdvertisementAsync(int id, UpdateAdvertisementDTO advertisementDTO);
         Task<ApplicationResponse> DeleteAdvertisementAsync(int id);
+        Task<ApplicationResponse> GetAdvertisementBySupplierAsync(int pageNumber, int pageSize);
     }
 }

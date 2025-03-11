@@ -8,6 +8,7 @@ namespace Bonheur.BusinessObjects.Enums
 {
     public enum NotificationType
     {
+        Broadcast,     // Thông báo phát sóng
         Promotion,     // Khuyến mãi
         SystemAlert,   // Cảnh báo hệ thống
         General,       // Thông báo chung

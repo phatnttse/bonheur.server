@@ -37,6 +37,7 @@ namespace Bonheur.Utils
         {
             public const long MAX_PRICE = 10000000000;
             public const string DOMAIN = "https://services.bonheur.pro";
+            public const string CLIENT_URL = "https://bonheur.pro";
         }
 
         public static class InvoiceInfo

@@ -4,6 +4,7 @@ using Azure.Storage.Blobs.Models;
 using Bonheur.Services.DTOs.Storage;
 using Bonheur.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
+using System.IO;
 
 
 namespace Bonheur.Services
@@ -58,15 +59,17 @@ namespace Bonheur.Services
 
             await using (Stream? data = blob.OpenReadStream())
             {
-                var headers = new BlobHttpHeaders
+                var options = new BlobUploadOptions
                 {
-                    ContentType = blob.ContentType
+                    HttpHeaders = new BlobHttpHeaders { ContentType = blob.ContentType },
+                    TransferOptions = new StorageTransferOptions
+                    {
+                        InitialTransferSize = 8 * 1024 * 1024, // 8MB chunk
+                        MaximumConcurrency = 8 // Số luồng upload song song
+                    } 
                 };
 
-                var uploadResponse = await client.UploadAsync(data, new BlobUploadOptions
-                {
-                    HttpHeaders = headers
-                });
+                var uploadResponse = await client.UploadAsync(data, options);
 
                 if (uploadResponse.GetRawResponse().Status == 201)
                 {

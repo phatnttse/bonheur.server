@@ -9,7 +9,7 @@ namespace Bonheur.API.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/advertisement")]
+    [Route("api/v{version:apiVersion}/advertisements")]
     public class AdvertisementController : ControllerBase
     {
         private readonly IAdvertisementService _advertisementService;
@@ -25,6 +25,15 @@ namespace Bonheur.API.Controllers
         public async Task<IActionResult> GetAllAdvertisements([FromQuery] string? searchTitle, [FromQuery] string? searchContent, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             return Ok(await _advertisementService.GetAdvertisementsAsync(searchTitle, searchContent, pageNumber, pageSize));
+        }
+
+        [HttpGet("supplier")]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        [ProducesResponseType(400)]
+        [Authorize(Roles = Constants.Roles.SUPPLIER)]
+        public async Task<IActionResult> GetAdvertisementsBySupplier([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return Ok(await _advertisementService.GetAdvertisementBySupplierAsync(pageNumber, pageSize));
         }
 
         [HttpGet("{id}")]

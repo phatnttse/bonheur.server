@@ -24,14 +24,16 @@ namespace Bonheur.API.Controllers
         private readonly IRequestPricingsService _requestPricingsService;
         private readonly ISupplierSocialNetworkService _supplierSocialNetworkService;
         private readonly ISupplierFAQService _supplierFAQService;
+        private readonly ISupplierVideoService _supplierVideoService;
 
 
-        public SupplierController(ISupplierService supplierService, IRequestPricingsService requestPricingsService, ISupplierSocialNetworkService supplierSocialNetworkService, ISupplierFAQService supplierFAQService)
+        public SupplierController(ISupplierService supplierService, IRequestPricingsService requestPricingsService, ISupplierSocialNetworkService supplierSocialNetworkService, ISupplierFAQService supplierFAQService, ISupplierVideoService supplierVideoService)
         {
             _supplierService = supplierService;
             _requestPricingsService = requestPricingsService;
             _supplierSocialNetworkService = supplierSocialNetworkService;
             _supplierFAQService = supplierFAQService;
+            _supplierVideoService = supplierVideoService;
         }
 
         /// <summary>
@@ -380,6 +382,44 @@ namespace Bonheur.API.Controllers
         public async Task<IActionResult> DeleteSupplierFAQ(int id)
         {
             return Ok(await _supplierFAQService.DeleteSupplierFAQs(id));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("videos")]
+        [Authorize(Roles = Constants.Roles.SUPPLIER)]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        public async Task<IActionResult> GetSupplierVideosBySupplier()
+        {
+            return Ok(await _supplierVideoService.GetSupplierVideosBySupplierAsync());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        [HttpPost("videos")]
+        [Authorize(Roles = Constants.Roles.SUPPLIER)]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        public async Task<IActionResult> AddSupplierVideo([FromForm] IFormFile file)
+        {
+            return Ok(await _supplierVideoService.AddSupplierVideoAsync(file));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("videos/{id}")]
+        [Authorize(Roles = Constants.Roles.SUPPLIER)]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        public async Task<IActionResult> DeleteSupplierVideo(int id)
+        {
+            return Ok(await _supplierVideoService.DeleteSupplierVideoAsync(id));
         }
 
     }

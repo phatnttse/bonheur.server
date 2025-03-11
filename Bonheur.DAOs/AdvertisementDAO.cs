@@ -61,5 +61,17 @@ namespace Bonheur.DAOs
         {
             return await _context.Advertisements.CountAsync();
         }
+
+        public async Task<IPagedList<Advertisement>> GetAdvertisementsBySupplier(int supplierId, int pageNumber = 1, int pageSize = 10)
+        {
+            var result = await _context.Advertisements
+                .Where(a => a.SupplierId == supplierId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .OrderByDescending(a => a.CreatedAt)
+                .ToListAsync();
+
+            return result.ToPagedList(pageNumber, pageSize);
+        }
     }
 }

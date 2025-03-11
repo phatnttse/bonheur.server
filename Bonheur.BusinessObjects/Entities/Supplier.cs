@@ -103,7 +103,11 @@ namespace Bonheur.BusinessObjects.Entities
         // Danh sách FAQ của Supplier
         public virtual ICollection<SupplierFAQ>? Faqs { get; set; }
 
+        // Danh sách Review của Supplier
         public virtual ICollection<Review>? Reviews { get; set; }
+
+        // Danh sách video của Supplier
+        public virtual ICollection<SupplierVideo>? Videos { get; set; }
 
     }
 }

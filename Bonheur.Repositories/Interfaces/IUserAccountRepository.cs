@@ -39,5 +39,7 @@ namespace Bonheur.Repositories.Interfaces
         Task<string> GenerateChangeEmailTokenAsync(ApplicationUser user, string newEmail);
         Task<IdentityResult> ChangeEmailAsync(ApplicationUser user, string newEmail, string token);
         Task<int> GetTotalUsersCountAsync();
-    }
+        Task<List<ApplicationUser>> GetAllUsersAsync();
+        
+        }
 }

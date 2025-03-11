@@ -1,4 +1,8 @@
-﻿using Bonheur.Services.Interfaces;
+﻿using Bonheur.BusinessObjects.Entities;
+using Bonheur.Services.DTOs.Notification;
+using Bonheur.Services.Interfaces;
+using Bonheur.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bonheur.API.Controllers
@@ -15,10 +19,17 @@ namespace Bonheur.API.Controllers
             _notificationService = notificationService;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> CreateNotificationAsync()
-        {        
-            return Ok(await _notificationService.CreateNotificationAsync());
+        [Authorize(Roles = Constants.Roles.ADMIN)]
+        public async Task<IActionResult> CreateNotification([FromBody] CreateNotificationDTO request)
+        {
+            return Ok(await _notificationService.CreateNotification(request));
         }
+
     }
 }

@@ -25,5 +25,6 @@ namespace Bonheur.Repositories
         public async Task UpdateAdvertisementAsync(Advertisement advertisement) => await _advertisementDAO.UpdateAdvertisement(advertisement);
         public async Task DeleteAdvertisementAsync(Advertisement advertisement) => await _advertisementDAO.DeleteAdvertisement(advertisement);
         public async Task<int> GetTotalAdvertisementsCountAsync() => await _advertisementDAO.GetTotalAdvertisementsCount();
+        public async Task<IPagedList<Advertisement>> GetAdvertisementsBySupplier(int supplierId, int pageNumber = 1, int pageSize = 10) => await _advertisementDAO.GetAdvertisementsBySupplier(supplierId, pageNumber, pageSize);
     }
 }
