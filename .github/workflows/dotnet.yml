@@ -73,5 +73,8 @@ jobs:
               -e PAYOS_PAYMENT_SUCCESS_URL="${{ secrets.PAYOS_PAYMENT_SUCCESS_URL }}" \
               -e PAYOS_PAYMENT_CANCEL_URL="${{ secrets.PAYOS_PAYMENT_CANCEL_URL }}" \
               -e GOONG_API_KEY="${{ secrets.GOONG_API_KEY }}" \
+              -e RABBITMQ_HOST="${{ secrets.RABBITMQ_HOST }}" \
+              -e RABBITMQ_USERNAME="${{ secrets.RABBITMQ_USERNAME }}" \
+              -e RABBITMQ_PASSWORD="${{ secrets.RABBITMQ_PASSWORD }}" \
               ${{ secrets.DOCKER_USERNAME }}/bonheur-app:latest
           EOF
