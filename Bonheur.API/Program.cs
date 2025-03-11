@@ -325,11 +325,11 @@ namespace Bonheur.API
             builder.Services.AddEndpointsApiExplorer();
 
             // Add Swagger
-            builder.Services.AddVersionedApiExplorer(options =>
-            {
-                options.GroupNameFormat = "'v'VVV"; 
-                options.SubstituteApiVersionInUrl = true; 
-            });
+            //builder.Services.AddVersionedApiExplorer(options =>
+            //{
+            //    options.GroupNameFormat = "'v'VVV"; 
+            //    options.SubstituteApiVersionInUrl = true; 
+            //});
 
             builder.Services.AddSwaggerGen(c =>
             {
@@ -373,33 +373,34 @@ namespace Bonheur.API
             builder.Services.AddSingleton(payOS);
 
             //MassTransit
-            //builder.Services.AddMassTransit(busConfigurator =>
-            //{
-            //    busConfigurator.AddConsumer<NotificationCreatedConsumer>();
+            builder.Services.AddMassTransit(busConfigurator =>
+            {
+                busConfigurator.AddConsumer<NotificationCreatedConsumer>();
+                busConfigurator.AddConsumer<CreateBroadcastNotificationConsumer>();
 
-            //    busConfigurator.UsingRabbitMq((context, cfg) =>
-            //    {
-            //        string RABBITMQ_HOST = Environment.GetEnvironmentVariable("RabbitMQ_Host") ??
-            //            throw new InvalidOperationException("Environement string 'RabbitMQ_Host' not found.");
+                busConfigurator.UsingRabbitMq((context, cfg) =>
+                {
+                    string RABBITMQ_HOST = Environment.GetEnvironmentVariable("RabbitMQ_Host") ??
+                        throw new InvalidOperationException("Environement string 'RabbitMQ_Host' not found.");
 
-            //        string RABBITMQ_USERNAME = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ??
-            //            throw new InvalidOperationException("Environement string 'RABBITMQ_USERNAME' not found.");
+                    string RABBITMQ_USERNAME = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ??
+                        throw new InvalidOperationException("Environement string 'RABBITMQ_USERNAME' not found.");
 
-            //        string RABBITMQ_PASSWORD = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ??
-            //            throw new InvalidOperationException("Environement string 'RABBITMQ_PASSWORD' not found.");
+                    string RABBITMQ_PASSWORD = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ??
+                        throw new InvalidOperationException("Environement string 'RABBITMQ_PASSWORD' not found.");
 
-            //        cfg.Host(new Uri(RABBITMQ_HOST), h =>
-            //        {
-            //            h.Username(RABBITMQ_USERNAME);
-            //            h.Password(RABBITMQ_PASSWORD);
-            //        });
+                    cfg.Host(new Uri(RABBITMQ_HOST), h =>
+                    {
+                        h.Username(RABBITMQ_USERNAME);
+                        h.Password(RABBITMQ_PASSWORD);
+                    });
 
-            //        cfg.ConfigureEndpoints(context);
-            //    });
+                    cfg.ConfigureEndpoints(context);
+                });
 
-            //});
+            });
 
-            //builder.Services.AddTransient<IEventBus, EventBus>();
+            builder.Services.AddTransient<IEventBus, EventBus>();
 
             // DAOs
             builder.Services.AddScoped<UserAccountDAO>();
@@ -422,6 +423,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<MessageDAO>();
             builder.Services.AddScoped<MessageAttachmentDAO>();
             builder.Services.AddScoped<NotificationDAO>();
+            builder.Services.AddScoped<SupplierVideoDAO>();
 
             //Repositories
             builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
@@ -444,6 +446,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<IMessageRepository, MessageRepository>();
             builder.Services.AddScoped<IMessageAttachmentRepository, MessageAttachmentRepository>();
             builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+            builder.Services.AddScoped<ISupplierVideoRepository, SupplierVideoRepository>();
 
             // Services
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();
@@ -469,6 +472,7 @@ namespace Bonheur.API
             builder.Services.AddScoped<IMessageService, MessageService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<IDashboardService, DashboardService>();
+            builder.Services.AddScoped<ISupplierVideoService, SupplierVideoService>();
 
             // Auth Handlers
             builder.Services.AddSingleton<IAuthorizationHandler, ViewUserAuthorizationHandler>();
@@ -566,6 +570,8 @@ namespace Bonheur.API
 
 
             app.MapHub<ChatHubService>("/hubs/chat");
+
+            app.MapHub<NotificationHubService>("/hubs/notification");
 
             app.MapFallbackToFile("/index.html");
 

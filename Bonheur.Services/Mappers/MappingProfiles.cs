@@ -128,6 +128,9 @@ namespace Bonheur.Services.Mappers
             CreateMap<Message, MessageDTO>().ReverseMap();
             CreateMap<MessageAttachment, MessageAttachmentDTO>().ReverseMap();
 
+            //SupplierVideo
+            CreateMap<SupplierVideo, SupplierVideoDTO>().ReverseMap();
+
         }
     }
 }

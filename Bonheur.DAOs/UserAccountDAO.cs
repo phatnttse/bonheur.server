@@ -22,6 +22,11 @@ namespace Bonheur.DAOs
             _userManager = userManager;
         }
 
+        public async Task<List<ApplicationUser>> GetAllUsersAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
+
         public async Task<ApplicationUser?> GetUserByIdAsync(string userId)
         {
             return await _userManager.FindByIdAsync(userId);

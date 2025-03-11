@@ -27,6 +27,7 @@ namespace Bonheur.Repositories
         public async Task<List<Notification>> GetNotificationsAsync(string userId) => await _notificationDAO.GetNotificationsAsync(userId);
 
         public async Task UpdateNotificationAsync(Notification notification) => await _notificationDAO.UpdateNotificationAsync(notification);
+        public async Task AddRangeAsync(List<Notification> notifications) => await _notificationDAO.AddRangeAsync(notifications);
 
     }
 }

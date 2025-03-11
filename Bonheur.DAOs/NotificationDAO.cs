@@ -37,6 +37,12 @@ namespace Bonheur.DAOs
             await _context.SaveChangesAsync();
         }
 
+        public async Task AddRangeAsync(List<Notification> notifications)
+        {
+            _context.Notifications.AddRange(notifications);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task UpdateNotificationAsync(Notification notification)
         {
             _context.Notifications.Update(notification);

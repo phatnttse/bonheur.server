@@ -10,7 +10,7 @@ namespace Bonheur.Services.DTOs.Supplier
     public class SupplierDTO
     {
         public int Id { get; set; }
-        public string? UserID { get; set; }
+        public string? UserId { get; set; }
         public SupplierCategoryDTO? Category { get; set; }
         public string? Name { get; set; }
         public string? Slug { get; set; }
@@ -47,6 +47,7 @@ namespace Bonheur.Services.DTOs.Supplier
         public bool IsStep2Completed { get; set; }
         public bool IsStep3Completed { get; set; }
         public List<SupplierImageDTO>? Images { get; set; }
+        public List<SupplierVideoDTO>? Videos { get; set; }
         public List<SupplierSocialNetworkDTO>? SocialNetworks { get; set; }
         public List<SupplierFAQDTO>? Faqs { get; set; }
         public SubscriptionPackageDTO? SubscriptionPackage { get; set; }

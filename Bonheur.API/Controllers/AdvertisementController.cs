@@ -3,14 +3,13 @@ using Bonheur.Services.DTOs.Advertisement;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bonheur.API.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/advertisement")]
+    [Route("api/v{version:apiVersion}/advertisements")]
     public class AdvertisementController : ControllerBase
     {
         private readonly IAdvertisementService _advertisementService;
@@ -28,6 +27,15 @@ namespace Bonheur.API.Controllers
             return Ok(await _advertisementService.GetAdvertisementsAsync(searchTitle, searchContent, pageNumber, pageSize));
         }
 
+        [HttpGet("supplier")]
+        [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
+        [ProducesResponseType(400)]
+        [Authorize(Roles = Constants.Roles.SUPPLIER)]
+        public async Task<IActionResult> GetAdvertisementsBySupplier([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return Ok(await _advertisementService.GetAdvertisementBySupplierAsync(pageNumber, pageSize));
+        }
+
         [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
@@ -40,7 +48,7 @@ namespace Bonheur.API.Controllers
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
         [Authorize(Roles = Constants.Roles.ADMIN)]
-        public async Task<IActionResult> CreateAdvertisement([FromBody] AdvertisementDTO advertisementDTO)
+        public async Task<IActionResult> CreateAdvertisement([FromBody] CreateAdvertisementDTO advertisementDTO)
         {
             return Ok(await _advertisementService.AddAdvertisementAsync(advertisementDTO));
         }
@@ -49,7 +57,7 @@ namespace Bonheur.API.Controllers
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
         [Authorize(Roles = Constants.Roles.ADMIN)]
-        public async Task<IActionResult> UpdateAdvertisement([FromRoute] int id, [FromBody] AdvertisementDTO advertisementDTO)
+        public async Task<IActionResult> UpdateAdvertisement([FromRoute] int id, [FromBody] UpdateAdvertisementDTO advertisementDTO)
         {
             return Ok(await _advertisementService.UpdateAdvertisementAsync(id, advertisementDTO));
         }

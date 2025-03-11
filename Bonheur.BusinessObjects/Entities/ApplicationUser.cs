@@ -35,5 +35,7 @@ namespace Bonheur.BusinessObjects.Entities
         public ICollection<IdentityUserClaim<string>> Claims { get; } = new List<IdentityUserClaim<string>>();
 
         public virtual ICollection<FavoriteSupplier>? FavoriteSuppliers { get; set; }
+
+        public virtual ICollection<BlogPost>? BlogPosts { get; set; }
     }
 }
