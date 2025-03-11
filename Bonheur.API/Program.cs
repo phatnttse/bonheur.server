@@ -380,8 +380,8 @@ namespace Bonheur.API
 
                 busConfigurator.UsingRabbitMq((context, cfg) =>
                 {
-                    string RABBITMQ_HOST = Environment.GetEnvironmentVariable("RabbitMQ_Host") ??
-                        throw new InvalidOperationException("Environement string 'RabbitMQ_Host' not found.");
+                    string RABBITMQ_HOST = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ??
+                        throw new InvalidOperationException("Environement string 'RABBITMQ_HOST' not found.");
 
                     string RABBITMQ_USERNAME = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ??
                         throw new InvalidOperationException("Environement string 'RABBITMQ_USERNAME' not found.");
