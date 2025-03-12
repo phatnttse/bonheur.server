@@ -68,5 +68,12 @@ namespace Bonheur.DAOs
             await _context.SaveChangesAsync();
             return favoriteSupplier;
         }
+
+        public async Task<bool> IsFavoriteSupplierAsync(string userId, int supplierId)
+        {
+            var exists = await _context.FavoriteSuppliers
+                .AnyAsync(fs => fs.UserId == userId && fs.SupplierId == supplierId);
+            return exists;
+        }
     }
 }
