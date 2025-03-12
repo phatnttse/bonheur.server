@@ -41,12 +41,15 @@ namespace Bonheur.Services
                     throw new ApiException("Supplier was not existed!", System.Net.HttpStatusCode.BadRequest);
                 }
                 var checkSupplier = await _supplierRepository.GetSupplierByUserIdAsync(userId);
-                if (checkSupplier!.Id == supplierId) {
-                    throw new ApiException("You are loving yourself!", System.Net.HttpStatusCode.BadRequest);
+
+                if (checkSupplier != null)
+                {
+                    if (checkSupplier!.Id == supplierId) throw new ApiException("You are loving yourself!", System.Net.HttpStatusCode.BadRequest);                 
                 }
-                var existedFavoriteSupplier = await _favoriteSupplierRepository.GetFavoriteSupplierAsync(supplierId);
-                if (existedFavoriteSupplier != null) {
-                    throw new ApiException("Favorite Supplier was existed!", System.Net.HttpStatusCode.BadRequest);
+
+                var existedFavoriteSupplier = await _favoriteSupplierRepository.IsFavoriteSupplierAsync(userId,supplierId);
+                if (existedFavoriteSupplier) {
+                    throw new ApiException("The supplier already exists in the favorites list!", System.Net.HttpStatusCode.BadRequest);
                 }
                 favoriteSupplierDTO.UserId = userId;
                 favoriteSupplierDTO.SupplierId = supplierId;
@@ -154,6 +157,32 @@ namespace Bonheur.Services
                 throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
             }
         }
+
+        public async Task<ApplicationResponse> GetFavoriteSupplierCountByCategoryAsync()
+        {
+            try
+            {
+                var favoriteCounts = await _favoriteSupplierRepository.GetFavoriteSupplierCountByCategoryAsync();
+
+
+                return new ApplicationResponse
+                {
+                    Success = true,
+                    Message = "Query favorite supplier count by category successfully",
+                    Data = favoriteCounts,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
 
         public async Task<ApplicationResponse> GetFavoriteSuppliersByCategoryId(int categoryId, int pageNumber, int pageSize)
         {

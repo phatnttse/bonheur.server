@@ -47,6 +47,9 @@ namespace Bonheur.Services.DTOs.Review
 
         public virtual UserAccountDTO User { get; set; }
 
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
+
 
     }
 }
