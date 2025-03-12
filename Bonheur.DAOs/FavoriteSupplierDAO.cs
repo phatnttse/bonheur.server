@@ -45,6 +45,22 @@ namespace Bonheur.DAOs
 
         public async Task<FavoriteSupplier?> GetFavoriteSupplierAsync(int id) => await _context.FavoriteSuppliers.Include(fs => fs.Supplier).FirstOrDefaultAsync(fs => fs.SupplierId == id);
 
+        public async Task<List<object>> GetFavoriteSupplierCountByCategoryAsync()
+        {
+            var result = await _context.FavoriteSuppliers
+                .Where(f => f.Supplier != null && f.Supplier.Category != null)
+                .GroupBy(f => new { f.Supplier.Category.Id, f.Supplier.Category.Name })
+                .Select(g => new
+                {
+                    CategoryId = g.Key.Id,
+                    CategoryName = g.Key.Name,
+                    FavoriteCount = g.Count()
+                })
+                .ToListAsync();
+
+            return result.Cast<object>().ToList(); // Trả về dưới dạng object
+        }
+
 
         public async Task<FavoriteSupplier> DeleteSupplierAsync(FavoriteSupplier favoriteSupplier)
         {

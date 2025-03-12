@@ -155,6 +155,32 @@ namespace Bonheur.Services
             }
         }
 
+        public async Task<ApplicationResponse> GetFavoriteSupplierCountByCategoryAsync()
+        {
+            try
+            {
+                var favoriteCounts = await _favoriteSupplierRepository.GetFavoriteSupplierCountByCategoryAsync();
+
+
+                return new ApplicationResponse
+                {
+                    Success = true,
+                    Message = "Query favorite supplier count by category successfully",
+                    Data = favoriteCounts,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
+
         public async Task<ApplicationResponse> GetFavoriteSuppliersByCategoryId(int categoryId, int pageNumber, int pageSize)
         {
             try

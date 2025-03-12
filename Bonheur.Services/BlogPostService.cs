@@ -75,12 +75,27 @@ namespace Bonheur.Services
         {
             try
             {
-                var blogPosts = await _blogPostRepository.GetBlogPostsAsync(searchTitle, searchContent, pageNumber, pageSize);
+                var blogPostsPagedList = await _blogPostRepository.GetBlogPostsAsync(searchTitle, searchContent, pageNumber, pageSize);
+                var listBlogPostDTO = _mapper.Map<List<BlogPostDTO>>(blogPostsPagedList);
+
+                var responseData = new PagedData<BlogPostDTO>
+                {
+                    Items = listBlogPostDTO,
+                    PageNumber = blogPostsPagedList.PageNumber,
+                    PageSize = blogPostsPagedList.PageSize,
+                    TotalItemCount = blogPostsPagedList.TotalItemCount,
+                    PageCount = blogPostsPagedList.PageCount,
+                    IsFirstPage = blogPostsPagedList.IsFirstPage,
+                    IsLastPage = blogPostsPagedList.IsLastPage,
+                    HasNextPage = blogPostsPagedList.HasNextPage,
+                    HasPreviousPage = blogPostsPagedList.HasPreviousPage
+                };
+
                 return new ApplicationResponse
                 {
                     Success = true,
                     Message = "Blog posts retrieved successfully",
-                    Data = blogPosts,
+                    Data = responseData,
                     StatusCode = System.Net.HttpStatusCode.OK,
                 };
             }
@@ -93,6 +108,7 @@ namespace Bonheur.Services
                 throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
             }
         }
+
 
         public async Task<ApplicationResponse> GetBlogPostsByTags(List<BlogTagDTO> tags, int pageNumber = 1, int pageSize = 10)
         {
