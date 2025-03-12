@@ -14,5 +14,6 @@ namespace Bonheur.Repositories.Interfaces
         Task CreateNotificationAsync(Notification notification);
         Task UpdateNotificationAsync(Notification notification);
         Task DeleteNotificationAsync(Notification notification);
+        Task AddRangeAsync(List<Notification> notifications);
     }
 }

@@ -1,12 +1,9 @@
 ﻿ using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Enums;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using X.PagedList;
 using X.PagedList.Extensions;
-using Bonheur.Utils;
 using System.Linq.Expressions;
-using DocumentFormat.OpenXml.Drawing.Charts;
 
 namespace Bonheur.DAOs
 {
@@ -23,7 +20,8 @@ namespace Bonheur.DAOs
         {
             IQueryable<Supplier> query = _context.Suppliers
                 .Include(s => s.Category)
-                .Include(s => s.Images);
+                .Include(s => s.Images)
+                .Include(s => s.Videos);
 
             if (isIncludeUser)
             {
@@ -46,6 +44,7 @@ namespace Bonheur.DAOs
                 .Include(s => s.User)
                 .Include(s => s.Category)
                 .Include(s => s.Images!.OrderByDescending(img => img.IsPrimary))
+                .Include(s => s.Videos)
                 .Include(s => s.SubscriptionPackage)
                 .SingleOrDefaultAsync(s => s.UserId == userId);
         
@@ -196,6 +195,7 @@ namespace Bonheur.DAOs
             return await _context.Suppliers
                 .Include(s => s.Category)
                 .Include(s => s.Images!.OrderByDescending(img => img.IsPrimary))
+                .Include(s => s.Videos)
                 .Include(s => s.SubscriptionPackage)            
                 .Include(s => s.Faqs)
                 .Include(s => s.Reviews)

@@ -99,6 +99,29 @@ namespace Bonheur.Utils
             return $"{amount:N0}đ";
         }
 
+        public static bool IsValidVideo(IFormFile file)
+        {
+            // Danh sách MIME types hợp lệ
+            var allowedVideoTypes = new HashSet<string>
+            {
+                "video/mp4",
+                "video/avi",
+                "video/mpeg",
+                "video/quicktime",
+                "video/x-ms-wmv"
+            };
+
+            if (!allowedVideoTypes.Contains(file.ContentType)) return false;
+
+            return true;
+
+        }
+
+        public static bool IsValidSizeFile(IFormFile file, int maxSize)
+        {
+            return file.Length <= maxSize;
+        }
+
 
     }
 }

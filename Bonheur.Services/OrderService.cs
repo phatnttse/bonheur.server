@@ -2,19 +2,11 @@
 using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Enums;
 using Bonheur.BusinessObjects.Models;
-using Bonheur.Repositories;
 using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Order;
-using Bonheur.Services.DTOs.Supplier;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using X.PagedList;
-using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace Bonheur.Services
 {
