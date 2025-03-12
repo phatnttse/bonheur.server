@@ -13,7 +13,6 @@ namespace Bonheur.Services.DTOs.Advertisement
         public int AdPackageId { get; set; }
         public string? Title { get; set; }
         public string? Content { get; set; }
-        public string? ImageUrl { get; set; }
         public string? TargetUrl { get; set; }
         public bool IsActive { get; set; } = true;
         public IFormFile? Image { get; set; }

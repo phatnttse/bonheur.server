@@ -41,12 +41,15 @@ namespace Bonheur.Services
                     throw new ApiException("Supplier was not existed!", System.Net.HttpStatusCode.BadRequest);
                 }
                 var checkSupplier = await _supplierRepository.GetSupplierByUserIdAsync(userId);
-                if (checkSupplier!.Id == supplierId) {
-                    throw new ApiException("You are loving yourself!", System.Net.HttpStatusCode.BadRequest);
+
+                if (checkSupplier != null)
+                {
+                    if (checkSupplier!.Id == supplierId) throw new ApiException("You are loving yourself!", System.Net.HttpStatusCode.BadRequest);                 
                 }
+
                 var existedFavoriteSupplier = await _favoriteSupplierRepository.GetFavoriteSupplierAsync(supplierId);
                 if (existedFavoriteSupplier != null) {
-                    throw new ApiException("Favorite Supplier was existed!", System.Net.HttpStatusCode.BadRequest);
+                    throw new ApiException("The supplier already exists in the favorites list!", System.Net.HttpStatusCode.BadRequest);
                 }
                 favoriteSupplierDTO.UserId = userId;
                 favoriteSupplierDTO.SupplierId = supplierId;
