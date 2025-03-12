@@ -424,6 +424,8 @@ namespace Bonheur.API
             builder.Services.AddScoped<MessageAttachmentDAO>();
             builder.Services.AddScoped<NotificationDAO>();
             builder.Services.AddScoped<SupplierVideoDAO>();
+            builder.Services.AddScoped<BlogPostDAO>();
+            builder.Services.AddScoped<BlogTagDAO>();
 
             //Repositories
             builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
@@ -447,6 +449,8 @@ namespace Bonheur.API
             builder.Services.AddScoped<IMessageAttachmentRepository, MessageAttachmentRepository>();
             builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
             builder.Services.AddScoped<ISupplierVideoRepository, SupplierVideoRepository>();
+            builder.Services.AddScoped<IBlogPostRepository, BlogPostRepository>();
+            builder.Services.AddScoped<IBlogTagRepository, BlogTagRepository>();
 
             // Services
             builder.Services.AddScoped<IUserAccountService, UserAccountService>();
@@ -473,6 +477,8 @@ namespace Bonheur.API
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<IDashboardService, DashboardService>();
             builder.Services.AddScoped<ISupplierVideoService, SupplierVideoService>();
+            builder.Services.AddScoped<IBlogTagService, BlogTagService>();
+            builder.Services.AddScoped<IBlogPostService, BlogPostService>();
 
             // Auth Handlers
             builder.Services.AddSingleton<IAuthorizationHandler, ViewUserAuthorizationHandler>();

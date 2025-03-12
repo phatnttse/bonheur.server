@@ -1,4 +1,5 @@
-﻿using Bonheur.Services.DTOs.FavoriteSupplier;
+﻿using Bonheur.Services;
+using Bonheur.Services.DTOs.FavoriteSupplier;
 using Bonheur.Services.Interfaces;
 using Bonheur.Utils;
 using Microsoft.AspNetCore.Authorization;
@@ -62,6 +63,14 @@ namespace Bonheur.API.Controllers
         public async Task<IActionResult> DeleteFavoriteSupplier([FromRoute] int id)
         {
             return Ok(await _favoriteSupplierService.DeleteSupplierAsync(id));
+        }
+
+        [HttpGet("favorite-count")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> GetFavoriteSupplierCountByCategory()
+        {
+            return Ok(await _favoriteSupplierService.GetFavoriteSupplierCountByCategoryAsync());
         }
     }
 }
