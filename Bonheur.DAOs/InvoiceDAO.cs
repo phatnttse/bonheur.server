@@ -66,7 +66,7 @@ namespace Bonheur.DAOs
                         .ThenInclude(od => od.SubscriptionPackage)
                 .Include(iv => iv.Order)           
                     .ThenInclude(o => o!.OrderDetails)
-                        .ThenInclude(od => od.AdPackage)
+                        .ThenInclude(od => od.Advertisement)
                 .FirstOrDefaultAsync(iv => iv.Id == id);
         }                  
 

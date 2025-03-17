@@ -288,9 +288,9 @@ namespace Bonheur.DAOs
 
             // Configure OrderDetail -> AdPackage (optional one-to-one or many-to-one relationship)
             modelBuilder.Entity<OrderDetail>()
-                .HasOne(od => od.AdPackage)
+                .HasOne(od => od.Advertisement)
                 .WithMany()
-                .HasForeignKey(od => od.AdPackageId)
+                .HasForeignKey(od => od.AdvertisementId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             // Configure Invoice -> Order (many-to-one relationship)

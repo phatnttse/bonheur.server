@@ -17,6 +17,9 @@ namespace Bonheur.Services.DTOs.Advertisement
         public string? Title { get; set; }
         public string? Content { get; set; }
         public string? ImageUrl { get; set; }
+        public string? ImageFileName { get; set; }
+        public string? VideoUrl { get; set; } 
+        public string? VideoFileName { get; set; } 
         public string? TargetUrl { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTimeOffset CreatedAt { get; set; }

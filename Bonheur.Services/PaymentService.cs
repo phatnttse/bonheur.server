@@ -32,6 +32,8 @@ namespace Bonheur.Services
         private readonly IOrderDetailRepository _orderDetailRepository;
         private readonly IUserAccountRepository _userAccountRepository;
         private readonly ISupplierRepository _supplierRepository;
+        private readonly IAdPackageRepository _adPackageRepository;
+        private readonly IAdvertisementRepository _advertisementRepository;
         private readonly IInvoiceService _invoiceService;
         private readonly IStorageService _storageService;
         private readonly IEmailSender _emailSender;
@@ -44,6 +46,8 @@ namespace Bonheur.Services
             IOrderDetailRepository orderDetailRepository, 
             IUserAccountRepository userAccountRepository,
             ISupplierRepository supplierRepository,
+            IAdPackageRepository adPackageRepository,
+            IAdvertisementRepository advertisementRepository,
             IInvoiceService invoiceService,
             IStorageService storageService,
             IEmailSender emailSender,
@@ -59,6 +63,8 @@ namespace Bonheur.Services
             _orderDetailRepository = orderDetailRepository;
             _userAccountRepository = userAccountRepository;
             _supplierRepository = supplierRepository;
+            _adPackageRepository = adPackageRepository;
+            _advertisementRepository = advertisementRepository;
             _invoiceService = invoiceService;
             _storageService = storageService;
             _emailSender = emailSender;
@@ -102,24 +108,50 @@ namespace Bonheur.Services
 
                 #endregion
 
-                #region Update subscription package for supplier
-                int spId = order.OrderDetails?.ToList()[0].SubscriptionPackageId ?? throw new ApiException("Subscription package id not found", System.Net.HttpStatusCode.NotFound);
+                #region Update subscription package for supplier or advertisement
 
-                var subscriptionPackage = await _subscriptionPackageRepository.GetSubscriptionPackageByIdAsync(spId);
+                int spId = (int)(order.OrderDetails?.ToList()[0].SubscriptionPackageId);
 
-                if (subscriptionPackage == null) throw new ApiException("Subscription package not found", System.Net.HttpStatusCode.NotFound);
+                SubscriptionPackage? subscriptionPackage = null;
 
-                if (subscriptionPackage.IsFeatured)
+                if (spId > 0)
                 {
-                    supplier.IsFeatured = true;
+                    subscriptionPackage = await _subscriptionPackageRepository.GetSubscriptionPackageByIdAsync(spId);
+
+                    if (subscriptionPackage == null) throw new ApiException("Subscription package not found", System.Net.HttpStatusCode.NotFound);
+
+                    if (subscriptionPackage.IsFeatured)
+                    {
+                        supplier.IsFeatured = true;
+                    }
+
+                    supplier.SubscriptionPackageId = subscriptionPackage.Id;
+                    supplier.SubscriptionPackage = subscriptionPackage;
+                    supplier.Priority = subscriptionPackage.Priority;
+                    supplier.PriorityEnd = DateTimeOffset.UtcNow.AddDays(subscriptionPackage.DurationInDays);
+
+                    await _supplierRepository.UpdateSupplierAsync(supplier);
                 }
 
-                supplier.SubscriptionPackageId = subscriptionPackage.Id;
-                supplier.SubscriptionPackage = subscriptionPackage;
-                supplier.Priority = subscriptionPackage.Priority;
-                supplier.PriorityEnd = DateTimeOffset.UtcNow.AddDays(subscriptionPackage.DurationInDays);
+                int advertisementId = (int)(order.OrderDetails?.ToList()[0].AdvertisementId);
 
-                await _supplierRepository.UpdateSupplierAsync(supplier);
+                Advertisement? advertisement = null;
+
+                if (advertisementId > 0)
+                {
+                    advertisement = await _advertisementRepository.GetAdvertisementByIdAsync(advertisementId);
+
+                    if (advertisement == null) throw new ApiException("Advertisement not found", System.Net.HttpStatusCode.NotFound);
+
+                    if (advertisement.Status != AdvertisementStatus.Approved) throw new ApiException("Advertisement not approved", System.Net.HttpStatusCode.BadRequest);
+
+                    if (advertisement.PaymentStatus == PaymentStatus.Paid) throw new ApiException("Payment already successful", System.Net.HttpStatusCode.BadRequest);
+
+                    advertisement.PaymentStatus = PaymentStatus.Paid;
+                    advertisement.IsActive = true;
+
+                    await _advertisementRepository.UpdateAdvertisementAsync(advertisement);
+                }
 
                 #endregion
 
@@ -189,7 +221,7 @@ namespace Bonheur.Services
                 #endregion
 
                 #region Send email to supplier
-                string emailBody = EmailTemplates.GetThankForPurchase(supplier.Name!, subscriptionPackage.Name!, Constants.InvoiceInfo.WEBSITE, Constants.Common.DOMAIN);
+                string emailBody = EmailTemplates.GetThankForPurchase(supplier.Name!, subscriptionPackage.Name != null ? subscriptionPackage.Name : advertisement.AdPackage.Title, Constants.InvoiceInfo.WEBSITE, Constants.Common.DOMAIN);
 
                 string recipientName = supplier.Name!;
                 string recipientEmail = account.Email!;
@@ -200,15 +232,15 @@ namespace Bonheur.Services
 
                 return new PaymentResponse(0, "Ok", null);
             }
-            catch (ApiException)
+            catch (ApiException ex)
             {
-                throw;
-                //return new PaymentResponse(-1, ex.Message, null);
+                //throw;
+                return new PaymentResponse(-1, ex.Message, null);
             }
             catch (Exception ex)
             {
-                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
-                //return new PaymentResponse(-1, ex.Message, null);
+                //throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+                return new PaymentResponse(-1, ex.Message, null);
             }
 
         }

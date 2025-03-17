@@ -17,5 +17,6 @@ namespace Bonheur.Services.Interfaces
         Task RemoveConnection(string userId);
         Task BroadcastNotificationToAllUsers(NotificationCreatedEvent notification);
         Task<ApplicationResponse> CreateNotification(CreateNotificationDTO request);
+        Task<ApplicationResponse> GetNotificationsByAccountAsync(int pageNumber, int pageSize);
     }
 }

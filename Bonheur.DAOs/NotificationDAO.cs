@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using X.PagedList;
+using X.PagedList.Extensions;
 
 namespace Bonheur.DAOs
 {
@@ -17,12 +19,17 @@ namespace Bonheur.DAOs
             _context = context;
         }
 
-        public async Task<List<Notification>> GetNotificationsAsync(string userId)
+        public async Task<IPagedList<Notification>> GetNotificationsAsync(string userId, int pageNumber, int pageSize)
         {
-            return await _context.Notifications
+            var result = await _context.Notifications
                 .Where(n => n.RecipientId == userId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .OrderByDescending(n => n.CreatedAt)
                 .ToListAsync();
+
+            return result.ToPagedList(pageNumber, pageSize);
+
         }
 
         public async Task<Notification?> GetNotificationAsync(int id)
