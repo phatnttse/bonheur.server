@@ -31,5 +31,12 @@ namespace Bonheur.API.Controllers
             return Ok(await _notificationService.CreateNotification(request));
         }
 
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<IActionResult> GetNotificationsByAccountAsync([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return Ok(await _notificationService.GetNotificationsByAccountAsync(pageNumber, pageSize));
+        }
+
     }
 }

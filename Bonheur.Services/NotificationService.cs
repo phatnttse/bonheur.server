@@ -3,6 +3,7 @@ using Bonheur.BusinessObjects.Enums;
 using Bonheur.BusinessObjects.Models;
 using Bonheur.Repositories;
 using Bonheur.Repositories.Interfaces;
+using Bonheur.Services.DTOs.Advertisement;
 using Bonheur.Services.DTOs.Notification;
 using Bonheur.Services.DTOs.Order;
 using Bonheur.Services.Interfaces;
@@ -11,6 +12,7 @@ using Bonheur.Utils;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
+using X.PagedList;
 
 
 namespace Bonheur.Services
@@ -94,6 +96,46 @@ namespace Bonheur.Services
                 {
                     Data = null,
                     Message = "Notification created successfully",
+                    Success = true,
+                    StatusCode = System.Net.HttpStatusCode.OK
+                };
+
+            }
+            catch (ApiException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<ApplicationResponse> GetNotificationsByAccountAsync(int pageNumber, int pageSize)
+        {
+            try
+            {
+                string currentUserId = Utilities.GetCurrentUserId() ?? throw new ApiException("User not found", System.Net.HttpStatusCode.NotFound);
+
+                IPagedList<Notification> notifications = await _notificationRepository.GetNotificationsAsync(currentUserId, pageNumber, pageSize);
+
+                var responseData = new PagedData<Notification>
+                {
+                    Items = (List<Notification>)notifications,
+                    PageNumber = notifications.PageNumber,
+                    PageSize = notifications.PageSize,
+                    TotalItemCount = notifications.TotalItemCount,
+                    PageCount = notifications.PageCount,
+                    IsFirstPage = notifications.IsFirstPage,
+                    IsLastPage = notifications.IsLastPage,
+                    HasNextPage = notifications.HasNextPage,
+                    HasPreviousPage = notifications.HasPreviousPage,
+                };
+
+                return new ApplicationResponse
+                {
+                    Data = responseData,
+                    Message = "Notifications retrieved successfully",
                     Success = true,
                     StatusCode = System.Net.HttpStatusCode.OK
                 };

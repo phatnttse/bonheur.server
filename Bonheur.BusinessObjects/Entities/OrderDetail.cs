@@ -18,8 +18,8 @@ namespace Bonheur.BusinessObjects.Entities
         public int? SubscriptionPackageId { get; set; } 
         public virtual SubscriptionPackage? SubscriptionPackage { get; set; }
 
-        public int? AdPackageId { get; set; } 
-        public virtual AdPackage? AdPackage { get; set; }
+        public int? AdvertisementId { get; set; } 
+        public virtual Advertisement? Advertisement { get; set; }
 
         [Required]
         public string? Name { get; set; }

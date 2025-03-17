@@ -2,12 +2,15 @@
 using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Enums;
 using Bonheur.BusinessObjects.Models;
+using Bonheur.Repositories;
 using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Advertisement;
 using Bonheur.Services.DTOs.Storage;
 using Bonheur.Services.Interfaces;
 using Bonheur.Services.MessageBrokers.Events;
 using Bonheur.Utils;
+using Net.payOS;
+using Net.payOS.Types;
 
 namespace Bonheur.Services
 {
@@ -20,6 +23,12 @@ namespace Bonheur.Services
         private readonly IStorageService _storageService;
         private readonly IEventBus _eventBus;
         private readonly INotificationRepository _notificationRepository;
+        private readonly string _payOsPaymentSuccessUrl;
+        private readonly string _payOsPaymentCancelUrl;
+        private readonly PayOS _payOS;
+        private readonly IEmailSender _emailSender;
+        private readonly IInvoiceService _invoiceService;
+        private readonly IOrderRepository _orderRepository;
 
         public AdvertisementService(
             IAdvertisementRepository advertisementRepository, 
@@ -28,7 +37,11 @@ namespace Bonheur.Services
             ISupplierRepository supplierRepository,
             IStorageService storageService,
             IEventBus eventBus,
-            INotificationRepository notificationRepository
+            INotificationRepository notificationRepository,
+            PayOS payOS,
+            IEmailSender emailSender,
+            IInvoiceService invoiceService,
+            IOrderRepository orderRepository
         )
         {
             _advertisementRepository = advertisementRepository;
@@ -38,6 +51,12 @@ namespace Bonheur.Services
             _storageService = storageService;
             _eventBus = eventBus;
             _notificationRepository = notificationRepository;
+            _payOS = payOS;
+            _payOsPaymentSuccessUrl = Environment.GetEnvironmentVariable("PAYOS_PAYMENT_SUCCESS_URL") ?? throw new Exception("Environtment string 'PAYOS_PAYMENT_SUCCESS_URL' not found");
+            _payOsPaymentCancelUrl = Environment.GetEnvironmentVariable("PAYOS_PAYMENT_CANCEL_URL") ?? throw new Exception("Environtment string 'PAYOS_PAYMENT_CANCEL_URL' not found");
+            _emailSender = emailSender;
+            _invoiceService = invoiceService;
+            _orderRepository = orderRepository;
         }
 
         public async Task<ApplicationResponse> AddAdvertisementAsync(CreateAdvertisementDTO advertisementDTO)
@@ -88,12 +107,54 @@ namespace Bonheur.Services
 
                 await _eventBus.PublishAsync(createdEvent);
 
+                int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+                ItemData item = new ItemData(adPackage.Title!, 1, (int)adPackage.Price);
+                List<ItemData> items = new List<ItemData> { item };
+
+                Order order = new Order
+                {
+                    OrderCode = orderCode,
+                    TotalAmount = adPackage.Price,
+                    Status = OrderStatus.PendingPayment,
+                    PaymentStatus = PaymentStatus.Pending,
+                    PaymentMethod = PaymentMethod.PayOS,
+                    SupplierId = supplier.Id,
+                    Supplier = supplier,
+                    UserId = supplier.UserId,
+                    OrderDetails = new List<OrderDetail>
+                    {
+                        new OrderDetail
+                        {
+                            AdvertisementId = advertisement.Id,
+                            Name = adPackage.Title,
+                            Quantity = 1,
+                            Price = adPackage.Price,
+                            TotalAmount = adPackage.Price
+                        }
+                    }
+                };
+
+                Order newOrder = await _orderRepository.AddOrderAsync(order);
+
+                if (newOrder == null) throw new ApiException("Failed to create order", System.Net.HttpStatusCode.InternalServerError);
+
+                PaymentData paymentData = new PaymentData(
+                    orderCode,
+                    (int)adPackage.Price,
+                    adPackage.Title!,
+                    items,
+                    this._payOsPaymentSuccessUrl,
+                    this._payOsPaymentCancelUrl
+                );
+
+                CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
+
                 return new ApplicationResponse
                 {
+                    Data = createPayment,
+                    Message = "Payment link created successfully",
                     Success = true,
-                    Message = "Advertisement added successfully!",
-                    Data = advertisement,
-                    StatusCode = System.Net.HttpStatusCode.OK
+                    StatusCode = System.Net.HttpStatusCode.Created
                 };
 
             }
@@ -128,6 +189,42 @@ namespace Bonheur.Services
             {
                 throw;
             }
+            catch (Exception ex)
+            {
+                throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<ApplicationResponse> GetActiveAdvertisementsAsync(int pageNumber, int pageSize)
+        {
+            try
+            {
+                var listAdvertisement = await _advertisementRepository.GetActiveAdvertisements(pageNumber, pageSize);
+
+                var listAdvertisementDTO = _mapper.Map<List<AdvertisementDTO>>(listAdvertisement);
+
+                var responseData = new PagedData<AdvertisementDTO>
+                {
+                    Items = listAdvertisementDTO,
+                    PageNumber = listAdvertisement.PageNumber,
+                    PageSize = listAdvertisement.PageSize,
+                    TotalItemCount = listAdvertisement.TotalItemCount,
+                    PageCount = listAdvertisement.PageCount,
+                    IsFirstPage = listAdvertisement.IsFirstPage,
+                    IsLastPage = listAdvertisement.IsLastPage,
+                    HasNextPage = listAdvertisement.HasNextPage,
+                    HasPreviousPage = listAdvertisement.HasPreviousPage,
+                };
+
+                return new ApplicationResponse
+                {
+                    Success = true,
+                    Message = "List advertisement query successfully",
+                    Data = responseData,
+                    StatusCode = System.Net.HttpStatusCode.OK,
+                };
+            }
+            catch (ApiException) { throw; }
             catch (Exception ex)
             {
                 throw new ApiException(ex.Message, System.Net.HttpStatusCode.InternalServerError);
@@ -186,6 +283,7 @@ namespace Bonheur.Services
                     HasNextPage = listAdvertisement.HasNextPage,
                     HasPreviousPage = listAdvertisement.HasPreviousPage,
                 };
+
                 return new ApplicationResponse
                 {
                     Success = true,
@@ -201,11 +299,11 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> GetAdvertisementsAsync(string? searchTitle, string? searchContent, int pageNumber = 1, int pageSize = 10)
+        public async Task<ApplicationResponse> GetAdvertisementsAsync(string? searchTitle, string? searchContent, AdvertisementStatus? status, PaymentStatus? paymentStatus, int pageNumber = 1, int pageSize = 10)
         {
             try
             {
-                var listAdvertisement = await _advertisementRepository.GetAdvertisementsAsync(searchTitle, searchContent, pageNumber, pageSize);
+                var listAdvertisement = await _advertisementRepository.GetAdvertisementsAsync(searchTitle, searchContent, status, paymentStatus, pageNumber, pageSize);
 
                 var listAdvertisementDTO = _mapper.Map<List<AdvertisementDTO>>(listAdvertisement);
 

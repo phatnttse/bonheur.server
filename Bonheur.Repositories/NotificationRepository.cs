@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using X.PagedList;
 
 namespace Bonheur.Repositories
 {
@@ -24,7 +25,7 @@ namespace Bonheur.Repositories
 
         public async Task<Notification?> GetNotificationAsync(int id) => await _notificationDAO.GetNotificationAsync(id);
 
-        public async Task<List<Notification>> GetNotificationsAsync(string userId) => await _notificationDAO.GetNotificationsAsync(userId);
+        public async Task<IPagedList<Notification>> GetNotificationsAsync(string userId, int pageNumber, int pageSize) => await _notificationDAO.GetNotificationsAsync(userId, pageNumber, pageSize);
 
         public async Task UpdateNotificationAsync(Notification notification) => await _notificationDAO.UpdateNotificationAsync(notification);
         public async Task AddRangeAsync(List<Notification> notifications) => await _notificationDAO.AddRangeAsync(notifications);
