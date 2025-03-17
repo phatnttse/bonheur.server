@@ -20,6 +20,10 @@ namespace Bonheur.Repositories.Interfaces
 
         Task<FavoriteSupplier?> GetFavoriteSupplierAsync(int id);
 
-        Task<FavoriteSupplier> DeleteSupplierAsync(FavoriteSupplier favoriteSupplier);  
+        Task<FavoriteSupplier> DeleteSupplierAsync(FavoriteSupplier favoriteSupplier);
+
+        Task<object> GetFavoriteSupplierCountByCategoryAsync();
+
+        Task<bool> IsFavoriteSupplierAsync(string userId, int supplierId); 
     }
 }
