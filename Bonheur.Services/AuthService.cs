@@ -92,6 +92,9 @@ namespace Bonheur.Services
 
                 principal.SetDestinations(GetDestinations);
 
+                principal.SetAccessTokenLifetime(TimeSpan.FromDays(1));
+                principal.SetRefreshTokenLifetime(TimeSpan.FromDays(7));
+
                 return principal;
 
             }
