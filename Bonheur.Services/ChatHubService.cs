@@ -10,6 +10,7 @@ using Bonheur.BusinessObjects.Enums;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Bonheur.DAOs;
+using System.Collections.Concurrent;
 
 namespace Bonheur.Services
 {
@@ -46,7 +47,7 @@ namespace Bonheur.Services
             _context = context;
         }
 
-        public static readonly Dictionary<string, OnlineUserDTO> onlineUsers = new Dictionary<string, OnlineUserDTO>();
+        public static readonly ConcurrentDictionary<string, OnlineUserDTO> onlineUsers = new ();
 
         public override async Task OnConnectedAsync()
         {        
@@ -75,10 +76,10 @@ namespace Bonheur.Services
                     };
                     onlineUsers.TryAdd(userId!, user);
 
-                    await Clients.AllExcept(connectionId).SendAsync("UserConnected", user);
+                    //await Clients.AllExcept(connectionId).SendAsync("UserConnected", user);
                 }
 
-                await Clients.All.SendAsync("OnlineUsers", this.GetAllSuppliersContacted());
+                await Clients.Caller.SendAsync("OnlineUsers", this.GetAllSuppliersContacted());
                 
             }
             catch (ApiException)
@@ -304,7 +305,7 @@ namespace Bonheur.Services
                                      Id = u.Id,
                                      UserName = u.UserName,
                                      FullName = s != null ? s.Name : u.FullName,
-                                     PictureUrl = s != null ? s.Images.Where(s => s.IsPrimary).FirstOrDefault().ImageUrl : u.PictureUrl,
+                                     PictureUrl = s != null ? s.Images!.Where(s => s.IsPrimary).FirstOrDefault()!.ImageUrl : u.PictureUrl,
                                      IsOnline = onlineUsersSet.Contains(u.Id),
                                      UnreadMessages = unreadMessagesDict.ContainsKey(u.Id) ? unreadMessagesDict[u.Id] : 0,
                                      LatestMessage = latestMessagesDict.ContainsKey(u.Id) ? latestMessagesDict[u.Id].LatestMessage : null,
