@@ -67,7 +67,7 @@ namespace Bonheur.API.Controllers
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
         [Authorize(Roles = Constants.Roles.ADMIN)]
-        public async Task<IActionResult> UpdateAdvertisement([FromRoute] int id, [FromForm] UpdateAdvertisementDTO advertisementDTO)
+        public async Task<IActionResult> UpdateAdvertisement([FromRoute] int id, [FromForm] CreateAdvertisementDTO advertisementDTO)
         {
             return Ok(await _advertisementService.UpdateAdvertisementAsync(id, advertisementDTO));
         }

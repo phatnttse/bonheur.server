@@ -100,6 +100,8 @@ namespace Bonheur.Services.Mappers
             //Advertisement
             CreateMap<AdvertisementDTO, Advertisement>();
             CreateMap<Advertisement, AdvertisementDTO>().ReverseMap();
+            CreateMap<CreateAdvertisementDTO, Advertisement>().ReverseMap();
+            CreateMap<Advertisement, CreateAdvertisementDTO>().ReverseMap();
 
             //FavoriteSupplier
             CreateMap<FavoriteSupplierDTO, FavoriteSupplier>();
