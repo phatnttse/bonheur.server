@@ -337,16 +337,29 @@ namespace Bonheur.Services
             }
         }
 
-        public async Task<ApplicationResponse> UpdateAdvertisementAsync(int id, UpdateAdvertisementDTO advertisementDTO)
+        public async Task<ApplicationResponse> UpdateAdvertisementAsync(int id, CreateAdvertisementDTO advertisementDTO)
         {
             try
             {
                 Advertisement existedAdvertisement = await _advertisementRepository.GetAdvertisementByIdAsync(id) ??
-                    throw new ApiException("Advertisement not found!");
+                    throw new ApiException("Advertisement does not exist!");
 
-                var previousStatus = existedAdvertisement.Status;
+                Supplier supplier = await _supplierRepository.GetSupplierByIdAsync(advertisementDTO.SupplierId, false) ??
+                    throw new ApiException("Supplier does not exist!");
 
-                _mapper.Map(existedAdvertisement, advertisementDTO);
+                AdPackage adPackage = await _adPackageRepository.GetAdPackageById(advertisementDTO.AdPackageId) ??
+                    throw new ApiException("Ad Package does not exist!");
+
+                //var previousStatus = existedAdvertisement.Status;
+
+                existedAdvertisement.Title = advertisementDTO.Title != null ? advertisementDTO.Title : existedAdvertisement.Title;
+                existedAdvertisement.Content = advertisementDTO.Content != null ? advertisementDTO.Content : existedAdvertisement.Content;
+                existedAdvertisement.AdPackageId = advertisementDTO.AdPackageId;
+                existedAdvertisement.SupplierId = advertisementDTO.SupplierId;
+                existedAdvertisement.TargetUrl = advertisementDTO.TargetUrl != null ? advertisementDTO.TargetUrl : existedAdvertisement.TargetUrl;
+                existedAdvertisement.StartDate = advertisementDTO.StartDate != null ? advertisementDTO.StartDate : existedAdvertisement.StartDate;
+                existedAdvertisement.EndDate = advertisementDTO.EndDate != null ? advertisementDTO.EndDate : existedAdvertisement.EndDate;
+                existedAdvertisement.IsActive = advertisementDTO.IsActive;
 
                 if (advertisementDTO.Image != null)
                 {
@@ -364,35 +377,35 @@ namespace Bonheur.Services
 
                 await _advertisementRepository.UpdateAdvertisementAsync(existedAdvertisement);
 
-                if (previousStatus != existedAdvertisement.Status)
-                {
-                    Notification notification = new Notification
-                    {
-                        Title = "Advertisement Status Update",
-                        Content = $"Your advertisement with title {existedAdvertisement.Title} has been updated to {existedAdvertisement.Status}",
-                        RecipientId = existedAdvertisement.Supplier.UserId,
-                        Type = NotificationType.SystemAlert,
-                        Link = $"{Constants.Common.CLIENT_URL}/supplier/advertisement",
-                    };
+                //if (previousStatus != existedAdvertisement.Status)
+                //{
+                //    Notification notification = new Notification
+                //    {
+                //        Title = "Advertisement Status Update",
+                //        Content = $"Your advertisement with title {existedAdvertisement.Title} has been updated to {existedAdvertisement.Status}",
+                //        RecipientId = existedAdvertisement.Supplier.UserId,
+                //        Type = NotificationType.SystemAlert,
+                //        Link = $"{Constants.Common.CLIENT_URL}/supplier/advertisement",
+                //    };
 
-                    await _notificationRepository.CreateNotificationAsync(notification);
+                //    await _notificationRepository.CreateNotificationAsync(notification);
 
-                    NotificationCreatedEvent notificationEvent = new NotificationCreatedEvent
-                    {
-                        Id = notification.Id,
-                        Title = "Advertisement Status Update",
-                        Content = $"Your advertisement with title {existedAdvertisement.Title} has been updated to {existedAdvertisement.Status}",
-                        RecipientId = existedAdvertisement.Supplier.UserId,
-                        Type = NotificationType.SystemAlert,
-                        Link = $"{Constants.Common.CLIENT_URL}/supplier/advertisement",
-                        IsRead = false,
-                        CreatedAt = notification.CreatedAt,
-                        UpdatedAt = notification.UpdatedAt,
-                    };
+                //    NotificationCreatedEvent notificationEvent = new NotificationCreatedEvent
+                //    {
+                //        Id = notification.Id,
+                //        Title = "Advertisement Status Update",
+                //        Content = $"Your advertisement with title {existedAdvertisement.Title} has been updated to {existedAdvertisement.Status}",
+                //        RecipientId = existedAdvertisement.Supplier.UserId,
+                //        Type = NotificationType.SystemAlert,
+                //        Link = $"{Constants.Common.CLIENT_URL}/supplier/advertisement",
+                //        IsRead = false,
+                //        CreatedAt = notification.CreatedAt,
+                //        UpdatedAt = notification.UpdatedAt,
+                //    };
 
-                    await this._eventBus.PublishAsync(notificationEvent);
+                //    await this._eventBus.PublishAsync(notificationEvent);
 
-                }
+                //}
 
                 var updatedAdvertisement = _mapper.Map<AdvertisementDTO>(existedAdvertisement);
 
