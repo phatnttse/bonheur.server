@@ -14,8 +14,6 @@ namespace Bonheur.Services.DTOs.AdPackage
         public string? Title { get; set; }
         public string? Description { get; set; }
         public decimal Price { get; set; }
-        public DateTimeOffset StartDate { get; set; }
-        public DateTimeOffset EndDate { get; set; }
         public AdType AdType { get; set; }
         public bool IsActive { get; set; } = true; 
         public DateTimeOffset CreatedAt { get; set; }

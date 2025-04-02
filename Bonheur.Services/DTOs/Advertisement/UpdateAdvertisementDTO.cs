@@ -20,5 +20,7 @@ namespace Bonheur.Services.DTOs.Advertisement
         public AdvertisementStatus? Status { get; set; }
         public IFormFile? Image { get; set; }
         public IFormFile? Video { get; set; }
+        public DateTimeOffset? StartDate { get; set; }
+        public DateTimeOffset? EndDate { get; set; }
     }
 }

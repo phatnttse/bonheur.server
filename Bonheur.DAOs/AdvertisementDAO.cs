@@ -83,7 +83,7 @@ namespace Bonheur.DAOs
             var result = await _context.Advertisements
                 .Include(a => a.Supplier)
                 .Include(a => a.AdPackage)
-                .Where(a => a.Status == AdvertisementStatus.Approved && a.PaymentStatus == PaymentStatus.Paid && a.IsActive && a.AdPackage.StartDate > DateTimeOffset.UtcNow && a.AdPackage.EndDate < DateTimeOffset.UtcNow)
+                .Where(a => a.IsActive)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .OrderByDescending(a => a.CreatedAt)
