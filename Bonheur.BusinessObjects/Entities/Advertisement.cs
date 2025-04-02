@@ -34,11 +34,15 @@ namespace Bonheur.BusinessObjects.Entities
 
         public string? TargetUrl { get; set; } // URL khi người dùng click vào quảng cáo
 
+        public DateTimeOffset? StartDate { get; set; }
+
+        public DateTimeOffset? EndDate { get; set; }
+
         public bool IsActive { get; set; } = true; // Trạng thái của quảng cáo
 
-        public AdvertisementStatus Status { get; set; }
+        public AdvertisementStatus? Status { get; set; }
 
-        public PaymentStatus PaymentStatus { get; set; }
+        public PaymentStatus? PaymentStatus { get; set; }
 
     }
 }

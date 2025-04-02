@@ -2,7 +2,6 @@
 using Bonheur.BusinessObjects.Entities;
 using Bonheur.BusinessObjects.Enums;
 using Bonheur.BusinessObjects.Models;
-using Bonheur.Repositories;
 using Bonheur.Repositories.Interfaces;
 using Bonheur.Services.DTOs.Advertisement;
 using Bonheur.Services.DTOs.Storage;
@@ -76,6 +75,11 @@ namespace Bonheur.Services
                 advertisement.Status = AdvertisementStatus.Pending;
                 advertisement.PaymentStatus = PaymentStatus.Pending;
 
+                if (advertisementDTO.Image != null && advertisementDTO.Video != null)
+                {
+                    throw new ApiException("Please upload either image or video, not both", System.Net.HttpStatusCode.BadRequest);
+                }
+
                 if (advertisementDTO.Image != null)
                 {
                     AzureBlobResponseDTO response = await _storageService.UploadAsync(advertisementDTO.Image);
@@ -92,67 +96,67 @@ namespace Bonheur.Services
 
                 await _advertisementRepository.AddAdvertisementAsync(advertisement);
 
-                NotificationCreatedEvent createdEvent = new NotificationCreatedEvent
-                {
-                    Id = advertisement.Id,
-                    Title = "New Advertisement",
-                    Content = $"New advertisement from {supplier.Name} has been created",
-                    RecipientId = supplier.UserId,
-                    Type = NotificationType.SystemAlert,
-                    Link = $"{Constants.Common.CLIENT_URL}/admin/advertisement/management",
-                    IsRead = false,
-                    CreatedAt = advertisement.CreatedAt,
-                    UpdatedAt = advertisement.UpdatedAt,
-                };
+                //NotificationCreatedEvent createdEvent = new NotificationCreatedEvent
+                //{
+                //    Id = advertisement.Id,
+                //    Title = "New Advertisement",
+                //    Content = $"New advertisement from {supplier.Name} has been created",
+                //    RecipientId = supplier.UserId,
+                //    Type = NotificationType.SystemAlert,
+                //    Link = $"{Constants.Common.CLIENT_URL}/admin/advertisement/management",
+                //    IsRead = false,
+                //    CreatedAt = advertisement.CreatedAt,
+                //    UpdatedAt = advertisement.UpdatedAt,
+                //};
 
-                await _eventBus.PublishAsync(createdEvent);
+                //await _eventBus.PublishAsync(createdEvent);
 
-                int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
-                ItemData item = new ItemData(adPackage.Title!, 1, (int)adPackage.Price);
-                List<ItemData> items = new List<ItemData> { item };
+                //int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+                //ItemData item = new ItemData(adPackage.Title!, 1, (int)adPackage.Price);
+                //List<ItemData> items = new List<ItemData> { item };
 
-                Order order = new Order
-                {
-                    OrderCode = orderCode,
-                    TotalAmount = adPackage.Price,
-                    Status = OrderStatus.PendingPayment,
-                    PaymentStatus = PaymentStatus.Pending,
-                    PaymentMethod = PaymentMethod.PayOS,
-                    SupplierId = supplier.Id,
-                    Supplier = supplier,
-                    UserId = supplier.UserId,
-                    OrderDetails = new List<OrderDetail>
-                    {
-                        new OrderDetail
-                        {
-                            AdvertisementId = advertisement.Id,
-                            Name = adPackage.Title,
-                            Quantity = 1,
-                            Price = adPackage.Price,
-                            TotalAmount = adPackage.Price
-                        }
-                    }
-                };
+                //Order order = new Order
+                //{
+                //    OrderCode = orderCode,
+                //    TotalAmount = adPackage.Price,
+                //    Status = OrderStatus.PendingPayment,
+                //    PaymentStatus = PaymentStatus.Pending,
+                //    PaymentMethod = PaymentMethod.PayOS,
+                //    SupplierId = supplier.Id,
+                //    Supplier = supplier,
+                //    UserId = supplier.UserId,
+                //    OrderDetails = new List<OrderDetail>
+                //    {
+                //        new OrderDetail
+                //        {
+                //            AdvertisementId = advertisement.Id,
+                //            Name = adPackage.Title,
+                //            Quantity = 1,
+                //            Price = adPackage.Price,
+                //            TotalAmount = adPackage.Price
+                //        }
+                //    }
+                //};
 
-                Order newOrder = await _orderRepository.AddOrderAsync(order);
+                //Order newOrder = await _orderRepository.AddOrderAsync(order);
 
-                if (newOrder == null) throw new ApiException("Failed to create order", System.Net.HttpStatusCode.InternalServerError);
+                //if (newOrder == null) throw new ApiException("Failed to create order", System.Net.HttpStatusCode.InternalServerError);
 
-                PaymentData paymentData = new PaymentData(
-                    orderCode,
-                    (int)adPackage.Price,
-                    adPackage.Title!,
-                    items,
-                    this._payOsPaymentSuccessUrl,
-                    this._payOsPaymentCancelUrl
-                );
+                //PaymentData paymentData = new PaymentData(
+                //    orderCode,
+                //    (int)adPackage.Price,
+                //    adPackage.Title!,
+                //    items,
+                //    this._payOsPaymentSuccessUrl,
+                //    this._payOsPaymentCancelUrl
+                //);
 
-                CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
+                //CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
 
                 return new ApplicationResponse
                 {
-                    Data = createPayment,
-                    Message = "Payment link created successfully",
+                    Data = advertisement,
+                    Message = "Advertisement created successfully",
                     Success = true,
                     StatusCode = System.Net.HttpStatusCode.Created
                 };

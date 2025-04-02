@@ -57,8 +57,8 @@ namespace Bonheur.API.Controllers
         [HttpPost]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = Constants.Roles.ADMIN + "," + Constants.Roles.SUPPLIER)]
-        public async Task<IActionResult> CreateAdvertisement([FromBody] CreateAdvertisementDTO advertisementDTO)
+        [Authorize(Roles = Constants.Roles.ADMIN)]
+        public async Task<IActionResult> CreateAdvertisement([FromForm] CreateAdvertisementDTO advertisementDTO)
         {
             return Ok(await _advertisementService.AddAdvertisementAsync(advertisementDTO));
         }
@@ -66,8 +66,8 @@ namespace Bonheur.API.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = Constants.Roles.ADMIN + "," + Constants.Roles.SUPPLIER)]
-        public async Task<IActionResult> UpdateAdvertisement([FromRoute] int id, [FromBody] UpdateAdvertisementDTO advertisementDTO)
+        [Authorize(Roles = Constants.Roles.ADMIN)]
+        public async Task<IActionResult> UpdateAdvertisement([FromRoute] int id, [FromForm] UpdateAdvertisementDTO advertisementDTO)
         {
             return Ok(await _advertisementService.UpdateAdvertisementAsync(id, advertisementDTO));
         }
@@ -75,7 +75,7 @@ namespace Bonheur.API.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(200, Type = typeof(ApplicationResponse))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = Constants.Roles.ADMIN + "," + Constants.Roles.SUPPLIER)]
+        [Authorize(Roles = Constants.Roles.ADMIN)]
         public async Task<IActionResult> DeleteAdvertisement([FromRoute] int id)
         {
             return Ok(await _advertisementService.DeleteAdvertisementAsync(id));

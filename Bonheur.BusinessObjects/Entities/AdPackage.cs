@@ -17,10 +17,6 @@ namespace Bonheur.BusinessObjects.Entities
 
         public decimal Price { get; set; } 
 
-        public DateTimeOffset StartDate { get; set; } 
-
-        public DateTimeOffset EndDate { get; set; }
-
         [EnumDataType(typeof(AdType))]
         public AdType AdType { get; set; } 
 
