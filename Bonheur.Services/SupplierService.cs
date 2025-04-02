@@ -443,6 +443,8 @@ namespace Bonheur.Services
                     supplier.IsStep3Completed = true;
                 }
 
+                await _supplierRepository.UpdateSupplierAsync(supplier);
+
                 return new ApplicationResponse
                 {
                     Message = "Images uploaded successfully.",
