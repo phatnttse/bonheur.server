@@ -34,11 +34,9 @@ ENV ASPNETCORE_ENVIRONMENT=Development
 
 # Cài đặt libgdiplus để hỗ trợ PdfSharp trên Linux
 RUN apt-get update && \
-    apt-get install -y software-properties-common && \
-    echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections && \
     apt-get install -y \
     libgdiplus libc6-dev \
-    ttf-mscorefonts-installer fonts-freefont-ttf && \
+    fonts-liberation fonts-dejavu && \
     rm -rf /var/lib/apt/lists/*
 
 # Đặt biến môi trường để hỗ trợ System.Drawing trên Linux
