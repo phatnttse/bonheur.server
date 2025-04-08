@@ -33,11 +33,9 @@ EXPOSE 8080
 ENV ASPNETCORE_ENVIRONMENT=Development
 
 # Cài đặt libgdiplus để hỗ trợ PdfSharp trên Linux
-RUN apt-get update && \
-    apt-get install -y \
-    libgdiplus libc6-dev \
-    fonts-liberation fonts-dejavu && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    libgdiplus libc6-dev fonts-freefont-ttf \
+    && rm -rf /var/lib/apt/lists/*
 
 # Đặt biến môi trường để hỗ trợ System.Drawing trên Linux
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
